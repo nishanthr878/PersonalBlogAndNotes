@@ -13,13 +13,13 @@ export default function AboutPage() {
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <a className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-50" href="mailto:you@example.com">
-            Email
+          <a className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-50" href="mailto:nishanthr878@gmail.com">
+            nishanthr878@gmail.com
           </a>
-          <a className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium" href="https://github.com/" target="_blank" rel="noreferrer">
+          <a className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium" href="https://github.com/nishanthr878/" target="_blank" rel="noreferrer">
             GitHub
           </a>
-          <a className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium" href="https://www.linkedin.com/" target="_blank" rel="noreferrer">
+          <a className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium" href="https://www.linkedin.com/in/nishanthr79/" target="_blank" rel="noreferrer">
             LinkedIn
           </a>
         </div>

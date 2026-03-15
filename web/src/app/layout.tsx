@@ -10,8 +10,8 @@ const monoFont = IBM_Plex_Mono({ subsets: ['latin'], variable: '--font-code', we
 
 export const metadata: Metadata = {
   title: {
-    default: 'Your Name',
-    template: '%s | Your Name',
+    default: 'Nishanth R',
+    template: '%s | Nishanth R',
   },
   description: 'Personal tech blog, LeetCode logs, and projects.',
 }
