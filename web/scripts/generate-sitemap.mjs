@@ -1,0 +1,47 @@
+import fs from 'node:fs/promises'
+import path from 'node:path'
+
+const repoRoot = path.resolve(process.cwd(), '..')
+const contentRoot = path.join(repoRoot, 'content')
+const publicDir = path.join(process.cwd(), 'public')
+
+const siteUrl = (process.env.SITE_URL || 'https://example.com').replace(/\/$/, '')
+
+const escapeXml = (s) =>
+  String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
+
+async function slugs(kind) {
+  const dir = path.join(contentRoot, kind)
+  const names = await fs.readdir(dir)
+  return names.filter((n) => n.endsWith('.mdx')).map((n) => n.slice(0, -'.mdx'.length))
+}
+
+const urls = []
+
+// Static routes
+urls.push('/')
+urls.push('/about')
+urls.push('/blog')
+urls.push('/leetcode')
+urls.push('/projects')
+urls.push('/rss.xml')
+
+for (const slug of await slugs('blog')) urls.push(`/blog/${slug}`)
+for (const slug of await slugs('leetcode')) urls.push(`/leetcode/${slug}`)
+for (const slug of await slugs('projects')) urls.push(`/projects/${slug}`)
+
+const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls
+  .sort()
+  .map((u) => `\n  <url><loc>${escapeXml(`${siteUrl}${u}`)}</loc></url>`)
+  .join('')}
+</urlset>
+`
+
+await fs.mkdir(publicDir, { recursive: true })
+await fs.writeFile(path.join(publicDir, 'sitemap.xml'), xml, 'utf8')

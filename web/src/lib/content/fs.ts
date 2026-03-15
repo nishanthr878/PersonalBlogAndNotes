@@ -1,9 +1,9 @@
 import 'server-only'
 
 import path from 'node:path'
+import fsSync from 'node:fs'
 import fs from 'node:fs/promises'
 import type { ContentKind, ContentSlug } from './types'
-import { fileURLToPath } from 'node:url'
 
 export type ContentSourceFile = {
   slug: ContentSlug
@@ -15,8 +15,19 @@ export type ContentSourceFile = {
  * Assumption: this file runs with cwd = `.../web` (npm --prefix web).
  */
 export function getRepoRootDir(): string {
-  const here = path.dirname(fileURLToPath(import.meta.url))
-  return path.resolve(here, '..', '..', '..', '..') // ../../.. from web/src/lib/content/fs.ts
+  const cwd = process.cwd()
+
+  // Build tooling can execute with cwd at repo root or at `web/`.
+  // Detect repo root by finding a `content/` directory.
+  const candidates = [cwd, path.resolve(cwd, '..')]
+  for (const candidate of candidates) {
+    const contentDir = path.join(candidate, 'content')
+    if (fsSync.existsSync(contentDir)) return candidate
+  }
+
+  throw new Error(
+    `Unable to locate repo root. Expected a "content" directory in: ${candidates.join(', ')}`,
+  )
 }
 
 export function getContentKindDir(kind: ContentKind): string {

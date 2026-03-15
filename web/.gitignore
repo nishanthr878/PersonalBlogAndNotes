@@ -24,6 +24,10 @@
 .DS_Store
 *.pem
 
+# generated during build
+/public/rss.xml
+/public/sitemap.xml
+
 # debug
 npm-debug.log*
 yarn-debug.log*

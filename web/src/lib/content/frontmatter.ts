@@ -10,40 +10,6 @@ import type {
   LeetCodeFrontmatter,
   ProjectFrontmatter,
 } from './types'
-import { fail } from 'assert/strict'
-
-
-
-const requireNonEmptyString = (value: unknown, field: string): string => {
-  if (typeof value !== 'string') {
-    fail(field, 'must be a non-empty string')
-  }
-
-  const s: string = value
-  const trimmed = s.trim()
-
-  if (trimmed.length === 0) {
-    fail(field, 'must be a non-empty string')
-  }
-
-  return trimmed
-}
-
-
-const parseDate = (value: unknown): Date => {
-  if (typeof value === 'string') {
-    const d = new Date(value)
-    if (Number.isNaN(d.getTime())) return fail('date', 'must be a valid date')
-    return d
-  }
-
-  if (value instanceof Date) {
-    if (Number.isNaN(value.getTime())) return fail('date', 'must be a valid date')
-    return value
-  }
-
-  return fail('date', 'must be an ISO date string')
-}
 
 
 export type ParsedMdx<TFrontmatter> = {
@@ -58,14 +24,27 @@ export function parseBaseFrontmatter(data: Record<string, unknown>, slug: Conten
   }
 
   const requireNonEmptyString = (value: unknown, field: string): string => {
-    if (typeof value !== 'string') {
-      fail(field, 'must be a non-empty string')
-    }
-    const trimmed = requireNonEmptyString(value, field)
-    if (trimmed.length === 0) {
-      fail(field, 'must be a non-empty string')
-    }
+    if (typeof value !== 'string') return fail(field, 'must be a non-empty string')
+
+    const trimmed = value.trim()
+    if (trimmed.length === 0) return fail(field, 'must be a non-empty string')
+
     return trimmed
+  }
+
+  const parseDate = (value: unknown): Date => {
+    if (typeof value === 'string') {
+      const d = new Date(value)
+      if (Number.isNaN(d.getTime())) return fail('date', 'must be a valid date')
+      return d
+    }
+
+    if (value instanceof Date) {
+      if (Number.isNaN(value.getTime())) return fail('date', 'must be a valid date')
+      return value
+    }
+
+    return fail('date', 'must be an ISO date string')
   }
 
 
@@ -125,9 +104,9 @@ export function parseMdxByKind(
 
     const difficultyRaw = d.difficulty
     if (!isLeetCodeDifficulty(difficultyRaw)) {
-      fail('difficulty', 'must be one of: easy, medium, hard')
+      return fail('difficulty', 'must be one of: easy, medium, hard')
     }
-    const difficulty = difficultyRaw as LeetCodeDifficulty
+    const difficulty: LeetCodeDifficulty = difficultyRaw
 
     const topicsRaw = d.topics
     const topics =

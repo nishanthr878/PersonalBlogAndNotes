@@ -1,26 +1,74 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --fg: #18181b;
+  --muted: #52525b;
+  --border: rgba(24, 24, 27, 0.12);
+  --shadow: rgba(24, 24, 27, 0.08);
+  --accent: #0f766e;
+  --accent-ink: #064e3b;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-code);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(15, 118, 110, 0.08), transparent 60%),
+    radial-gradient(900px 500px at 85% 0%, rgba(99, 102, 241, 0.06), transparent 55%),
+    var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body), ui-sans-serif, system-ui;
+}
+
+.font-display {
+  font-family: var(--font-display), ui-serif, Georgia;
+}
+
+.mdx {
+  color: var(--fg);
+}
+
+.mdx :where(h2, h3) {
+  font-family: var(--font-display), ui-serif, Georgia;
+  letter-spacing: -0.02em;
+}
+
+.mdx :where(p, ul, ol) {
+  color: var(--fg);
+}
+
+.mdx :where(p) {
+  line-height: 1.8;
+}
+
+.mdx :where(a) {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mdx :where(code) {
+  font-family: var(--font-code), ui-monospace;
+  font-size: 0.95em;
+}
+
+.mdx :where(pre) {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: rgba(24, 24, 27, 0.03);
+  box-shadow: 0 1px 0 var(--shadow);
+}
+
+.mdx :where(pre code) {
+  background: transparent;
+  padding: 0;
 }
