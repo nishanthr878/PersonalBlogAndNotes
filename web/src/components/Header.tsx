@@ -10,7 +10,7 @@ export function Header() {
       <Container>
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-baseline gap-2">
-            <span className="font-display text-lg tracking-tight">Your Name</span>
+            <span className="font-display text-lg tracking-tight">Nishanth R</span>
             <span className="text-xs font-medium text-zinc-500">engineering notes</span>
           </Link>
 
@@ -23,7 +23,7 @@ export function Header() {
 
           <div className="flex items-center gap-2">
             <a
-              href="https://github.com/"
+              href="https://github.com/nishanthr878/"
               className="rounded-full px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
               target="_blank"
               rel="noreferrer"
