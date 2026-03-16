@@ -33,7 +33,7 @@ export function Header() {
       <Container>
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-baseline gap-2">
-            <span className="font-display text-lg tracking-tight">Nishanth R</span>
+            <span className="font-display text-lg tracking-tight">Nishanth</span>
             <span className="text-xs font-medium text-[color:var(--muted)]">engineering notes</span>
           </Link>
 
