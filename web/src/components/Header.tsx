@@ -5,17 +5,36 @@ import Link from 'next/link'
 import { Container } from './Container'
 import { NavLink } from './NavLink'
 
+type Theme = 'dark' | 'light'
+
 export function Header() {
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof document === 'undefined') return 'dark'
+    return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
+  })
+
   const [menuOpen, setMenuOpen] = useState(false)
   const menuId = useId()
 
+  const toggleTheme = () => {
+    const next: Theme = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    document.documentElement.dataset.theme = next
+    document.documentElement.style.colorScheme = next
+    try {
+      localStorage.setItem('theme', next)
+    } catch {
+      // ignore
+    }
+  }
+
   return (
-    <header className="sticky top-0 z-30 border-b border-zinc-200/60 bg-white/80 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-[color:var(--border)] bg-[color:var(--surface)]/80 backdrop-blur">
       <Container>
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-baseline gap-2">
             <span className="font-display text-lg tracking-tight">Nishanth R</span>
-            <span className="text-xs font-medium text-zinc-500">engineering notes</span>
+            <span className="text-xs font-medium text-[color:var(--muted)]">engineering notes</span>
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
@@ -28,7 +47,17 @@ export function Header() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="inline-flex items-center justify-center rounded-full px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 md:hidden"
+              onClick={toggleTheme}
+              className="rounded-full px-3 py-1.5 text-sm font-medium text-[color:var(--fg)] hover:bg-white/10"
+              aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+              title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            >
+              {theme === 'dark' ? 'Light' : 'Dark'}
+            </button>
+
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-full px-3 py-1.5 text-sm font-medium text-[color:var(--fg)] hover:bg-white/10 md:hidden"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={menuOpen}
               aria-controls={menuId}
@@ -36,9 +65,10 @@ export function Header() {
             >
               {menuOpen ? 'Close' : 'Menu'}
             </button>
+
             <a
               href="https://github.com/nishanthr878/"
-              className="rounded-full px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
+              className="rounded-full px-3 py-1.5 text-sm font-medium text-[color:var(--fg)] hover:bg-white/10"
               target="_blank"
               rel="noreferrer"
             >
@@ -56,41 +86,41 @@ export function Header() {
           />
           <div
             id={menuId}
-            className="absolute left-4 right-4 top-16 rounded-2xl border border-zinc-200/80 bg-white p-3 shadow-lg"
+            className="absolute left-4 right-4 top-16 rounded-2xl border border-[color:var(--border)] bg-[color:var(--bg)] p-3 shadow-lg"
           >
             <nav className="grid gap-1">
               <Link
-                className="rounded-xl px-3 py-2 text-sm font-medium hover:bg-zinc-100"
+                className="rounded-xl px-3 py-2 text-sm font-medium text-[color:var(--fg)] hover:bg-white/10"
                 href="/blog"
                 onClick={() => setMenuOpen(false)}
               >
                 Blog
               </Link>
               <Link
-                className="rounded-xl px-3 py-2 text-sm font-medium hover:bg-zinc-100"
+                className="rounded-xl px-3 py-2 text-sm font-medium text-[color:var(--fg)] hover:bg-white/10"
                 href="/leetcode"
                 onClick={() => setMenuOpen(false)}
               >
                 LeetCode
               </Link>
               <Link
-                className="rounded-xl px-3 py-2 text-sm font-medium hover:bg-zinc-100"
+                className="rounded-xl px-3 py-2 text-sm font-medium text-[color:var(--fg)] hover:bg-white/10"
                 href="/projects"
                 onClick={() => setMenuOpen(false)}
               >
                 Projects
               </Link>
               <Link
-                className="rounded-xl px-3 py-2 text-sm font-medium hover:bg-zinc-100"
+                className="rounded-xl px-3 py-2 text-sm font-medium text-[color:var(--fg)] hover:bg-white/10"
                 href="/about"
                 onClick={() => setMenuOpen(false)}
               >
                 About
               </Link>
 
-              <div className="my-1 h-px bg-zinc-200/70" />
+              <div className="my-1 h-px bg-[color:var(--border)]" />
               <a
-                className="rounded-xl px-3 py-2 text-sm font-medium hover:bg-zinc-100"
+                className="rounded-xl px-3 py-2 text-sm font-medium text-[color:var(--fg)] hover:bg-white/10"
                 href="https://github.com/nishanthr878/"
                 target="_blank"
                 rel="noreferrer"

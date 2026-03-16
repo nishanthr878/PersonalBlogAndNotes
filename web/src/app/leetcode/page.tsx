@@ -15,7 +15,7 @@ export default async function LeetCodeIndexPage() {
 
         <ul className="mt-10 grid gap-4">
           {posts.map((p) => (
-            <li key={p.slug} className="rounded-2xl border border-zinc-200/80 bg-white p-5">
+            <li key={p.slug} className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-5">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
                 <h2 className="text-lg font-semibold tracking-tight">
                   <Link className="hover:underline" href={`/leetcode/${p.slug}`}>

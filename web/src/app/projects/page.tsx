@@ -15,7 +15,7 @@ export default async function ProjectsIndexPage() {
 
         <ul className="mt-10 grid gap-4 md:grid-cols-2">
           {projects.map((p) => (
-            <li key={p.slug} className="rounded-2xl border border-zinc-200/80 bg-white p-5">
+            <li key={p.slug} className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-5">
               <h2 className="text-lg font-semibold tracking-tight">
                 <Link className="hover:underline" href={`/projects/${p.slug}`}>
                   {p.frontmatter.title}
