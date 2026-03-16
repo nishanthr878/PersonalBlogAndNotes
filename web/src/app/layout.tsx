@@ -22,7 +22,29 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable}`}>
+    <html
+      lang="en"
+      data-theme="dark"
+      className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable}`}
+    >
+      <head>
+        <script
+          // Set theme before paint to avoid flash.
+          dangerouslySetInnerHTML={{
+            __html: `(() => {
+  try {
+    const stored = localStorage.getItem('theme')
+    const theme = stored === 'light' ? 'light' : 'dark'
+    document.documentElement.dataset.theme = theme
+    document.documentElement.style.colorScheme = theme
+  } catch {
+    document.documentElement.dataset.theme = 'dark'
+    document.documentElement.style.colorScheme = 'dark'
+  }
+})()`,
+          }}
+        />
+      </head>
       <body className="min-h-dvh bg-[color:var(--bg)] text-[color:var(--fg)] antialiased">
         <Header />
         {children}

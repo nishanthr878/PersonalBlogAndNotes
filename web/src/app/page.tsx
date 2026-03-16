@@ -18,7 +18,7 @@ export default async function Home() {
   return (
     <Container>
       <div className="py-14">
-        <div className="rounded-3xl border border-zinc-200/70 bg-white/70 p-8 shadow-[0_1px_0_var(--shadow)] backdrop-blur sm:p-10">
+        <div className="rounded-3xl border border-[color:var(--border)] bg-[color:var(--surface)]/70 p-8 shadow-[0_1px_0_var(--shadow)] backdrop-blur sm:p-10">
           <p className="text-sm font-medium text-zinc-600">Personal tech blog + portfolio</p>
           <h1 className="mt-3 max-w-3xl font-display text-4xl tracking-tight sm:text-5xl">
             Notes on problem-solving, systems, and the things I build.
@@ -31,10 +31,10 @@ export default async function Home() {
             <Link className="rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-zinc-50" href="/blog">
               Read the blog
             </Link>
-            <Link className="rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium" href="/projects">
+            <Link className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-5 py-2.5 text-sm font-medium" href="/projects">
               View projects
             </Link>
-            <Link className="rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium" href="/leetcode">
+            <Link className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-5 py-2.5 text-sm font-medium" href="/leetcode">
               LeetCode logs
             </Link>
           </div>
@@ -54,7 +54,7 @@ export default async function Home() {
                 <Link
                   key={p.slug}
                   href={`/blog/${p.slug}`}
-                  className="group rounded-2xl border border-zinc-200/80 bg-white p-5 hover:border-zinc-300"
+                  className="group rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-5 hover:border-white/30"
                 >
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
                     <h3 className="text-lg font-semibold tracking-tight group-hover:underline">{p.frontmatter.title}</h3>
@@ -79,7 +79,7 @@ export default async function Home() {
                 <Link
                   key={p.slug}
                   href={`/leetcode/${p.slug}`}
-                  className="rounded-2xl border border-zinc-200/80 bg-white p-4 hover:border-zinc-300"
+                  className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 hover:border-white/30"
                 >
                   <div className="flex items-baseline justify-between gap-3">
                     <h3 className="font-semibold tracking-tight">{p.frontmatter.problem}</h3>
@@ -105,7 +105,7 @@ export default async function Home() {
               <Link
                 key={p.slug}
                 href={`/projects/${p.slug}`}
-                className="rounded-2xl border border-zinc-200/80 bg-white p-5 hover:border-zinc-300"
+                className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-5 hover:border-white/30"
               >
                 <h3 className="text-lg font-semibold tracking-tight">{p.frontmatter.title}</h3>
                 <p className="mt-2 text-zinc-700">{p.frontmatter.description}</p>
