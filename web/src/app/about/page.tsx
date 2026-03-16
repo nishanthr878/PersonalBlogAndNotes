@@ -8,8 +8,12 @@ export default function AboutPage() {
       <div className="py-12">
         <h1 className="font-display text-3xl tracking-tight">About</h1>
         <p className="mt-4 max-w-2xl text-zinc-700">
-          Write a short bio here. Mention what you build, what you are learning, and what kinds of roles you are
-          interested in.
+          Full-stack Developer with 2+ years of experience in building scalable enterprise applications using Spring
+          Boot, PostgreSQL, React.js, Kafka and Python. Proven expertise in designing and managing solutions
+          like the Asset Management tool and in improving operational efficiency and automation. Skilled in incident
+          management, server administration, and team leadership, ensuring reliable, business critical systems
+          with measurable results. Focused on delivering high-quality, data-driven solutions that streamline operations and
+          enhance productivity.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">
