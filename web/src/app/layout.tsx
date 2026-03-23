@@ -25,6 +25,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-theme="dark"
+      suppressHydrationWarning
       className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable}`}
     >
       <head>
@@ -36,10 +37,8 @@ export default function RootLayout({
     const stored = localStorage.getItem('theme')
     const theme = stored === 'light' ? 'light' : 'dark'
     document.documentElement.dataset.theme = theme
-    document.documentElement.style.colorScheme = theme
   } catch {
     document.documentElement.dataset.theme = 'dark'
-    document.documentElement.style.colorScheme = 'dark'
   }
 })()`,
           }}

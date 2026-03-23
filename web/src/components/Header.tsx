@@ -5,22 +5,14 @@ import Link from 'next/link'
 import { Container } from './Container'
 import { NavLink } from './NavLink'
 
-type Theme = 'dark' | 'light'
-
 export function Header() {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof document === 'undefined') return 'dark'
-    return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
-  })
-
   const [menuOpen, setMenuOpen] = useState(false)
   const menuId = useId()
 
   const toggleTheme = () => {
-    const next: Theme = theme === 'dark' ? 'light' : 'dark'
-    setTheme(next)
+    const current = document.documentElement.dataset.theme
+    const next = current === 'light' ? 'dark' : 'light'
     document.documentElement.dataset.theme = next
-    document.documentElement.style.colorScheme = next
     try {
       localStorage.setItem('theme', next)
     } catch {
@@ -49,10 +41,10 @@ export function Header() {
               type="button"
               onClick={toggleTheme}
               className="rounded-full px-3 py-1.5 text-sm font-medium text-[color:var(--fg)] hover:bg-white/10"
-              aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-              title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+              aria-label="Toggle theme"
+              title="Toggle theme"
             >
-              {theme === 'dark' ? 'Light' : 'Dark'}
+              Theme
             </button>
 
             <button

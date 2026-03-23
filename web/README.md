@@ -5,13 +5,21 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 First, run the development server:
 
 ```bash
-npm run dev
+npm run dev --prefix web
 # or
 yarn dev
 # or
 pnpm dev
 # or
 bun dev
+```
+
+To build the application use below commands:
+
+```bash
+npm run lint --prefix web
+
+npm run build --prefix web
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
