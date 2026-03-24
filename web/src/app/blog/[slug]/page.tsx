@@ -1,7 +1,9 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Container } from '@/components/Container'
 import { getAllBlogPosts, getBlogPostBySlug } from '@/lib/content/collections'
 import { renderMdx } from '@/lib/content/mdx'
+import { defaultDescription } from '@/lib/seo/site'
 
 export const dynamicParams = false
 export const dynamic = 'force-static'
@@ -12,6 +14,35 @@ export async function generateStaticParams() {
 }
 
 type PageProps = { params: Promise<{ slug: string }> }
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
+  const post = await getBlogPostBySlug(slug)
+
+  const title = post.frontmatter.title
+  const description = post.frontmatter.description || defaultDescription
+  const url = `/blog/${slug}`
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'article',
+      url,
+      title,
+      description,
+      publishedTime: post.frontmatter.date.toISOString(),
+      images: [{ url: '/og.svg', width: 1200, height: 630, alt: `${title} - ${description}` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og.svg'],
+    },
+  }
+}
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params
