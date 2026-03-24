@@ -58,6 +58,7 @@ export default function RootLayout({
     >
       <head>
         <script
+          suppressHydrationWarning
           // Set theme before paint to avoid flash.
           dangerouslySetInnerHTML={{
             __html: `(() => {
