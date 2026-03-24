@@ -6,7 +6,7 @@ const repoRoot = path.resolve(process.cwd(), '..')
 const contentRoot = path.join(repoRoot, 'content')
 const publicDir = path.join(process.cwd(), 'public')
 
-const siteUrl = (process.env.SITE_URL || 'https://example.com').replace(/\/$/, '')
+const siteUrl = (process.env.SITE_URL || 'https://personalblogandnotes.pages.dev').replace(/\/$/, '')
 
 const escapeXml = (s) =>
   String(s)
