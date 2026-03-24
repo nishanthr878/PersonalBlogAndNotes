@@ -1,8 +1,16 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Container } from '@/components/Container'
 import { getAllLeetCodePosts } from '@/lib/content/collections'
 
 export const dynamic = 'force-static'
+
+export const metadata: Metadata = {
+  title: 'LeetCode',
+  description: 'Solutions with approach notes, complexity, and final code.',
+  openGraph: { url: '/leetcode' },
+  alternates: { canonical: '/leetcode' },
+}
 
 export default async function LeetCodeIndexPage() {
   const posts = await getAllLeetCodePosts()

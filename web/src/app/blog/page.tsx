@@ -1,8 +1,16 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Container } from '@/components/Container'
 import { getAllBlogPosts } from '@/lib/content/collections'
 
 export const dynamic = 'force-static'
+
+export const metadata: Metadata = {
+  title: 'Blog',
+  description: 'Short, practical notes on algorithms, systems, and building things.',
+  openGraph: { url: '/blog' },
+  alternates: { canonical: '/blog' },
+}
 
 export default async function BlogIndexPage() {
   const posts = await getAllBlogPosts()

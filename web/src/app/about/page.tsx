@@ -1,6 +1,14 @@
+import type { Metadata } from 'next'
 import { Container } from '@/components/Container'
 
 export const dynamic = 'force-static'
+
+export const metadata: Metadata = {
+  title: 'About',
+  description: 'Background, experience, and links.',
+  openGraph: { url: '/about' },
+  alternates: { canonical: '/about' },
+}
 
 export default function AboutPage() {
   return (

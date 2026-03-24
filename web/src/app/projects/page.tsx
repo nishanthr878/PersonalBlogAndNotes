@@ -1,8 +1,16 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Container } from '@/components/Container'
 import { getAllProjects } from '@/lib/content/collections'
 
 export const dynamic = 'force-static'
+
+export const metadata: Metadata = {
+  title: 'Projects',
+  description: 'Selected work and experiments.',
+  openGraph: { url: '/projects' },
+  alternates: { canonical: '/projects' },
+}
 
 export default async function ProjectsIndexPage() {
   const projects = await getAllProjects()

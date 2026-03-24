@@ -1,8 +1,17 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Container } from '@/components/Container'
 import { getAllBlogPosts, getAllLeetCodePosts, getAllProjects } from '@/lib/content/collections'
+import { defaultDescription } from '@/lib/seo/site'
 
 export const dynamic = 'force-static'
+
+export const metadata: Metadata = {
+  title: 'Nishanth',
+  description: defaultDescription,
+  openGraph: { url: '/' },
+  alternates: { canonical: '/' },
+}
 
 export default async function Home() {
   const [blog, leetcode, projects] = await Promise.all([
