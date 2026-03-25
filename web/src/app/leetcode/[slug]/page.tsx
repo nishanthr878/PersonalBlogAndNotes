@@ -98,7 +98,7 @@ export default async function LeetCodePostPage({ params }: PageProps) {
           </div>
         </header>
 
-        <article className="mdx mx-auto mt-10 max-w-3xl">{content}</article>
+        <article className="mdx markdown-body mx-auto mt-10 max-w-3xl">{content}</article>
       </div>
     </Container>
   )
