@@ -18,7 +18,23 @@ const escapeXml = (s) =>
 async function slugs(kind) {
   const dir = path.join(contentRoot, kind)
   const names = await fs.readdir(dir)
-  return names.filter((n) => n.endsWith('.mdx')).map((n) => n.slice(0, -'.mdx'.length))
+
+  // Prefer .md over .mdx for same slug
+  const slugMap = new Map()
+  for (const name of names) {
+    const isMd = name.endsWith('.md')
+    const isMdx = name.endsWith('.mdx')
+    if (!isMd && !isMdx) continue
+
+    const slug = isMd ? name.slice(0, -'.md'.length) : name.slice(0, -'.mdx'.length)
+    const ext = isMd ? 'md' : 'mdx'
+    const existing = slugMap.get(slug)
+    if (!existing || existing === 'mdx' && ext === 'md') {
+      slugMap.set(slug, ext)
+    }
+  }
+
+  return Array.from(slugMap.keys())
 }
 
 const urls = []

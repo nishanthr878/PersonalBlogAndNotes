@@ -20,11 +20,25 @@ async function readCollection(kind, basePath) {
   const dir = path.join(contentRoot, kind)
   const names = await fs.readdir(dir)
 
-  const items = []
+  // Prefer .md over .mdx for same slug
+  const slugMap = new Map()
   for (const name of names) {
-    if (!name.endsWith('.mdx')) continue
-    const slug = name.slice(0, -'.mdx'.length)
-    const raw = await fs.readFile(path.join(dir, name), 'utf8')
+    const isMd = name.endsWith('.md')
+    const isMdx = name.endsWith('.mdx')
+    if (!isMd && !isMdx) continue
+
+    const slug = isMd ? name.slice(0, -'.md'.length) : name.slice(0, -'.mdx'.length)
+    const ext = isMd ? 'md' : 'mdx'
+    const existing = slugMap.get(slug)
+    if (!existing || existing === 'mdx' && ext === 'md') {
+      slugMap.set(slug, ext)
+    }
+  }
+
+  const items = []
+  for (const [slug, ext] of slugMap) {
+    const fileName = `${slug}.${ext}`
+    const raw = await fs.readFile(path.join(dir, fileName), 'utf8')
     const { data } = matter(raw)
 
     if (process.env.NODE_ENV === 'production' && data.draft === true) continue
