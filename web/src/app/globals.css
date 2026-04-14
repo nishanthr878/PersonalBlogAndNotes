@@ -64,21 +64,111 @@ body {
   color: var(--fg);
 }
 
+.content.markdown-body,
 .mdx.markdown-body {
+  --color-prettylights-syntax-comment: color-mix(in srgb, var(--muted) 88%, transparent);
+  --color-prettylights-syntax-constant: color-mix(in srgb, var(--accent) 82%, white 18%);
+  --color-prettylights-syntax-entity: color-mix(in srgb, var(--accent) 72%, white 28%);
+  --color-prettylights-syntax-storage-modifier-import: var(--fg);
+  --color-prettylights-syntax-entity-tag: color-mix(in srgb, var(--accent) 78%, white 22%);
+  --color-prettylights-syntax-keyword: color-mix(in srgb, var(--accent) 72%, white 28%);
+  --color-prettylights-syntax-string: color-mix(in srgb, var(--accent) 48%, white 52%);
+  --color-prettylights-syntax-variable: color-mix(in srgb, var(--fg) 90%, var(--accent) 10%);
+  --color-prettylights-syntax-brackethighlighter-unmatched: #f85149;
+  --color-prettylights-syntax-invalid-illegal-text: #f0f6fc;
+  --color-prettylights-syntax-invalid-illegal-bg: #8e1519;
+  --color-prettylights-syntax-carriage-return-text: #f0f6fc;
+  --color-prettylights-syntax-carriage-return-bg: #b62324;
+  --color-prettylights-syntax-string-regexp: color-mix(in srgb, var(--accent) 62%, white 38%);
+  --color-prettylights-syntax-markup-list: color-mix(in srgb, var(--accent) 72%, white 28%);
+  --color-prettylights-syntax-markup-heading: var(--fg);
+  --color-prettylights-syntax-markup-italic: var(--fg);
+  --color-prettylights-syntax-markup-bold: var(--fg);
+  --color-prettylights-syntax-markup-deleted-text: #ffdcd7;
+  --color-prettylights-syntax-markup-deleted-bg: rgba(248, 81, 73, 0.15);
+  --color-prettylights-syntax-markup-inserted-text: #aff5b4;
+  --color-prettylights-syntax-markup-inserted-bg: rgba(46, 160, 67, 0.18);
+  --color-prettylights-syntax-markup-changed-text: #ffdfb6;
+  --color-prettylights-syntax-markup-changed-bg: rgba(187, 128, 9, 0.18);
+  --color-prettylights-syntax-markup-ignored-text: #ffffff;
+  --color-prettylights-syntax-markup-ignored-bg: color-mix(in srgb, var(--accent) 72%, black 28%);
+  --color-prettylights-syntax-meta-diff-range: color-mix(in srgb, var(--accent) 70%, white 30%);
+  --color-prettylights-syntax-brackethighlighter-angle: color-mix(in srgb, var(--muted) 80%, var(--fg) 20%);
+  --color-prettylights-syntax-sublimelinter-gutter-mark: color-mix(in srgb, var(--muted) 80%, transparent);
+  --color-prettylights-syntax-constant-other-reference-link: color-mix(in srgb, var(--accent) 72%, white 28%);
+  --color-fg-default: var(--fg);
+  --color-fg-muted: var(--muted);
+  --color-fg-subtle: var(--muted);
+  --color-canvas-default: transparent;
+  --color-canvas-subtle: var(--surface);
+  --color-border-default: var(--border);
+  --color-border-muted: var(--border);
+  --color-neutral-muted: var(--surface);
+  --color-accent-fg: var(--accent);
+  --color-accent-emphasis: var(--accent);
+  --color-attention-subtle: var(--surface);
+  --color-success-subtle: var(--surface);
+  --color-danger-subtle: rgba(248, 81, 73, 0.12);
+  --color-done-subtle: var(--surface);
   background: transparent;
   color: var(--fg);
 }
 
+.content.markdown-body a,
 .mdx.markdown-body a {
   color: var(--accent);
 }
 
+.content.markdown-body pre,
 .mdx.markdown-body pre {
   background: var(--code-bg);
   border: 1px solid var(--code-border);
   border-radius: 16px;
   padding: 14px 16px;
   box-shadow: 0 1px 0 var(--shadow);
+}
+
+.content {
+  color: var(--fg);
+}
+
+.content :where(h2, h3) {
+  font-family: var(--font-display), ui-serif, Georgia;
+  letter-spacing: -0.02em;
+}
+
+.content :where(p, ul, ol) {
+  color: var(--fg);
+}
+
+.content :where(p) {
+  line-height: 1.8;
+}
+
+.content :where(a) {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.content :where(code) {
+  font-family: var(--font-code), ui-monospace;
+  font-size: 0.95em;
+}
+
+.content :where(pre) {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: var(--code-bg);
+  border-color: var(--code-border);
+  box-shadow: 0 1px 0 var(--shadow);
+}
+
+.content :where(pre code) {
+  background: transparent;
+  padding: 0;
 }
 
 .mdx :where(h2, h3) {

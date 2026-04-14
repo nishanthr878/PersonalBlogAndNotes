@@ -19,7 +19,7 @@ export default async function BlogIndexPage() {
     <Container>
       <div className="py-12">
         <h1 className="font-display text-3xl tracking-tight">Blog</h1>
-        <p className="mt-3 max-w-2xl text-zinc-600">
+        <p className="mt-3 max-w-2xl text-[color:var(--muted)]">
           Short, practical notes on algorithms, systems, and building things.
         </p>
 
@@ -32,12 +32,12 @@ export default async function BlogIndexPage() {
                     {p.frontmatter.title}
                   </Link>
                 </h2>
-                <time className="text-sm text-zinc-500">{p.frontmatter.date.toISOString().slice(0, 10)}</time>
+                <time className="text-sm text-[color:var(--muted)]">{p.frontmatter.date.toISOString().slice(0, 10)}</time>
               </div>
-              <p className="mt-2 text-zinc-700">{p.frontmatter.description}</p>
+              <p className="mt-2 text-[color:var(--muted)]">{p.frontmatter.description}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {p.frontmatter.tags.map((t) => (
-                  <span key={t} className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700">
+                  <span key={t} className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-2.5 py-1 text-xs font-medium text-[color:var(--muted)]">
                     {t}
                   </span>
                 ))}

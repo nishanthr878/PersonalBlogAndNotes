@@ -19,7 +19,7 @@ export default async function ProjectsIndexPage() {
     <Container>
       <div className="py-12">
         <h1 className="font-display text-3xl tracking-tight">Projects</h1>
-        <p className="mt-3 max-w-2xl text-zinc-600">Selected work and experiments.</p>
+        <p className="mt-3 max-w-2xl text-[color:var(--muted)]">Selected work and experiments.</p>
 
         <ul className="mt-10 grid gap-4 md:grid-cols-2">
           {projects.map((p) => (
@@ -29,10 +29,10 @@ export default async function ProjectsIndexPage() {
                   {p.frontmatter.title}
                 </Link>
               </h2>
-              <p className="mt-2 text-zinc-700">{p.frontmatter.description}</p>
+              <p className="mt-2 text-[color:var(--muted)]">{p.frontmatter.description}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {p.frontmatter.stack.map((t) => (
-                  <span key={t} className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700">
+                  <span key={t} className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-2.5 py-1 text-xs font-medium text-[color:var(--muted)]">
                     {t}
                   </span>
                 ))}

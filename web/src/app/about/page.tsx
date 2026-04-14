@@ -15,7 +15,7 @@ export default function AboutPage() {
     <Container>
       <div className="py-12">
         <h1 className="font-display text-3xl tracking-tight">About</h1>
-        <p className="mt-4 max-w-2xl text-zinc-700">
+        <p className="mt-4 max-w-2xl text-[color:var(--muted)]">
           Full-stack Developer with 2+ years of experience in building scalable enterprise applications using Spring
           Boot, PostgreSQL, React.js, Kafka and Python. Proven expertise in designing and managing solutions
           like the Asset Management tool and in improving operational efficiency and automation. Skilled in incident
@@ -25,13 +25,13 @@ export default function AboutPage() {
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <a className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-50" href="mailto:nishanthr878@gmail.com">
+          <a className="rounded-full bg-[color:var(--accent)] px-4 py-2 text-sm font-medium text-[color:var(--bg)]" href="mailto:nishanthr878@gmail.com">
             nishanthr878@gmail.com
           </a>
-          <a className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium" href="https://github.com/nishanthr878/" target="_blank" rel="noreferrer">
+          <a className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-2 text-sm font-medium text-[color:var(--fg)]" href="https://github.com/nishanthr878/" target="_blank" rel="noreferrer">
             GitHub
           </a>
-          <a className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium" href="https://www.linkedin.com/in/nishanthr79/" target="_blank" rel="noreferrer">
+          <a className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-2 text-sm font-medium text-[color:var(--fg)]" href="https://www.linkedin.com/in/nishanthr79/" target="_blank" rel="noreferrer">
             LinkedIn
           </a>
         </div>

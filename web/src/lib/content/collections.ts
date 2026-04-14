@@ -6,7 +6,7 @@ import type {
   LeetCodeEntry,
   ProjectEntry,
 } from './types'
-import { listContentSlugs, readContentMdx } from './fs'
+import { listContentSlugs, readContentSource } from './fs'
 import { parseMdxByKind } from './frontmatter'
 
 const isDraftHidden = (draft: boolean | undefined): boolean =>
@@ -17,7 +17,7 @@ export async function getAllBlogPosts(): Promise<BlogEntry[]> {
 
   const entries = await Promise.all(
     slugs.map(async (slug) => {
-      const raw = await readContentMdx('blog', slug)
+      const raw = await readContentSource('blog', slug)
       const parsed = parseMdxByKind('blog', slug, raw)
 
       return {
@@ -39,7 +39,7 @@ export async function getAllLeetCodePosts(): Promise<LeetCodeEntry[]> {
 
   const entries = await Promise.all(
     slugs.map(async (slug) => {
-      const raw = await readContentMdx('leetcode', slug)
+      const raw = await readContentSource('leetcode', slug)
       const parsed = parseMdxByKind('leetcode', slug, raw)
 
       return {
@@ -61,7 +61,7 @@ export async function getAllProjects(): Promise<ProjectEntry[]> {
 
   const entries = await Promise.all(
     slugs.map(async (slug) => {
-      const raw = await readContentMdx('projects', slug)
+      const raw = await readContentSource('projects', slug)
       const parsed = parseMdxByKind('projects', slug, raw)
 
       return {
@@ -84,7 +84,7 @@ export async function getAllProjects(): Promise<ProjectEntry[]> {
 }
 
 export async function getBlogPostBySlug(slug: ContentSlug): Promise<BlogEntry> {
-  const raw = await readContentMdx('blog', slug)
+  const raw = await readContentSource('blog', slug)
   const parsed = parseMdxByKind('blog', slug, raw)
 
   const entry: BlogEntry = {
@@ -102,7 +102,7 @@ export async function getBlogPostBySlug(slug: ContentSlug): Promise<BlogEntry> {
 }
 
 export async function getLeetCodePostBySlug(slug: ContentSlug): Promise<LeetCodeEntry> {
-  const raw = await readContentMdx('leetcode', slug)
+  const raw = await readContentSource('leetcode', slug)
   const parsed = parseMdxByKind('leetcode', slug, raw)
 
   const entry: LeetCodeEntry = {
@@ -120,7 +120,7 @@ export async function getLeetCodePostBySlug(slug: ContentSlug): Promise<LeetCode
 }
 
 export async function getProjectBySlug(slug: ContentSlug): Promise<ProjectEntry> {
-  const raw = await readContentMdx('projects', slug)
+  const raw = await readContentSource('projects', slug)
   const parsed = parseMdxByKind('projects', slug, raw)
 
   const entry: ProjectEntry = {

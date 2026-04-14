@@ -28,22 +28,22 @@ export default async function Home() {
     <Container>
       <div className="py-14">
         <div className="rounded-3xl border border-[color:var(--border)] bg-[color:var(--surface)]/70 p-8 shadow-[0_1px_0_var(--shadow)] backdrop-blur sm:p-10">
-          <p className="text-sm font-medium text-zinc-600">Personal tech blog + portfolio</p>
+          <p className="text-sm font-medium text-[color:var(--muted)]">Personal tech blog + portfolio</p>
           <h1 className="mt-3 max-w-3xl font-display text-4xl tracking-tight sm:text-5xl">
             Notes on problem-solving, systems, and the things I build.
           </h1>
-          <p className="mt-4 max-w-2xl text-zinc-700">
+          <p className="mt-4 max-w-2xl text-[color:var(--muted)]">
             I publish short blog posts, LeetCode writeups, and project breakdowns. Everything is written in MDX and
             shipped as a fast static site.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <Link className="rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-zinc-50" href="/blog">
+            <Link className="rounded-full bg-[color:var(--accent)] px-5 py-2.5 text-sm font-medium text-[color:var(--bg)]" href="/blog">
               Read the blog
             </Link>
-            <Link className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-5 py-2.5 text-sm font-medium" href="/projects">
+            <Link className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-5 py-2.5 text-sm font-medium text-[color:var(--fg)]" href="/projects">
               View projects
             </Link>
-            <Link className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-5 py-2.5 text-sm font-medium" href="/leetcode">
+            <Link className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-5 py-2.5 text-sm font-medium text-[color:var(--fg)]" href="/leetcode">
               LeetCode logs
             </Link>
           </div>
@@ -67,9 +67,9 @@ export default async function Home() {
                 >
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
                     <h3 className="text-lg font-semibold tracking-tight group-hover:underline">{p.frontmatter.title}</h3>
-                    <time className="text-sm text-zinc-500">{p.frontmatter.date.toISOString().slice(0, 10)}</time>
+                    <time className="text-sm text-[color:var(--muted)]">{p.frontmatter.date.toISOString().slice(0, 10)}</time>
                   </div>
-                  <p className="mt-2 text-zinc-700">{p.frontmatter.description}</p>
+                  <p className="mt-2 text-[color:var(--muted)]">{p.frontmatter.description}</p>
                 </Link>
               ))}
             </div>
@@ -92,9 +92,9 @@ export default async function Home() {
                 >
                   <div className="flex items-baseline justify-between gap-3">
                     <h3 className="font-semibold tracking-tight">{p.frontmatter.problem}</h3>
-                    <span className="text-xs font-medium text-zinc-500">{p.frontmatter.difficulty}</span>
+                    <span className="text-xs font-medium text-[color:var(--muted)]">{p.frontmatter.difficulty}</span>
                   </div>
-                  <p className="mt-2 text-sm text-zinc-700">{p.frontmatter.description}</p>
+                  <p className="mt-2 text-sm text-[color:var(--muted)]">{p.frontmatter.description}</p>
                 </Link>
               ))}
             </div>
@@ -117,10 +117,10 @@ export default async function Home() {
                 className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-5 hover:border-white/30"
               >
                 <h3 className="text-lg font-semibold tracking-tight">{p.frontmatter.title}</h3>
-                <p className="mt-2 text-zinc-700">{p.frontmatter.description}</p>
+                <p className="mt-2 text-[color:var(--muted)]">{p.frontmatter.description}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {p.frontmatter.stack.slice(0, 4).map((t) => (
-                    <span key={t} className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700">
+                    <span key={t} className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-2.5 py-1 text-xs font-medium text-[color:var(--muted)]">
                       {t}
                     </span>
                   ))}
