@@ -36,15 +36,15 @@ export function getContentKindDir(kind: ContentKind): string {
 
 export async function listContentSlugs(kind: ContentKind): Promise<ContentSlug[]> {
   const dir = getContentKindDir(kind)
-  const entries = await fs.readdir(dir, { withFileTypes: true})
+  const entries = await fs.readdir(dir, { withFileTypes: true })
 
   return entries
-    .filter((entry) => entry.isFile() && entry.name.endsWith('.mdx'))
-    .map((entry) => entry.name.slice(0, -'.mdx'.length))
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
+    .map((entry) => entry.name.slice(0, -'.md'.length))
     .sort((a, b) => a.localeCompare(b))
 }
 
-export async function readContentMdx(kind: ContentKind, slug: ContentSlug): Promise<string> {
-  const filePath = path.join(getContentKindDir(kind), `${slug}.mdx`)
+export async function readContentSource(kind: ContentKind, slug: ContentSlug): Promise<string> {
+  const filePath = path.join(getContentKindDir(kind), `${slug}.md`)
   return await fs.readFile(filePath, 'utf-8')
 }
