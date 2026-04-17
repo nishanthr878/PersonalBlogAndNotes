@@ -97,14 +97,15 @@ chmod g+s /shared-dir     # setgid: new files inherit group
 
 ### Process States
 
-```
-[Created] ──► [Running] ──► [Terminated]
-                 │
-                 ▼
-            [Sleeping]
-                 │
-                 ▼
-            [Zombie] ← bad signal handling
+```mermaid
+graph TD
+    A[Created] --> B[Running]
+    B --> C[Terminated]
+    B --> D[Sleeping]
+    D -->|bad signal handling| E[Zombie]
+
+    style C fill:#2d5a27,color:#fff
+    style E fill:#5a2727,color:#fff
 ```
 
 ### View Processes
@@ -623,7 +624,7 @@ command && echo "command succeeded"  # run on success
 ```mermaid
 graph LR
     A[inactive] -->|start| B[activating]
-    B --> C[active/running]
+    B --> C["active/running"]
     C -->|stop| D[deactivating]
     D --> E[inactive]
     C -->|crash| F[failed]
@@ -769,20 +770,4 @@ All of DevOps — Docker, Kubernetes, CI/CD, everything — is built on:
 ```
 Filesystem + Permissions + Processes + Networking + Environment
 ```
-
-> If you don't understand these, you're just pressing buttons in a fancier UI.
-
-### What to learn next (in order)
-
-```mermaid
-graph LR
-    A[Linux Fundamentals\n← you are here] --> B[Docker\ncontainers = processes\n+ filesystem isolation]
-    B --> C[Nginx\nreal networking +\nreverse proxy]
-    C --> D[CI/CD Pipelines\nautomation]
-    D --> E[Kubernetes\norchestration]
-
-    style A fill:#2d5a27,color:#fff
-```
-
----
 

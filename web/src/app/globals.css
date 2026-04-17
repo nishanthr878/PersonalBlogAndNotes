@@ -209,3 +209,64 @@ body {
   background: transparent;
   padding: 0;
 }
+
+/* ── Obsidian Callouts ──────────────────────────────────────────────── */
+
+.content [class*="callout"],
+.content [data-callout] {
+  border-left: 3px solid;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 1.25rem 0;
+  background: var(--surface);
+}
+
+.content .callout-title,
+.content [data-callout] > :first-child {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+/* note — blue */
+.content .callout-note, .content [data-callout="note"] {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+}
+.content .callout-note .callout-title,
+.content [data-callout="note"] > :first-child { color: #3b82f6; }
+
+/* tip — teal */
+.content .callout-tip, .content [data-callout="tip"] {
+  border-color: var(--accent);
+  background: rgba(45, 212, 191, 0.08);
+}
+.content .callout-tip .callout-title,
+.content [data-callout="tip"] > :first-child { color: var(--accent); }
+
+/* warning — amber */
+.content .callout-warning, .content [data-callout="warning"] {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+}
+.content .callout-warning .callout-title,
+.content [data-callout="warning"] > :first-child { color: #f59e0b; }
+
+/* danger — red */
+.content .callout-danger, .content [data-callout="danger"] {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+.content .callout-danger .callout-title,
+.content [data-callout="danger"] > :first-child { color: #ef4444; }
+
+/* important — purple */
+.content .callout-important, .content [data-callout="important"] {
+  border-color: #a855f7;
+  background: rgba(168, 85, 247, 0.08);
+}
+.content .callout-important .callout-title,
+.content [data-callout="important"] > :first-child { color: #a855f7; }

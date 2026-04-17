@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Container } from '@/components/Container'
+import { MermaidScript } from '@/components/MermaidScript'
 import { getAllLeetCodePosts, getLeetCodePostBySlug } from '@/lib/content/collections'
 import { renderMarkdownToHtml } from '@/lib/content/markdown'
 import { defaultDescription } from '@/lib/seo/site'
@@ -59,10 +60,11 @@ export default async function LeetCodePostPage({ params }: PageProps) {
     notFound()
   }
 
-  const html = await renderMarkdownToHtml(post.body)
+  const { html, hasMermaid } = await renderMarkdownToHtml(post.body)
 
   return (
     <Container>
+      {hasMermaid && <MermaidScript />}
       <div className="py-12">
         <header className="mx-auto max-w-3xl">
           <p className="text-sm font-medium text-[color:var(--muted)]">LeetCode</p>
