@@ -65,17 +65,17 @@ export default async function ProjectPage({ params }: PageProps) {
   return (
     <Container>
       {hasMermaid && <MermaidScript />}
-      <div className="py-12">
-        <header className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-3xl py-12">
+        <header>
           <p className="text-sm font-medium text-[color:var(--muted)]">Project</p>
           <h1 className="mt-2 font-display text-3xl tracking-tight">{project.frontmatter.title}</h1>
           <p className="mt-3 text-[color:var(--muted)]">{project.frontmatter.description}</p>
 
           <div className="mt-5 flex flex-wrap gap-2">
             {project.frontmatter.stack.map((t) => (
-                <span key={t} className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-2.5 py-1 text-xs font-medium text-[color:var(--muted)]">
-                  {t}
-                </span>
+              <span key={t} className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-2.5 py-1 text-xs font-medium text-[color:var(--muted)]">
+                {t}
+              </span>
             ))}
           </div>
 
@@ -104,7 +104,7 @@ export default async function ProjectPage({ params }: PageProps) {
         </header>
 
         <article
-          className="content markdown-body mx-auto mt-10 max-w-3xl"
+          className="content markdown-body mt-10"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>

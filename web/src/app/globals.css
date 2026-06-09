@@ -16,7 +16,6 @@
   --code-border: rgba(231, 231, 234, 0.14);
 }
 
-/* Keep form controls consistent with theme. */
 html {
   color-scheme: dark;
 }
@@ -35,7 +34,6 @@ html[data-theme='light'] {
   --accent: #0f766e;
   --accent-ink: #064e3b;
 
-  /* Keep code blocks dark for IDE feel. */
   --code-bg: #0b1220;
   --code-border: rgba(24, 24, 27, 0.18);
 }
@@ -63,6 +61,8 @@ body {
 .mdx {
   color: var(--fg);
 }
+
+/* ── GitHub markdown CSS variable overrides ─────────────────────────── */
 
 .content.markdown-body,
 .mdx.markdown-body {
@@ -128,6 +128,134 @@ body {
   box-shadow: 0 1px 0 var(--shadow);
 }
 
+/* ── FIX 1: Tables — light mode black-out fix ───────────────────────── */
+/*
+   github-markdown-css sets table backgrounds using its own CSS vars.
+   In light mode those vars resolve to near-black because our override
+   doesn't fully reach all the github-markdown-css internal vars.
+   Force table cells to use our --surface and --fg directly.
+*/
+
+.content.markdown-body table,
+.mdx.markdown-body table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-collapse: collapse;
+}
+
+.content.markdown-body table tr,
+.mdx.markdown-body table tr {
+  background-color: transparent !important;
+  border-top: 1px solid var(--border);
+}
+
+.content.markdown-body table tr:nth-child(2n),
+.mdx.markdown-body table tr:nth-child(2n) {
+  background-color: var(--surface) !important;
+}
+
+.content.markdown-body table th,
+.content.markdown-body table td,
+.mdx.markdown-body table th,
+.mdx.markdown-body table td {
+  background-color: transparent !important;
+  color: var(--fg) !important;
+  border: 1px solid var(--border);
+  padding: 6px 13px;
+}
+
+.content.markdown-body table th,
+.mdx.markdown-body table th {
+  font-weight: 600;
+  background-color: var(--surface) !important;
+}
+
+/* Light mode: make sure table header/rows are visibly light */
+html[data-theme='light'] .content.markdown-body table tr,
+html[data-theme='light'] .mdx.markdown-body table tr {
+  background-color: #ffffff !important;
+}
+
+html[data-theme='light'] .content.markdown-body table tr:nth-child(2n),
+html[data-theme='light'] .mdx.markdown-body table tr:nth-child(2n) {
+  background-color: #f6f8fa !important;
+}
+
+html[data-theme='light'] .content.markdown-body table th,
+html[data-theme='light'] .mdx.markdown-body table th {
+  background-color: #f6f8fa !important;
+  color: #18181b !important;
+}
+
+html[data-theme='light'] .content.markdown-body table td,
+html[data-theme='light'] .mdx.markdown-body table td {
+  color: #18181b !important;
+}
+
+/* ── FIX 3: Code blocks — mobile scrollable with visible scrollbar ──── */
+
+.content :where(pre),
+.mdx :where(pre),
+.content.markdown-body pre,
+.mdx.markdown-body pre {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: var(--code-bg);
+  border-color: var(--code-border);
+  box-shadow: 0 1px 0 var(--shadow);
+  /* Show scrollbar so mobile users know it's scrollable */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+
+.content :where(pre)::-webkit-scrollbar,
+.mdx :where(pre)::-webkit-scrollbar,
+.content.markdown-body pre::-webkit-scrollbar,
+.mdx.markdown-body pre::-webkit-scrollbar {
+  height: 6px;
+}
+
+.content :where(pre)::-webkit-scrollbar-track,
+.mdx :where(pre)::-webkit-scrollbar-track,
+.content.markdown-body pre::-webkit-scrollbar-track,
+.mdx.markdown-body pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.content :where(pre)::-webkit-scrollbar-thumb,
+.mdx :where(pre)::-webkit-scrollbar-thumb,
+.content.markdown-body pre::-webkit-scrollbar-thumb,
+.mdx.markdown-body pre::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.18);
+  border-radius: 3px;
+}
+
+html[data-theme='light'] .content :where(pre)::-webkit-scrollbar-thumb,
+html[data-theme='light'] .mdx :where(pre)::-webkit-scrollbar-thumb,
+html[data-theme='light'] .content.markdown-body pre::-webkit-scrollbar-thumb,
+html[data-theme='light'] .mdx.markdown-body pre::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+}
+
+.content :where(pre code),
+.mdx :where(pre code),
+.content.markdown-body pre code,
+.mdx.markdown-body pre code {
+  background: transparent;
+  padding: 0;
+  /* Prevent line wrapping inside code — force horizontal scroll instead */
+  white-space: pre;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+/* ── Prose content styles ───────────────────────────────────────────── */
+
 .content {
   color: var(--fg);
 }
@@ -156,21 +284,6 @@ body {
   font-size: 0.95em;
 }
 
-.content :where(pre) {
-  overflow-x: auto;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 14px 16px;
-  background: var(--code-bg);
-  border-color: var(--code-border);
-  box-shadow: 0 1px 0 var(--shadow);
-}
-
-.content :where(pre code) {
-  background: transparent;
-  padding: 0;
-}
-
 .mdx :where(h2, h3) {
   font-family: var(--font-display), ui-serif, Georgia;
   letter-spacing: -0.02em;
@@ -195,21 +308,6 @@ body {
   font-size: 0.95em;
 }
 
-.mdx :where(pre) {
-  overflow-x: auto;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 14px 16px;
-  background: var(--code-bg);
-  border-color: var(--code-border);
-  box-shadow: 0 1px 0 var(--shadow);
-}
-
-.mdx :where(pre code) {
-  background: transparent;
-  padding: 0;
-}
-
 /* ── Obsidian Callouts ──────────────────────────────────────────────── */
 
 .content [class*="callout"],
@@ -231,7 +329,6 @@ body {
   margin-bottom: 6px;
 }
 
-/* note — blue */
 .content .callout-note, .content [data-callout="note"] {
   border-color: #3b82f6;
   background: rgba(59, 130, 246, 0.08);
@@ -239,7 +336,6 @@ body {
 .content .callout-note .callout-title,
 .content [data-callout="note"] > :first-child { color: #3b82f6; }
 
-/* tip — teal */
 .content .callout-tip, .content [data-callout="tip"] {
   border-color: var(--accent);
   background: rgba(45, 212, 191, 0.08);
@@ -247,7 +343,6 @@ body {
 .content .callout-tip .callout-title,
 .content [data-callout="tip"] > :first-child { color: var(--accent); }
 
-/* warning — amber */
 .content .callout-warning, .content [data-callout="warning"] {
   border-color: #f59e0b;
   background: rgba(245, 158, 11, 0.08);
@@ -255,7 +350,6 @@ body {
 .content .callout-warning .callout-title,
 .content [data-callout="warning"] > :first-child { color: #f59e0b; }
 
-/* danger — red */
 .content .callout-danger, .content [data-callout="danger"] {
   border-color: #ef4444;
   background: rgba(239, 68, 68, 0.08);
@@ -263,7 +357,6 @@ body {
 .content .callout-danger .callout-title,
 .content [data-callout="danger"] > :first-child { color: #ef4444; }
 
-/* important — purple */
 .content .callout-important, .content [data-callout="important"] {
   border-color: #a855f7;
   background: rgba(168, 85, 247, 0.08);

@@ -65,8 +65,8 @@ export default async function LeetCodePostPage({ params }: PageProps) {
   return (
     <Container>
       {hasMermaid && <MermaidScript />}
-      <div className="py-12">
-        <header className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-3xl py-12">
+        <header>
           <p className="text-sm font-medium text-[color:var(--muted)]">LeetCode</p>
           <h1 className="mt-2 font-display text-3xl tracking-tight">{post.frontmatter.problem}</h1>
           <p className="mt-3 text-[color:var(--muted)]">{post.frontmatter.description}</p>
@@ -107,7 +107,7 @@ export default async function LeetCodePostPage({ params }: PageProps) {
         </header>
 
         <article
-          className="content markdown-body mx-auto mt-10 max-w-3xl"
+          className="content markdown-body mt-10"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>
