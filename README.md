@@ -1,5 +1,9 @@
 # Personal Blog + Portfolio (Next.js + MDX)
 
+## Live Demo
+
+[demo.nishanthraj.in](https://demo.nishanthraj.in)
+
 A fully static personal website for:
 - Blog posts
 - LeetCode solution logs
