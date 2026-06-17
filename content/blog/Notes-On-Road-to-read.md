@@ -11,432 +11,264 @@ tags:
 draft: false
 ---
 
-## Table of contents
-
-- Part 1: Fundamentals of React
-- Part 2: Components and Props
-- Part 3: State Management in React
-- Part 4: React Hooks in Depth
-- Part 5: Asynchronous Operations and Data Fetching
-- Part 6: Styling in React
-- Part 7: Testing in React
-- Part 8: Common Interview Questions and Practical Scenarios
+# React Reference Notes (Parts 1–8)
 
 ---
 
-## The Road to React - Annotated Study Notes
+## Part 1 — Fundamentals of React
 
-Based on annotations from "The Road to React" by Robin Wieruch.
+> **Mental model:** `UI = f(state)`. State changes → re-render → diff virtual DOM → minimal real DOM updates.
 
----
+### What React Is (and Isn't)
 
-## Part 1 - Fundamentals of React
+React is a **view library**, not a framework. It handles rendering and state. Everything else (routing, data fetching, forms) you bring yourself.
 
-React is a JavaScript library for building user interfaces. It focuses on the view layer: how data is displayed and updated in response to user interactions.
+| Concept | Meaning |
+|---|---|
+| Declarative UI | Describe *what* to render, not *how* to do it step-by-step |
+| Component-based | UI = tree of isolated, reusable pieces |
+| Unidirectional data flow | Data moves parent → child via props only |
+| Virtual DOM | In-memory representation; React diffs it and patches only what changed |
 
-### Key Concepts
-
-- Declarative UI: describe what the UI should look like, not how to build it step by step.
-- Component-based: break UIs into reusable, self-contained units.
-- Unidirectional data flow: data flows parent -> child through props.
-- Virtual DOM: React keeps a virtual representation of the DOM and updates only parts that change.
-
-### Setting Up and Running a React App
-
-Use Vite (or create-react-app) for fast setup.
+### Setup (Vite — use this, not CRA)
 
 ```bash
 npm create vite@latest my-app -- --template react
 cd my-app
 npm install
-npm run dev       # runs the development server
-npm run build     # creates the optimized production build
-npm run preview   # tests the production build locally
+npm run dev      # dev server — NOT production-ready
+npm run build    # optimized production build
+npm run preview  # serve the production build locally
 ```
 
-Note: `npm run dev` is for local development; it is not optimized for production. Use `npm run preview` to test the production build.
+### JSX
 
-### Hot Reloading vs Fast Refresh
-
-React Fast Refresh bridges React with the development server, instantly updating the browser when files change.
-
-### JSX (JavaScript XML)
-
-JSX lets you write HTML inside JavaScript.
+JSX = JavaScript + HTML syntax sugar. Transpiled by Babel to `React.createElement()` calls.
 
 ```jsx
-const greeting = 'Hello React';
-const element = <h1>{greeting}</h1>;
+const name = 'Nishanth';
+const element = <h1>{name}</h1>; // {} embeds any JS expression
+
+// Must have one root — use Fragment to avoid extra DOM nodes
+return (
+  <>
+    <Header />
+    <Main />
+  </>
+);
 ```
 
-- Curly braces `{}` embed any JS expression inside JSX.
-- JSX must have one parent element. Use `<div>` or `<React.Fragment>` to wrap siblings.
-- JSX is transpiled (e.g., by Babel) into `React.createElement()` calls.
+HTML → JSX attribute differences:
 
-### JSX Attributes and Conventions
-
-React replaces HTML attributes with camelCase equivalents:
-
-| HTML Attribute | JSX Equivalent |
-| --- | --- |
+| HTML | JSX |
+|---|---|
 | `class` | `className` |
 | `for` | `htmlFor` |
 | `onclick` | `onClick` |
+| `tabindex` | `tabIndex` |
 
-Example:
-
-```jsx
-<label htmlFor="username">Username:</label>
-<input id="username" className="form-input" onClick={handleClick} />
-```
-
-### Embedding Expressions
+### Rendering Lists
 
 ```jsx
-const user = { name: 'Nishanth', role: 'Engineer' };
-return <p>{user.name} is a {user.role}</p>;
+// ✅ Good — stable unique key
+items.map(item => <li key={item.id}>{item.name}</li>)
+
+// ❌ Bad — index as key breaks reordering
+items.map((item, index) => <li key={index}>{item}</li>)
 ```
 
-You can also call functions:
+Keys must be unique among siblings. They help React identify which items changed, were added, or were removed. Array index keys break when the list reorders.
+
+### Entry Point
 
 ```jsx
-<p>{formatDate(new Date())}</p>
-```
-
-### Rendering Lists in React
-
-Use `Array.map()`.
-
-```jsx
-const items = ['React', 'Redux', 'TypeScript'];
-
-function List() {
-  return (
-    <ul>
-      {items.map(item => <li key={item}>{item}</li>)}
-    </ul>
-  );
-}
-```
-
-#### Why Keys Matter
-
-- Each item needs a unique `key` so React can track changes efficiently.
-- Use stable identifiers (IDs), not indexes.
-
-Bad:
-
-```jsx
-{items.map((item, index) => <li key={index}>{item}</li>)}
-```
-
-Good:
-
-```jsx
-{items.map(item => <li key={item.id}>{item.name}</li>)}
-```
-
-### React DOM and the Root Element
-
-`index.html`:
-
-```html
-<div id="root"></div>
-```
-
-`index.js`:
-
-```jsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-
+// main.jsx
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 ```
 
-### Components and Hierarchies (Preview)
+### Key Pitfalls
 
-```jsx
-function App() {
-  return (
-    <div>
-      <Search />
-      <List />
-    </div>
-  );
-}
-```
-
-### Interview Checkpoints
-
-1. What is JSX? JSX is a syntax extension that must be transpiled to JavaScript.
-2. Is JSX mandatory? No; `React.createElement()` works too.
-3. Why use keys in lists? Efficient reconciliation.
-4. `class` vs `className`? JSX uses `className` because `class` is reserved in JS.
+- JSX is not HTML — `class` → `className`, `for` → `htmlFor`.
+- Fragment (`<>`) avoids unnecessary wrapper `div`s.
+- Never use array index as key if list can reorder or filter.
+- JSX must return one root element.
 
 ---
 
-## Part 2 - Components and Props
+## Part 2 — Components and Props
 
-React apps are built from components: small, isolated, reusable chunks of UI.
+> Props are immutable inputs. If a child needs to change something in the parent, pass a callback down.
 
 ### Function Components
 
 ```jsx
-function Welcome() {
-  return <h1>Hello World</h1>;
-}
-```
-
-Arrow function:
-
-```jsx
-const Welcome = () => <h1>Hello World</h1>;
-```
-
-### Component Tree and Hierarchy
-
-```jsx
-function App() {
-  return (
-    <div>
-      <Search />
-      <List />
-    </div>
-  );
-}
-```
-
-### Props - Passing Data Parent -> Child
-
-```jsx
-function Greeting({ name }) {
+// Named function (prefer for debugging)
+function Welcome({ name }) {
   return <h2>Hello {name}</h2>;
 }
 
-function App() {
-  return <Greeting name="Nishanth" />;
+// Arrow function
+const Welcome = ({ name }) => <h2>Hello {name}</h2>;
+```
+
+### Props
+
+```jsx
+// Parent passes data
+<UserCard name="Nishanth" role="Engineer" />
+
+// Child receives via destructuring
+function UserCard({ name, role }) {
+  return <p>{name} — {role}</p>;
 }
 ```
 
-Props are immutable.
-
-### One-Way Data Flow
-
-If a child needs to affect parent state, pass a callback down.
+Props are **read-only**. Never mutate them:
 
 ```jsx
-function Child({ onClick }) {
-  return <button onClick={onClick}>Click Me</button>;
+// ❌ Never do this
+function Profile(props) {
+  props.name = 'Changed'; // mutation — will cause bugs
+}
+```
+
+### Child → Parent Communication
+
+Pass a callback function as a prop:
+
+```jsx
+function Child({ onAction }) {
+  return <button onClick={onAction}>Click Me</button>;
 }
 
 function Parent() {
-  const handleClick = () => alert('Clicked!');
-  return <Child onClick={handleClick} />;
+  const handleAction = () => console.log('child triggered this');
+  return <Child onAction={handleAction} />;
 }
 ```
 
-### Do Not Mutate Props
+### Spread and Rest Props
 
 ```jsx
-function Profile(props) {
-  props.name = 'Changed';  // do not do this
-  return <p>{props.name}</p>;
-}
-```
-
-### Destructuring Props
-
-```jsx
-function Item({ title, url, author }) {
-  return (
-    <a href={url}>
-      {title} - {author}
-    </a>
-  );
-}
-```
-
-Nested destructuring:
-
-```jsx
-function Item({ item: { title, url, author } }) {
-  return <a href={url}>{title} - {author}</a>;
-}
-```
-
-### Spread and Rest Operators with Props
-
-Spread:
-
-```jsx
+// Spread — pass all props of an object
 const user = { name: 'Nishanth', role: 'Engineer' };
-<UserCard {...user} />;
-```
+<UserCard {...user} />
 
-Rest:
-
-```jsx
+// Rest — capture remaining props
 function Card({ title, ...rest }) {
-  return <div {...rest}>{title}</div>;
+  return <div {...rest}>{title}</div>; // rest forwarded to div
 }
 ```
 
-### Prop-Type Validation (vs TypeScript)
+### Default Props
 
-```bash
-npm install prop-types
+```jsx
+function Button({ label = 'Submit', size = 'md' }) {
+  return <button className={`btn-${size}`}>{label}</button>;
+}
 ```
+
+### Prop Types (runtime validation — use TypeScript in real projects)
 
 ```jsx
 import PropTypes from 'prop-types';
 
-function Button({ label }) {
-  return <button>{label}</button>;
-}
-
 Button.propTypes = {
   label: PropTypes.string.isRequired,
+  onClick: PropTypes.func,
 };
 ```
 
-### Callback Handlers Across Components
+### Key Pitfalls
 
-```jsx
-function Search({ onSearch }) {
-  return <input onChange={(e) => onSearch(e.target.value)} />;
-}
-
-function App() {
-  const [query, setQuery] = useState('');
-  return (
-    <>
-      <Search onSearch={setQuery} />
-      <p>Searching for: {query}</p>
-    </>
-  );
-}
-```
-
-### Interview Checkpoints
-
-1. What are props used for? Parent -> child data transfer.
-2. Can props be mutated? No.
-3. How does child -> parent communication work? Callback props.
-4. Props vs state? Props are external inputs; state is internal mutable data.
+- Props vs state: props are external inputs, state is internal mutable data.
+- Child → parent always through callbacks, never by mutating props.
+- `children` is a special prop — what you put between component tags.
 
 ---
 
-## Part 3 - State Management in React
+## Part 3 — State Management in React
 
-State is data that changes over time and triggers re-renders.
+> State is data that changes over time and triggers re-renders.
 
 ### `useState`
 
 ```jsx
-import { useState } from 'react';
+const [count, setCount] = useState(0);
 
-function Counter() {
-  const [count, setCount] = useState(0);
-
-  const handleIncrement = () => setCount(count + 1);
-
-  return (
-    <div>
-      <p>Count: {count}</p>
-      <button onClick={handleIncrement}>Increment</button>
-    </div>
-  );
-}
+// Functional update — use when new state depends on old state
+setCount(prev => prev + 1); // safe in async context
+setCount(count + 1);        // can be stale in batched updates
 ```
 
-### React State Rules
+### Rules of Hooks
 
-- Call hooks only at the top level.
-- State updates are batched/asynchronous.
-- Never mutate state directly.
+1. Call hooks only at the **top level** — never inside loops, conditions, or nested functions.
+2. Call hooks only in **React function components** or **custom hooks**.
 
 ### Lifting State Up
 
+When siblings need to share state, move it to their closest common ancestor:
+
 ```jsx
-function Search({ query, onSearch }) {
-  return <input value={query} onChange={e => onSearch(e.target.value)} />;
-}
-
-function List({ query, items }) {
-  return (
-    <ul>
-      {items.filter(item => item.includes(query)).map(item => <li key={item}>{item}</li>)}
-    </ul>
-  );
-}
-
 function App() {
   const [query, setQuery] = useState('');
-  const items = ['React', 'Redux', 'Hooks'];
 
   return (
     <>
-      <Search query={query} onSearch={setQuery} />
-      <List query={query} items={items} />
+      <Search onSearch={setQuery} />        {/* sets state */}
+      <List query={query} />                {/* reads state */}
     </>
   );
 }
 ```
 
-### Controlled Components
+### Controlled vs Uncontrolled Components
 
 ```jsx
+// Controlled — React owns the value
 function ControlledInput() {
   const [value, setValue] = useState('');
-
-  return (
-    <input
-      type="text"
-      value={value}
-      onChange={e => setValue(e.target.value)}
-    />
-  );
+  return <input value={value} onChange={e => setValue(e.target.value)} />;
 }
-```
 
-### Uncontrolled Components
-
-```jsx
+// Uncontrolled — DOM owns the value, ref to read it
 function UncontrolledForm() {
   const inputRef = useRef();
-
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
     console.log(inputRef.current.value);
   };
-
   return (
     <form onSubmit={handleSubmit}>
-      <input ref={inputRef} type="text" />
+      <input ref={inputRef} />
       <button type="submit">Submit</button>
     </form>
   );
 }
 ```
 
-### `useReducer`
+Prefer controlled components — React has full control of the data.
+
+### `useReducer` — When State Logic Gets Complex
+
+Use over `useState` when:
+- Multiple sub-values are interdependent
+- Next state depends on a specific action type
+- Logic is complex enough to extract and test separately
 
 ```jsx
 function reducer(state, action) {
   switch (action.type) {
-    case 'INCREMENT':
-      return { count: state.count + 1 };
-    case 'DECREMENT':
-      return { count: state.count - 1 };
-    default:
-      return state;
+    case 'INCREMENT': return { count: state.count + 1 };
+    case 'DECREMENT': return { count: state.count - 1 };
+    case 'RESET':     return { count: 0 };
+    default: throw new Error(`Unknown action: ${action.type}`);
   }
 }
 
 function Counter() {
   const [state, dispatch] = useReducer(reducer, { count: 0 });
-
   return (
     <>
       <p>{state.count}</p>
@@ -447,179 +279,161 @@ function Counter() {
 }
 ```
 
-### Interview Checkpoints
+### Key Pitfalls
 
-1. Props vs state? Props in, state inside.
-2. Why lift state up? Share state across siblings.
-3. When useReducer? Complex transitions/interdependent state.
-4. Controlled component? Input controlled by React state.
+- Never mutate state directly: `state.items.push(x)` — React won't re-render.
+- Always use spread to update objects/arrays: `setItems([...items, newItem])`.
+- State updates are **asynchronous and batched** — don't read state immediately after setting.
+- `useState(fn)` — pass a function for expensive initial state computation (runs once).
 
 ---
 
-## Part 4 - React Hooks in Depth
-
-Hooks let you use React features without class components.
-
-### Hook Rules
-
-1. Call hooks only at the top level.
-2. Call hooks only in React function components or custom hooks.
+## Part 4 — React Hooks in Depth
 
 ### `useEffect`
 
+Runs **after** the render is committed to the screen.
+
 ```jsx
-import { useState, useEffect } from 'react';
-
-function Example() {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    document.title = `Clicked ${count} times`;
-  }, [count]);
-}
+// Dependency array controls when it runs
+useEffect(() => { /* ... */ });            // every render
+useEffect(() => { /* ... */ }, []);        // once on mount
+useEffect(() => { /* ... */ }, [value]);   // when value changes
 ```
 
-Cleanup:
+Always return a **cleanup function** for subscriptions, timers, and event listeners:
 
 ```jsx
 useEffect(() => {
-  const timer = setInterval(() => console.log('Tick'), 1000);
-  return () => clearInterval(timer);
+  const timer = setInterval(() => console.log('tick'), 1000);
+  return () => clearInterval(timer); // cleanup on unmount or before next run
 }, []);
 ```
 
-### Fetching Data with `useEffect`
+> ⚠️ Don't make the `useEffect` callback `async` directly. Create an inner async function and call it:
 
 ```jsx
-function DataFetcher() {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('https://api.example.com/posts');
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
-  return <ul>{data.map(item => <li key={item.id}>{item.title}</li>)}</ul>;
-}
+useEffect(() => {
+  const load = async () => {
+    const res = await fetch(url);
+    setData(await res.json());
+  };
+  load();
+}, [url]);
 ```
+
+### `useEffect` vs `useLayoutEffect`
+
+| Hook | Fires When | Use For |
+|---|---|---|
+| `useEffect` | After browser paint | Data fetching, subscriptions, logging |
+| `useLayoutEffect` | Before browser paint (sync) | DOM measurements, preventing flicker |
+
+Default to `useEffect`. Only use `useLayoutEffect` for visual DOM measurements.
 
 ### `useRef`
 
+Persists a value across renders **without triggering a re-render**.
+
 ```jsx
-function Timer() {
-  const countRef = useRef(0);
+// 1. DOM access
+const inputRef = useRef();
+useEffect(() => { inputRef.current.focus(); }, []);
+return <input ref={inputRef} />;
 
-  const handleClick = () => {
-    countRef.current++;
-    console.log(countRef.current);
-  };
-
-  return <button onClick={handleClick}>Count (check console)</button>;
-}
+// 2. Mutable value (timer ID, previous value, etc.)
+const timerRef = useRef(null);
+timerRef.current = setTimeout(...);
+clearTimeout(timerRef.current);
 ```
 
-DOM ref:
+`useRef` vs `useState`:
+
+| | `useState` | `useRef` |
+|---|---|---|
+| Triggers re-render | Yes | No |
+| Persists across renders | Yes | Yes |
+| Use for | UI data | DOM refs, mutable values |
+
+### `useCallback` and `useMemo`
 
 ```jsx
-function FocusInput() {
-  const inputRef = useRef();
-
-  useEffect(() => {
-    inputRef.current.focus();
-  }, []);
-
-  return <input ref={inputRef} placeholder="Auto-focused input" />;
-}
-```
-
-### `useCallback`
-
-```jsx
+// useCallback — memoize a function (stable reference across renders)
 const handleSearch = useCallback((query) => {
-  console.log('Searching:', query);
-}, []);
-```
+  performSearch(query);
+}, [/* deps */]);
 
-### `useMemo`
-
-```jsx
+// useMemo — memoize a computed value
 const sortedList = useMemo(() => {
-  return items.sort((a, b) => a.name.localeCompare(b.name));
+  return [...items].sort((a, b) => a.name.localeCompare(b.name));
 }, [items]);
 ```
 
+When to use:
+- `useCallback` — when passing callbacks to memoized children (`React.memo`)
+- `useMemo` — when computation is expensive and deps change infrequently
+
+Don't memoize everything — it has overhead. Measure first.
+
 ### Custom Hooks
+
+Extract and reuse stateful logic. Must start with `use`.
 
 ```jsx
 function useFetch(url) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadData = async () => {
-      const res = await fetch(url);
-      const json = await res.json();
-      setData(json);
-      setLoading(false);
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Failed to fetch');
+        const json = await res.json();
+        if (!cancelled) setData(json);
+      } catch (err) {
+        if (!cancelled) setError(err.message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     };
-    loadData();
+    load();
+    return () => { cancelled = true; };
   }, [url]);
 
-  return { data, loading };
+  return { data, loading, error };
 }
 ```
 
-### Interview Checkpoints
+### Key Pitfalls
 
-1. useEffect vs useLayoutEffect? useEffect after paint; useLayoutEffect before paint.
-2. Why not async useEffect? It expects cleanup or void, not a Promise.
-3. useCallback vs useMemo? Function vs computed value.
-4. useRef vs useState? Ref persists without re-render.
+- Missing deps in `useEffect` → stale closures.
+- Async `useEffect` callback → will return a Promise, not a cleanup function.
+- `useLayoutEffect` in SSR → runs synchronously, can cause issues.
+- Refs don't trigger re-renders — don't use them to display data in JSX.
 
 ---
 
-## Part 5 - Asynchronous Operations and Data Fetching
+## Part 5 — Asynchronous Operations and Data Fetching
 
-### Fetch API Basics
-
-```jsx
-fetch('https://api.example.com/users')
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error('Error:', error));
-```
-
-### Async/Await
+### Fetch Patterns
 
 ```jsx
-async function getData() {
-  try {
-    const response = await fetch('https://api.example.com/posts');
-    if (!response.ok) throw new Error('Network error');
-    const data = await response.json();
-    console.log(data);
-  } catch (error) {
-    console.error('Fetch failed:', error);
-  }
-}
+// Basic
+const res = await fetch('/api/posts');
+if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+const data = await res.json();
+
+// Parallel — faster than sequential awaits
+const [users, posts] = await Promise.all([
+  fetch('/api/users').then(r => r.json()),
+  fetch('/api/posts').then(r => r.json()),
+]);
 ```
 
-### Async Calls in Components
+### Standard Async State Pattern
 
 ```jsx
 function Posts() {
@@ -628,204 +442,177 @@ function Posts() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadPosts = async () => {
+    let cancelled = false;
+
+    const load = async () => {
       try {
         const res = await fetch('https://jsonplaceholder.typicode.com/posts');
-        if (!res.ok) throw new Error('Network response not ok');
+        if (!res.ok) throw new Error('Network error');
         const data = await res.json();
-        setPosts(data);
+        if (!cancelled) setPosts(data);
       } catch (err) {
-        setError(err.message);
+        if (!cancelled) setError(err.message);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
-    loadPosts();
+    load();
+    return () => { cancelled = true; }; // prevent state update after unmount
   }, []);
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
-  return (
-    <ul>
-      {posts.slice(0, 5).map(post => (
-        <li key={post.id}>{post.title}</li>
-      ))}
-    </ul>
-  );
+  if (error)   return <p>Error: {error}</p>;
+  return <ul>{posts.map(p => <li key={p.id}>{p.title}</li>)}</ul>;
 }
 ```
 
-### useReducer for Async State (Pattern)
+### `useReducer` for Async State (Cleaner Pattern)
 
 ```jsx
 function dataReducer(state, action) {
   switch (action.type) {
-    case 'FETCH_INIT':
-      return { ...state, isLoading: true, isError: false };
-    case 'FETCH_SUCCESS':
-      return { ...state, isLoading: false, data: action.payload };
-    case 'FETCH_FAILURE':
-      return { ...state, isLoading: false, isError: true };
-    default:
-      throw new Error();
+    case 'FETCH_INIT':    return { ...state, loading: true, error: null };
+    case 'FETCH_SUCCESS': return { loading: false, error: null, data: action.payload };
+    case 'FETCH_FAILURE': return { ...state, loading: false, error: action.error };
+    default: throw new Error(`Unknown action: ${action.type}`);
   }
+}
+
+// Dispatch actions instead of juggling 3 setX() calls
+dispatch({ type: 'FETCH_INIT' });
+dispatch({ type: 'FETCH_SUCCESS', payload: data });
+dispatch({ type: 'FETCH_FAILURE', error: err.message });
+```
+
+### Debounced Search (Common Interview Pattern)
+
+```jsx
+function useDebounce(value, delay) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debounced;
+}
+
+function Search() {
+  const [query, setQuery] = useState('');
+  const debouncedQuery = useDebounce(query, 500); // only fires 500ms after typing stops
+
+  useEffect(() => {
+    if (debouncedQuery) fetch(`/api/search?q=${debouncedQuery}`);
+  }, [debouncedQuery]);
+
+  return <input onChange={e => setQuery(e.target.value)} />;
 }
 ```
 
-Cancel flag cleanup:
+### Key Pitfalls
 
-```jsx
-useEffect(() => {
-  let cancel = false;
-
-  const fetchData = async () => {
-    const res = await fetch(url);
-    const data = await res.json();
-    if (!cancel) setData(data);
-  };
-
-  fetchData();
-  return () => (cancel = true);
-}, [url]);
-```
-
-Parallel calls:
-
-```jsx
-const [users, posts] = await Promise.all([
-  fetch('/users').then(r => r.json()),
-  fetch('/posts').then(r => r.json()),
-]);
-```
-
-### Interview Checkpoints
-
-1. Why not async useEffect? Cleanup contract.
-2. Common async states? loading/error/data.
-3. useReducer vs multiple useState? Shared transitions.
-4. Why cleanup? Avoid setting state after unmount.
+- Not checking `res.ok` — fetch only rejects on network failure, not HTTP errors (404, 500).
+- Setting state after unmount — use the cancel flag pattern.
+- Sequential `await` calls when they could be parallel — use `Promise.all`.
+- Not handling loading and error states — users see nothing or a broken UI.
 
 ---
 
-## Part 6 - Styling in React
+## Part 6 — Styling in React
 
-### Inline Styles
+### Approach Comparison
+
+| Approach | Scope | Dynamic Styles | Pseudo-selectors | Best For |
+|---|---|---|---|---|
+| Plain CSS | Global | No | Yes | Simple apps |
+| CSS Modules | Scoped | No | Yes | Most projects |
+| Inline styles | Scoped | Yes | ❌ No | Quick one-offs |
+| Styled Components | Scoped | Yes | Yes | Design systems |
+| Tailwind CSS | Utility | Yes | Yes | Rapid UI |
+
+### CSS Modules (Recommended Default)
 
 ```jsx
-function Button() {
+// Button.module.css
+.primary { background: blue; color: white; }
+.active  { border: 2px solid green; }
+
+// Button.jsx
+import styles from './Button.module.css';
+
+function Button({ isActive }) {
   return (
-    <button style={{ backgroundColor: 'blue', color: 'white', padding: '10px 20px' }}>
-      Click Me
+    <button className={`${styles.primary} ${isActive ? styles.active : ''}`}>
+      Click
     </button>
   );
 }
 ```
 
-### CSS Stylesheets
+Generates unique class names at build time — no global collision.
 
-```jsx
-import './Button.css';
-
-function Button() {
-  return <button className="btn-primary">Click Me</button>;
-}
-```
-
-### CSS Modules
-
-```jsx
-import styles from './Button.module.css';
-
-function Button() {
-  return <button className={styles.primary}>Click Me</button>;
-}
-```
-
-### Conditional Styling
-
-```jsx
-<button className={isActive ? styles.active : styles.inactive}>
-  {isActive ? 'Active' : 'Inactive'}
-</button>
-```
-
-Using `clsx`:
-
-```bash
-npm install clsx
-```
+### Conditional Classes with `clsx`
 
 ```jsx
 import clsx from 'clsx';
 
-<button className={clsx(styles.button, isActive && styles.active)}>
-  Click
+<button className={clsx(
+  styles.button,
+  isActive && styles.active,
+  isDisabled && styles.disabled
+)}>
+  Submit
 </button>
 ```
 
 ### Styled Components (CSS-in-JS)
 
-```bash
-npm install styled-components
-```
-
 ```jsx
 import styled from 'styled-components';
 
 const Button = styled.button`
-  background: ${props => (props.primary ? 'blue' : 'gray')};
+  background: ${props => props.primary ? 'blue' : 'gray'};
   color: white;
   padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
 
-  &:hover {
-    opacity: 0.9;
-  }
+  &:hover { opacity: 0.9; }
+  @media (max-width: 600px) { padding: 6px 12px; }
 `;
 
-function App() {
-  return <Button primary>Submit</Button>;
-}
+<Button primary>Submit</Button>
 ```
 
-### Interview Checkpoints
+### Inline Styles — Use Sparingly
 
-1. CSS Modules vs Styled Components? Scoped files vs CSS-in-JS with dynamic props.
-2. Why CSS Modules? Avoid global class collisions.
-3. Conditional styles? Ternary/AND/clsx.
-4. Inline styles drawbacks? No pseudo selectors/media queries.
+```jsx
+<div style={{ backgroundColor: 'blue', fontSize: '16px' }}>
+  Inline styled
+</div>
+```
+
+No pseudo-selectors (`:hover`, `:focus`). No media queries. Only for truly dynamic, one-off values.
+
+### Key Pitfalls
+
+- Inline styles can't do `:hover` or media queries.
+- Plain CSS classes leak globally — use Modules or CSS-in-JS for isolation.
+- Don't put all styles in one file — colocate component styles with the component.
 
 ---
 
-## Part 7 - Testing in React
+## Part 7 — Testing in React
 
-### Types of Tests
+### Test Types
 
-| Type | Purpose |
-| --- | --- |
-| Unit | test a single function/component |
-| Integration | test multiple components together |
-| E2E | full user flows in a real browser |
+| Type | What It Tests | Tools |
+|---|---|---|
+| Unit | Single function or component in isolation | Jest, Vitest |
+| Integration | Multiple components working together | React Testing Library |
+| E2E | Full user flows in real browser | Cypress, Playwright |
 
-### Jest
+### React Testing Library (RTL) — Core Philosophy
 
-```bash
-npm install --save-dev jest
-```
-
-```js
-function sum(a, b) {
-  return a + b;
-}
-
-test('adds two numbers', () => {
-  expect(sum(2, 3)).toBe(5);
-});
-```
-
-### React Testing Library
+Test behavior, not implementation. Query the DOM as a user would.
 
 ```bash
 npm install --save-dev @testing-library/react @testing-library/jest-dom
@@ -843,90 +630,128 @@ test('increments count on button click', () => {
 });
 ```
 
+### Query Priority (Use in This Order)
+
+| Query | Use When |
+|---|---|
+| `getByRole` | Accessible role (button, heading, input) — **prefer** |
+| `getByLabelText` | Form labels |
+| `getByPlaceholderText` | Input placeholders |
+| `getByText` | Visible text content |
+| `getByTestId` | Last resort — brittle |
+
+### Async Queries
+
+```jsx
+// findBy — returns a Promise, use with await
+const element = await screen.findByText(/loaded data/i);
+
+// waitFor — waits until assertion passes
+await waitFor(() => expect(screen.getByText(/done/i)).toBeInTheDocument());
+```
+
 ### Mocking Fetch
 
 ```jsx
-global.fetch = jest.fn(() =>
-  Promise.resolve({
-    json: () => Promise.resolve([{ id: 1, title: 'Mock Post' }]),
-  })
-);
+beforeEach(() => {
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve([{ id: 1, title: 'Mock Post' }]),
+    })
+  );
+});
+
+afterEach(() => jest.resetAllMocks());
 ```
 
 ### Snapshot Testing
 
 ```jsx
-import { render } from '@testing-library/react';
-import App from './App';
-
 test('matches snapshot', () => {
   const { asFragment } = render(<App />);
   expect(asFragment()).toMatchSnapshot();
 });
 ```
 
-### Coverage
+Use sparingly. Snapshots fail on any UI change — they're noisy and developers tend to blindly update them.
 
-```bash
-npm test -- --coverage
+### Jest Basics
+
+```js
+describe('sum function', () => {
+  test('adds two numbers', () => {
+    expect(sum(2, 3)).toBe(5);
+  });
+
+  test('returns 0 for empty input', () => {
+    expect(sum(0, 0)).toBe(0);
+  });
+});
 ```
 
-### Interview Checkpoints
+Common matchers: `toBe`, `toEqual`, `toBeInTheDocument`, `toHaveBeenCalled`, `toThrow`.
 
-1. Why RTL over shallow tests? Test behavior over implementation.
-2. When use waitFor/findBy? Async UI updates.
-3. Why avoid internal state tests? Fragile and implementation-coupled.
-4. Jest vs RTL? Runner/assertions vs UI interaction utilities.
+### Key Pitfalls
+
+- Testing internal state or implementation details — tests break on refactor.
+- Using `getByTestId` everywhere — ties tests to markup, not behavior.
+- Not cleaning up mocks between tests — test pollution.
+- Shallow rendering — doesn't test component integration.
 
 ---
 
-## Part 8 - Common Interview Questions and Practical Scenarios
+## Part 8 — Performance, Patterns, and Interview Scenarios
 
-### Virtual DOM
+### Virtual DOM and Reconciliation
 
-React uses a Virtual DOM to batch and minimize expensive DOM operations.
+React builds a virtual DOM tree. On state change, it diffs the new tree against the old one and applies **only the changed nodes** to the real DOM. Keys help React match list items across renders.
 
-### Reconciliation
+### Immutability Is Required
 
-React diffs previous vs next trees; keys help list diffing.
-
-### Immutability
-
-React relies on referential equality; avoid mutation.
-
-Bad:
+React uses **referential equality** to detect changes. Mutating an object/array directly won't trigger a re-render.
 
 ```jsx
+// ❌ Mutation — React won't re-render
 state.items.push(newItem);
-```
 
-Good:
-
-```jsx
-setItems([...state.items, newItem]);
+// ✅ New reference — React detects change
+setItems(prev => [...prev, newItem]);
+setUser(prev => ({ ...prev, name: 'Nishanth' }));
 ```
 
 ### Performance Optimization
 
-- `React.memo` for components
-- `useCallback` for function identity
-- `useMemo` for expensive computed values
-- code splitting via `React.lazy`
-
 ```jsx
+// React.memo — skip re-render if props didn't change
+const MemoizedList = React.memo(function List({ items }) {
+  return <ul>{items.map(i => <li key={i.id}>{i.name}</li>)}</ul>;
+});
+
+// useCallback — stable function reference for memoized children
+const handleClick = useCallback(() => doSomething(id), [id]);
+
+// useMemo — expensive computation
+const total = useMemo(() => items.reduce((sum, i) => sum + i.price, 0), [items]);
+
+// Code splitting — lazy load heavy components
 const Chart = React.lazy(() => import('./Chart'));
+// Wrap in Suspense:
+<Suspense fallback={<p>Loading chart...</p>}>
+  <Chart />
+</Suspense>
 ```
 
 ### Props vs State vs Context
 
 | Concept | Owned By | Mutable | Purpose |
-| --- | --- | --- | --- |
-| Props | parent | no | inputs |
-| State | component | yes | internal data |
-| Context | app | yes | shared global-ish data |
+|---|---|---|---|
+| Props | Parent | No | Pass data down |
+| State | Component | Yes | Internal changing data |
+| Context | Provider | Yes | Avoid prop drilling for global data |
 
 ```jsx
-const ThemeContext = createContext();
+const ThemeContext = createContext('light');
 
 function App() {
   return (
@@ -937,12 +762,16 @@ function App() {
 }
 
 function Header() {
-  const theme = useContext(ThemeContext);
-  return <h1 className={theme}>Dark Mode</h1>;
+  const theme = useContext(ThemeContext); // no prop threading
+  return <h1 className={theme}>Title</h1>;
 }
 ```
 
+Context is not a state management solution — it's a dependency injection mechanism. Every consumer re-renders when context value changes.
+
 ### Error Boundaries
+
+Catch rendering errors in child trees. **Must be class components** — no hook equivalent yet.
 
 ```jsx
 class ErrorBoundary extends React.Component {
@@ -953,7 +782,7 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    console.error('Caught error:', error, info);
+    logErrorToService(error, info);
   }
 
   render() {
@@ -961,43 +790,76 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
+
+// Usage
+<ErrorBoundary>
+  <RiskyComponent />
+</ErrorBoundary>
 ```
 
-### Debounce Search (Practical)
+### `React.StrictMode`
 
 ```jsx
-import { useState, useEffect } from 'react';
-
-function useDebounce(value, delay) {
-  const [debounced, setDebounced] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-
-  return debounced;
-}
-
-function Search() {
-  const [query, setQuery] = useState('');
-  const debounced = useDebounce(query, 500);
-
-  useEffect(() => {
-    if (debounced) fetch(`/api/search?q=${debounced}`);
-  }, [debounced]);
-
-  return <input onChange={e => setQuery(e.target.value)} />;
-}
+<React.StrictMode>
+  <App />
+</React.StrictMode>
 ```
 
-### Rapid-Fire
+In development only: double-invokes render, `useState` initializer, and `useReducer` to surface side effects and unsafe patterns. No effect in production.
 
-- `React.StrictMode` double-invokes some functions in dev to surface unsafe patterns.
-- Array index keys break reordering logic.
-- Custom hooks share logic.
-- setState in render causes infinite loops.
+### Common Interview Questions
 
-### Mental Model
+**What is the Virtual DOM?**
+An in-memory JS object representation of the real DOM. React diffs old vs new virtual DOM on each render and applies minimal real DOM updates.
 
-UI = f(state). State changes -> re-render -> diff -> minimal DOM updates.
+**What triggers a re-render?**
+State change, prop change, or parent re-render (even if props didn't change — unless wrapped in `React.memo`).
+
+**`useEffect` cleanup — when does it run?**
+Before the next effect execution, and on component unmount.
+
+**Why can't you call hooks conditionally?**
+React relies on hook call order to associate state with the right hook. Conditional calls break this ordering.
+
+**`useState` vs `useReducer` — when to switch?**
+`useReducer` when state transitions are complex, interdependent, or numerous enough that multiple `useState` setters become hard to reason about.
+
+**What is prop drilling?**
+Passing props through intermediate components that don't use them. Fix with Context or state management (Zustand, Redux).
+
+**What is a controlled component?**
+An input whose value is controlled by React state — not the DOM.
+
+**How does `React.memo` differ from `useMemo`?**
+`React.memo` memoizes a **component** (skips re-render if props unchanged). `useMemo` memoizes a **computed value** inside a component.
+
+---
+
+## Quick Reference
+
+### Hook Cheatsheet
+
+| Hook | Purpose | Triggers Re-render |
+|---|---|---|
+| `useState` | Reactive state | Yes |
+| `useReducer` | Complex state with actions | Yes |
+| `useEffect` | Side effects after render | No |
+| `useRef` | DOM access, mutable values | No |
+| `useCallback` | Memoize function reference | No |
+| `useMemo` | Memoize computed value | No |
+| `useContext` | Read from nearest Provider | Yes (on context change) |
+
+### When to Use What
+
+| Situation | Solution |
+|---|---|
+| Share state across siblings | Lift state up |
+| Avoid passing props 3+ levels deep | Context or state manager |
+| Expensive list filter/sort | `useMemo` |
+| Callback passed to `React.memo` child | `useCallback` |
+| Async data fetching | `useEffect` + cancel flag |
+| Complex async state | `useReducer` |
+| DOM manipulation or timer ID | `useRef` |
+| Debounce user input | Custom `useDebounce` hook |
+| Lazy load heavy component | `React.lazy` + `Suspense` |
+| Catch render errors | `ErrorBoundary` |

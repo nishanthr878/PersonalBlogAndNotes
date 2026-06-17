@@ -5,7 +5,7 @@ description: Kicking off my personal tech blog with MDX + Next.js static export.
 tags:
   - meta
   - writing
-draft: false
+draft: true
 ---
 
 ## Why this site exists

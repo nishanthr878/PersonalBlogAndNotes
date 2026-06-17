@@ -11,414 +11,89 @@ tags:
   - networking
 draft: false
 ---
-
-## Table of contents
-
-- Part 1: Java Fundamentals
-- Part 2: Object-Oriented Programming
-- Part 3: Core Java Concepts
-- Part 4: Advanced Java
-- Part 5: Concurrency & Threads
-- Part 6: I/O, Files, and Serialization
-- Part 7: Networking & Distributed Systems
+# Java Reference Notes (Parts 1–7)
 
 ---
 
-## Part 1 - Java Fundamentals
+## Part 1 — Java Fundamentals
 
-### 1. The Spirit of Java
+> **Core idea:** Java compiles to bytecode → JVM runs it on any OS. Write once, run anywhere.
 
-#### Platform Independence
+### JDK vs JRE vs JVM
 
-- Java code compiles into bytecode (`.class` files) understood by the JVM (Java Virtual Machine).
-- "Write once, run anywhere": the JVM translates to native machine code per OS.
-- JRE (Java Runtime Environment) = JVM + standard libraries.
-- JDK (Java Development Kit) = JRE + compiler + debugging tools.
+| Term | Contains | Purpose |
+|---|---|---|
+| JVM | bytecode interpreter | Runs `.class` files |
+| JRE | JVM + standard libraries | Runtime environment |
+| JDK | JRE + compiler + tools | Development environment |
 
-#### Key Features
+### Primitive Types
 
-| Concept | Description |
-| --- | --- |
-| OOP | Everything revolves around classes and objects. |
-| Garbage Collection | Automatic memory cleanup; no manual `free()`. |
-| Strong Typing | Variables and methods have explicit types. |
-| Security Model | Runs in a controlled sandbox model. |
-| Multithreading | Built-in concurrency support. |
+| Type | Size | Default | Example |
+|---|---|---|---|
+| `byte` | 1B | 0 | `byte b = 10;` |
+| `short` | 2B | 0 | `short s = 1000;` |
+| `int` | 4B | 0 | `int x = 42;` |
+| `long` | 8B | 0L | `long n = 99999L;` |
+| `float` | 4B | 0.0f | `float f = 3.14f;` |
+| `double` | 8B | 0.0 | `double d = 3.14159;` |
+| `char` | 2B Unicode | `\u0000` | `char c = 'A';` |
+| `boolean` | logical | `false` | `boolean ok = true;` |
 
----
+Reference types live on the heap; variables hold references. A reference with no object is `null`.
 
-### 2. The Basic Structure of a Java Program
-
-A minimal program:
-
-```java
-public class HelloWorld {
-    public static void main(String[] args) {
-        System.out.println("Hello, Java!");
-    }
-}
-```
-
-What's going on:
-
-- `public class HelloWorld` defines a class (filename must match).
-- `public static void main(String[] args)` is the entry point.
-- `System.out.println()` prints with a newline.
-
-Compilation and execution:
-
-```bash
-javac HelloWorld.java   # produces HelloWorld.class
-java HelloWorld         # runs it
-```
-
----
-
-### 3. Variables and Data Types
-
-#### Primitive Types
-
-| Type | Size | Example | Default |
-| --- | --- | --- | --- |
-| `byte` | 1 B | `byte b = 10;` | 0 |
-| `short` | 2 B | `short s = 1000;` | 0 |
-| `int` | 4 B | `int x = 42;` | 0 |
-| `long` | 8 B | `long n = 99999L;` | 0L |
-| `float` | 4 B | `float f = 3.14f;` | 0.0f |
-| `double` | 8 B | `double d = 3.14159;` | 0.0 |
-| `char` | 2 B Unicode | `char c = 'A';` | `\u0000` |
-| `boolean` | logical | `boolean ok = true;` | `false` |
-
-#### Reference Types
-
-Objects and arrays live on the heap; variables hold references:
+### Control Flow
 
 ```java
-String name = "Nishanth";
-int[] nums = new int[5];
-```
-
-A reference variable holds `null` when it points to nothing.
-
----
-
-### 4. Operators and Control Flow
-
-#### Arithmetic
-
-`+ - * / %` (integer division truncates):
-
-```java
-int x = 5 / 2;       // 2
-double y = 5 / 2.0;  // 2.5
-```
-
-#### Relational and Logical
-
-`== != > < >= <=` and `&& || !`
-
-#### Assignment and Increment
-
-```java
-x += 5;  // x = x + 5
-i++;     // post-increment
-++i;     // pre-increment
-```
-
-#### Conditional Statements
-
-```java
-if (score > 90) grade = 'A';
-else if (score > 75) grade = 'B';
-else grade = 'C';
-```
-
-#### Switch
-
-```java
+// Switch expression (modern)
 switch (day) {
     case 1 -> System.out.println("Mon");
-    case 2 -> System.out.println("Tue");
     default -> System.out.println("Other");
 }
+
+// Enhanced for
+for (String s : names) System.out.println(s);
 ```
 
-#### Loops
+### Stack vs Heap
+
+| Area | Stores | Lifetime |
+|---|---|---|
+| Stack | locals, method calls | until method returns |
+| Heap | objects, instance vars | until GC collects |
 
 ```java
-for (int i = 0; i < 5; i++) System.out.println(i);
-
-int i = 0;
-while (i < 5) { i++; }
-
-do { i--; } while (i > 0);
-
-for (String s : names) System.out.println(s); // enhanced for
+Dog d = new Dog(); // reference on stack → object on heap
 ```
 
----
+### Strings
 
-### 5. Arrays
-
-```java
-int[] nums = {1,2,3};
-nums[0] = 99;
-System.out.println(nums.length);
-```
-
-- Arrays are objects; `length` is a property, not a method.
-- Elements get default values (0/false/null).
-
----
-
-### 6. Classes and Objects
-
-Defining a class:
-
-```java
-public class Dog {
-    String name;
-    int age;
-
-    void bark() {
-        System.out.println(name + " says Woof!");
-    }
-}
-```
-
-Creating objects:
-
-```java
-Dog d1 = new Dog();
-d1.name = "Rex";
-d1.age = 3;
-d1.bark(); // Rex says Woof!
-```
-
----
-
-### 7. Instance Variables vs Local Variables
-
-- Instance variables: declared in class; live as long as the object.
-- Local variables: inside methods; live on the stack until method ends.
-
-```java
-class Phone {
-    String model; // instance variable
-
-    void setModel(String m) {
-        String prefix = "Model:"; // local variable
-        model = prefix + m;
-    }
-}
-```
-
----
-
-### 8. Methods
-
-Declaration and return:
-
-```java
-int add(int a, int b) {
-    return a + b;
-}
-```
-
-Method overloading:
-
-```java
-void bark() {}
-void bark(int times) {}
-void bark(String sound) {}
-```
-
----
-
-### 9. Encapsulation and Access Control
-
-Encapsulation:
-
-```java
-public class Account {
-    private double balance;
-
-    public void deposit(double amount) {
-        if (amount > 0) balance += amount;
-    }
-
-    public double getBalance() {
-        return balance;
-    }
-}
-```
-
-Access modifiers:
-
-| Modifier | Visible To | Typical Use |
-| --- | --- | --- |
-| `public` | everywhere | API methods |
-| `protected` | same package + subclasses | inheritance hooks |
-| (default) | same package | package helpers |
-| `private` | same class only | encapsulated state |
-
----
-
-### 10. Constructors
-
-```java
-public class Cat {
-    String name;
-    Cat(String n) { name = n; }
-}
-```
-
-If you define any constructor, Java doesn't create the default no-arg one. To have both:
-
-```java
-Cat() { name = "Unnamed"; }
-Cat(String n) { name = n; }
-```
-
-Constructor chaining:
-
-```java
-class Car {
-    String model;
-    int year;
-    Car() { this("Unknown", 0); }
-    Car(String model, int year) {
-        this.model = model;
-        this.year = year;
-    }
-}
-```
-
----
-
-### 11. Memory Model - Stack vs Heap
-
-| Memory Area | Stores | Lifetime |
-| --- | --- | --- |
-| Stack | locals, method calls | until return |
-| Heap | objects, instance data | until GC |
-
-```java
-Dog d = new Dog(); // reference on stack -> object on heap
-```
-
-When no reference points to an object, it's eligible for GC.
-
----
-
-### 12. Static and Final
-
-Static (shared):
-
-```java
-class Counter {
-    static int count = 0;
-    Counter() { count++; }
-}
-```
-
-Final:
-
-- `final` variable: cannot reassign
-- `final` method: cannot override
-- `final` class: cannot extend
-
-```java
-final class Utility {}
-static final double PI = 3.14159;
-```
-
----
-
-### 13. Math Class and Utility Methods
-
-```java
-double r = Math.random();
-int max = Math.max(10, 20);
-int min = Math.min(3, 9);
-double abs = Math.abs(-3.5);
-long rounded = Math.round(3.7);
-```
-
----
-
-### 14. Strings and StringBuilder
-
-String basics:
-
-- Immutable; modifications create a new object.
-- `==` checks references; `equals()` checks content.
-
-```java
-String a = "hi";
-String b = "hi";
-System.out.println(a == b);
-System.out.println(a.equals(b));
-```
-
-StringBuilder:
+- **Immutable** — modifications create a new object.
+- `==` checks reference equality. `equals()` checks content.
+- Use `StringBuilder` in loops — string concatenation with `+` creates a new object each time.
 
 ```java
 StringBuilder sb = new StringBuilder("Hi");
 sb.append(" there");
-System.out.println(sb.toString());
+sb.toString(); // "Hi there"
 ```
 
----
+### Key Pitfalls
 
-### 15. Formatting and Wrapper Classes
-
-Autoboxing:
-
-```java
-Integer i = 5;
-int n = i;
-```
-
-Formatting:
-
-```java
-System.out.printf("Value: %.2f", 3.14159);
-```
+- `==` vs `equals()` — classic trap.
+- Instance vars get defaults (0/null/false); local vars do not — compiler error if uninitialized.
+- Static methods can't access instance vars directly.
+- Default no-arg constructor disappears once you define any constructor.
+- Pass-by-value always. References are copied, not objects.
+- GC timing is not guaranteed — only eligibility matters.
 
 ---
 
-### 16. Summary Checklist
+## Part 2 — Object-Oriented Programming
 
-- Java -> bytecode -> JVM.
-- Primitives typically on stack; objects on heap.
-- Class = fields + methods.
-- Constructors initialize objects.
-- Encapsulation: `private` + controlled access.
-- `static` shared; `final` unchangeable.
-- String immutable; prefer StringBuilder in loops.
-- GC handles unused objects.
+> **The four pillars:** Encapsulation, Abstraction, Inheritance, Polymorphism.
 
----
-
-### 17. Common Pitfalls and Interview Hints
-
-1. `==` vs `equals()`
-2. Default constructor disappears once you declare any constructor.
-3. Static methods can't access instance vars directly.
-4. GC timing isn't guaranteed; eligibility matters.
-5. Pass-by-value always (references are copied).
-6. Instance vars get defaults; local vars do not.
-7. `private < default < protected < public`
-8. String concatenation in loops is expensive.
-
----
-
-## Part 2 - Object-Oriented Programming
-
-### 1. The Core OOP Principles
-
-#### Encapsulation
+### Encapsulation
 
 ```java
 public class BankAccount {
@@ -428,21 +103,13 @@ public class BankAccount {
         if (amount > 0) balance += amount;
     }
 
-    public double getBalance() {
-        return balance;
-    }
+    public double getBalance() { return balance; }
 }
 ```
 
-Encapsulation enables validation, hiding internals, and future-proofing.
+`private` state + controlled public access. Enables validation, hides internals, future-proofs the API.
 
-#### Abstraction
-
-Focus on what an object does, not how. Use interfaces/abstract classes as contracts.
-
----
-
-### 2. Inheritance
+### Inheritance
 
 ```java
 class Animal {
@@ -452,402 +119,116 @@ class Animal {
 class Dog extends Animal {
     void bark() { System.out.println("Woof!"); }
 }
-
-Dog d = new Dog();
-d.eat();
-d.bark();
 ```
 
-Rules:
+- Single inheritance only (`extends` one class).
+- Private members are not inherited.
+- `super()` calls parent constructor — must be first statement.
 
-- Single inheritance for classes (`extends` one superclass).
-- Inherits public/protected members.
-- Private members aren't inherited.
-
----
-
-### 3. The `super` Keyword
-
-```java
-class Animal {
-    Animal() { System.out.println("Animal created"); }
-    void eat() { System.out.println("Animal eats"); }
-}
-
-class Dog extends Animal {
-    Dog() {
-        super();
-        System.out.println("Dog created");
-    }
-
-    void eat() {
-        super.eat();
-        System.out.println("Dog munches kibble");
-    }
-}
-```
-
----
-
-### 4. Constructor Chaining
-
-```java
-class A { A() { System.out.println("A"); } }
-class B extends A { B() { System.out.println("B"); } }
-class C extends B { C() { System.out.println("C"); } }
-
-new C(); // A B C
-```
-
----
-
-### 5. Method Overriding
-
-```java
-class Animal { void sound() { System.out.println("Some sound"); } }
-
-class Cat extends Animal {
-    @Override
-    void sound() { System.out.println("Meow"); }
-}
-```
-
-Rules: same signature; can't override `final` or `static`; can't reduce visibility.
-
----
-
-### 6. Overloading vs Overriding
+### Method Overriding vs Overloading
 
 | Feature | Overloading | Overriding |
-| --- | --- | --- |
-| Relation | same class | subclass modifies superclass |
-| Signature | must differ | must be identical |
-| Polymorphism | no | yes |
-| Resolved | compile-time | runtime |
+|---|---|---|
+| Where | Same class | Subclass modifies superclass |
+| Signature | Must differ | Must be identical |
+| Resolved | Compile-time | Runtime |
+| Polymorphism | No | Yes |
 
----
+Rules for overriding: same signature, can't reduce visibility, can't override `final` or `static`.
 
-### 7. IS-A and HAS-A
-
-- IS-A: inheritance (`Dog extends Animal`)
-- HAS-A: composition
+### Polymorphism
 
 ```java
-class Engine {}
-class Car {
-    private Engine engine = new Engine();
-}
+Animal a = new Dog(); // reference type = Animal, object type = Dog
+a.eat();              // Dog's eat() runs — determined at runtime
 ```
 
----
+Reference type controls what you can *call*. Object type controls what *runs*.
 
-### 8. Polymorphism
+### Abstract Classes vs Interfaces
 
-```java
-Animal a = new Dog();
-a.eat();
-```
-
-Reference type controls what you can call; object type controls what runs.
-
----
-
-### 9. `instanceof`
-
-```java
-if (obj instanceof Dog) {
-    Dog d = (Dog) obj;
-    d.bark();
-}
-```
-
----
-
-### 10. Abstract Classes
+| Feature | Abstract Class | Interface |
+|---|---|---|
+| Inheritance | One | Many |
+| Methods | Abstract + concrete | Abstract + default/static (Java 8+) |
+| Variables | Any | `public static final` only |
+| Constructors | Yes | No |
+| Use case | Shared partial logic | Shared contract |
 
 ```java
 abstract class Animal {
-    abstract void makeSound();
-    void sleep() { System.out.println("Sleeping"); }
+    abstract void makeSound();       // subclass must implement
+    void sleep() { /* shared */ }   // optional override
 }
 
-class Dog extends Animal {
-    void makeSound() { System.out.println("Bark!"); }
-}
-```
-
----
-
-### 11. Interfaces
-
-```java
-interface Animal {
-    void eat();
-    void move();
-}
-
-class Bird implements Animal {
-    public void eat() { System.out.println("Pecking food"); }
-    public void move() { System.out.println("Flying"); }
+interface Flyable {
+    void fly();
+    default void land() { System.out.println("Landing..."); } // Java 8+
 }
 ```
 
-Defaults/statics (Java 8+):
+### `Object` Class
 
-```java
-interface Vehicle {
-    default void start() { System.out.println("Starting..."); }
-    static void stop() { System.out.println("Stopped"); }
-}
-```
-
----
-
-### 12. Multiple Inheritance Problem
-
-Java avoids multiple class inheritance; interfaces allow multiple:
-
-```java
-interface Flyer { void fly(); }
-interface Swimmer { void swim(); }
-
-class Duck implements Flyer, Swimmer {
-    public void fly() { System.out.println("Flying"); }
-    public void swim() { System.out.println("Swimming"); }
-}
-```
-
----
-
-### 13. Object Class
-
-All classes extend `java.lang.Object`.
-
-Key methods: `toString()`, `equals()`, `hashCode()`, `getClass()`, `clone()`, `finalize()` (deprecated).
-
-Overriding `equals()` and `hashCode()`:
+Every class extends `java.lang.Object`. Always override both `equals()` and `hashCode()` together — breaking one breaks hashed collections.
 
 ```java
 @Override
 public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof Dog)) return false;
-    Dog d = (Dog) o;
-    return this.name.equals(d.name);
+    return this.name.equals(((Dog) o).name);
 }
 
 @Override
-public int hashCode() {
-    return name.hashCode();
-}
+public int hashCode() { return name.hashCode(); }
 ```
 
----
+### IS-A vs HAS-A
 
-### 14. `final` in OOP
+- **IS-A** → inheritance (`Dog extends Animal`)
+- **HAS-A** → composition (prefer this — less coupling)
 
 ```java
-final class Constants {
-    static final double PI = 3.14159;
+class Car {
+    private Engine engine = new Engine(); // HAS-A
 }
 ```
 
----
+### Design Principles
 
-### 15. Object Relationships in Memory
+- Prefer composition over inheritance.
+- Program to an interface: `List<String> list = new ArrayList<>();`
+- Encapsulate what varies.
+- Don't call overridable methods in constructors — the subclass isn't fully initialized yet.
 
-```java
-Animal myDog = new Dog();
-```
+### Key Pitfalls
 
-- Reference type: `Animal`
-- Object type: `Dog`
-
-```java
-myDog.eat();  // ok
-// myDog.bark(); // not visible via Animal reference
-((Dog) myDog).bark();
-```
+- Constructors are not inherited.
+- Static methods are hidden, not overridden.
+- Overusing `instanceof` signals poor polymorphic design.
+- Avoid deep inheritance chains — they become unmaintainable.
 
 ---
 
-### 16. Design Principles
+## Part 3 — Core Java Concepts
 
-1. Prefer composition over inheritance.
-2. Program to an interface: `List<String> list = new ArrayList<>();`
-3. Encapsulate what varies.
-4. Open/Closed principle.
-5. Liskov substitution.
+### `static` vs Instance
 
----
+| | Static | Instance |
+|---|---|---|
+| Memory | One per class | One per object |
+| Access | `ClassName.method()` | `object.method()` |
+| Can access instance members? | No | Yes |
 
-### 17. Practical Example: Polymorphic Zoo
-
-```java
-abstract class Animal {
-    abstract void speak();
-}
-
-class Dog extends Animal {
-    void speak() { System.out.println("Woof"); }
-}
-
-class Cat extends Animal {
-    void speak() { System.out.println("Meow"); }
-}
-
-class Zoo {
-    void makeNoise(Animal a) { a.speak(); }
-
-    public static void main(String[] args) {
-        Zoo z = new Zoo();
-        z.makeNoise(new Dog());
-        z.makeNoise(new Cat());
-    }
-}
-```
-
-Output:
-
-```text
-Woof
-Meow
-```
-
----
-
-### 18. Abstract Class vs Interface
-
-| Feature | Abstract Class | Interface |
-| --- | --- | --- |
-| Inheritance | one | many |
-| Methods | abstract + concrete | abstract (+ default/static) |
-| Vars | any | `public static final` |
-| Constructors | yes | no |
-| Use case | shared partial logic | shared contract |
-
----
-
-### 19. Common Pitfalls
-
-1. Constructors aren't inherited.
-2. Static methods are hidden, not overridden.
-3. Overusing `instanceof` often signals poor design.
-4. Avoid deep inheritance.
-5. Don't call overridable methods in constructors.
-
----
-
-### 20. Summary Checklist
-
-- IS-A: inheritance; HAS-A: composition.
-- Overriding enables polymorphism.
-- `super()` for chaining.
-- Abstract classes are templates; interfaces are contracts.
-- Every class extends Object.
-- Polymorphism runtime; overloading compile-time.
-
----
-
-## Part 3 - Core Java Concepts
-
-### 1. The Java Memory Model
-
-| Area | Stores | Lifetime |
-| --- | --- | --- |
-| Stack | calls, locals, params | until method ends |
-| Heap | objects, instance vars | until GC |
-
-```java
-class Person { String name; }
-
-public class Test {
-    public static void main(String[] args) {
-        Person p = new Person();
-        p.name = "Nishanth";
-    }
-}
-```
-
-GC is not deterministic:
-
-```java
-System.gc(); // hint only
-```
-
-Reference types: strong (default), weak/soft (caches).
-
----
-
-### 2. Constructors - Deep Dive
-
-```java
-class Box {
-    int width, height;
-    Box(int w, int h) { width = w; height = h; }
-}
-```
-
-Chaining:
-
-```java
-class Rectangle {
-    int width, height;
-    Rectangle() { this(1, 1); }
-    Rectangle(int w, int h) { width = w; height = h; }
-}
-```
-
----
-
-### 3. Initialization Blocks
-
-```java
-class Sample {
-    static { System.out.println("Static block"); }
-    { System.out.println("Instance block"); }
-    Sample() { System.out.println("Constructor"); }
-}
-```
-
----
-
-### 4. `this` Keyword
-
-- `this.name = name;`
-- `display(this);`
-- `this("default");`
-
----
-
-### 5. `static` Keyword
-
-```java
-class Counter {
-    static int count = 0;
-    Counter() { count++; }
-}
-```
-
-Static methods:
-
-```java
-class MathUtils {
-    static int square(int n) { return n * n; }
-}
-```
-
----
-
-### 6. `final` Keyword
+### `final`
 
 | Usage | Effect |
-| --- | --- |
-| final var | no reassignment |
-| final method | no override |
-| final class | no extend |
+|---|---|
+| `final` variable | No reassignment after init |
+| `final` method | Cannot be overridden |
+| `final` class | Cannot be extended |
 
-Blank finals:
+Blank finals must be assigned in constructor:
 
 ```java
 class Config {
@@ -856,268 +237,114 @@ class Config {
 }
 ```
 
----
+### Initialization Order
 
-### 7. Static vs Instance
+```java
+class Sample {
+    static { System.out.println("1. Static block"); }     // once, on class load
+    { System.out.println("2. Instance block"); }          // each instantiation
+    Sample() { System.out.println("3. Constructor"); }    // each instantiation
+}
+```
 
-| Feature | Static | Instance |
-| --- | --- | --- |
-| Memory | one per class | one per object |
-| Access | class name | object |
-| Lifetime | program | until GC |
-
----
-
-### 8. Wrapper Classes
+### Wrapper Classes + Autoboxing
 
 | Primitive | Wrapper |
-| --- | --- |
+|---|---|
 | `int` | `Integer` |
 | `double` | `Double` |
 | `char` | `Character` |
 | `boolean` | `Boolean` |
 
 ```java
-Integer a = 5;
-int b = a + 1;
+Integer a = 5;       // autoboxing
+int b = a + 1;       // unboxing
 
 int i = Integer.parseInt("42");
 String s = Integer.toString(100);
 ```
 
----
+> ⚠️ Unboxing `null` throws `NullPointerException`.
 
-### 9. Autoboxing/Unboxing
+### Nested / Inner Classes
 
-```java
-List<Integer> list = new ArrayList<>();
-list.add(10);
-int n = list.get(0);
-```
-
-Beware `NullPointerException` when unboxing `null`.
-
----
-
-### 10. `String`, `StringBuilder`, `StringBuffer`
+| Type | Access to outer | Instantiation |
+|---|---|---|
+| Member inner | Yes | `new Outer().new Inner()` |
+| Static nested | No (static only) | `new Outer.Nested()` |
+| Local inner | Yes (effectively final vars) | Inside method only |
+| Anonymous | Yes | Inline at usage point |
 
 ```java
-String s1 = "Java";
-String s2 = "Java";
-System.out.println(s1 == s2);
-System.out.println(s1.equals(s2));
+// Anonymous (old style)
+Runnable r1 = new Runnable() { public void run() { ... } };
+
+// Lambda (prefer this)
+Runnable r2 = () -> System.out.println("Running");
 ```
 
-StringBuilder:
-
-```java
-StringBuilder sb = new StringBuilder("Java");
-sb.append(" Rocks!");
-System.out.println(sb);
-```
-
-StringBuffer is synchronized (thread-safe).
-
----
-
-### 11. Packages and Imports
-
-```java
-package com.company.utils;
-
-public class Helper {
-    public static void print(String msg) {
-        System.out.println(msg);
-    }
-}
-```
-
-```java
-import com.company.utils.Helper;
-
-public class Test {
-    public static void main(String[] args) {
-        Helper.print("Hello");
-    }
-}
-```
-
-Static imports:
-
-```java
-import static java.lang.Math.*;
-System.out.println(sqrt(16));
-```
-
----
-
-### 12. Access Modifiers Recap
-
-| Modifier | Class | Package | Subclass | World |
-| --- | --- | --- | --- | --- |
-| public | yes | yes | yes | yes |
-| protected | yes | yes | yes | no |
-| default | yes | yes | no | no |
-| private | yes | no | no | no |
-
----
-
-### 13. Nested and Inner Classes
-
-Inner class:
-
-```java
-class Outer {
-    class Inner {
-        void show() { System.out.println("Inner"); }
-    }
-}
-Outer.Inner obj = new Outer().new Inner();
-```
-
-Static nested:
-
-```java
-class Outer {
-    static class Nested {
-        void show() { System.out.println("Nested"); }
-    }
-}
-Outer.Nested n = new Outer.Nested();
-```
-
-Anonymous class:
-
-```java
-Button b = new Button();
-b.addActionListener(new ActionListener() {
-    public void actionPerformed(ActionEvent e) {
-        System.out.println("Clicked!");
-    }
-});
-```
-
----
-
-### 14. Enums
-
-```java
-enum Day { MONDAY, TUESDAY, WEDNESDAY; }
-Day d = Day.MONDAY;
-```
-
-Enum with fields:
+### Enums
 
 ```java
 enum Level {
     LOW(1), MEDIUM(2), HIGH(3);
-    private int code;
+    private final int code;
     Level(int code) { this.code = code; }
     public int getCode() { return code; }
 }
 ```
 
----
+Type-safe constants. Can have fields, methods, constructors.
 
-### 15. Immutable Classes
+### Immutable Classes
+
+Recipe: `final` class + `private final` fields + no setters + defensive copies of mutable fields.
 
 ```java
 final class Employee {
     private final String name;
     private final int id;
-
-    Employee(String name, int id) {
-        this.name = name;
-        this.id = id;
-    }
-
+    Employee(String name, int id) { this.name = name; this.id = id; }
     public String getName() { return name; }
-    public int getId() { return id; }
 }
 ```
 
----
+### `var` (Java 10+)
 
-### 16. `var` (Java 10+)
+Local variables only. Type inferred at compile time — not dynamic.
 
 ```java
-var list = new ArrayList<String>();
-list.add("Java");
+var list = new ArrayList<String>(); // inferred as ArrayList<String>
 ```
 
-Local variables only; inferred at compile time.
+### Access Modifiers
+
+| Modifier | Same Class | Same Package | Subclass | Everywhere |
+|---|---|---|---|---|
+| `public` | ✓ | ✓ | ✓ | ✓ |
+| `protected` | ✓ | ✓ | ✓ | ✗ |
+| default | ✓ | ✓ | ✗ | ✗ |
+| `private` | ✓ | ✗ | ✗ | ✗ |
 
 ---
 
-### 17. Common Mistakes
+## Part 4 — Advanced Java
 
-1. Static methods can't access instance data.
-2. Calling instance methods from `main()` without creating an object.
-3. Comparing Strings with `==` instead of `equals()`.
-4. Mutating objects that should be immutable.
-5. Assuming GC is immediate.
-
----
-
-### 18. Summary Checklist
-
-- Stack vs heap.
-- Constructors and default constructor rule.
-- Static shared across instances.
-- Final locks modification.
-- Wrapper classes + autoboxing.
-- StringBuilder for concatenation.
-- Packages/imports for organization.
-- Enums for type-safe constants.
-- Immutable design patterns.
-
----
-
-## Part 4 - Advanced Java
-
-### 1. Exception Handling
+### Exception Handling
 
 ```java
 try {
     int x = 10 / 0;
 } catch (ArithmeticException e) {
-    System.out.println("Cannot divide by zero");
+    System.out.println("Caught: " + e.getMessage());
 } finally {
-    System.out.println("Cleanup code runs always");
+    System.out.println("Always runs — cleanup here");
 }
 ```
 
-Multiple catch (specific first):
-
-```java
-try {
-    FileReader f = new FileReader("data.txt");
-} catch (FileNotFoundException e) {
-    e.printStackTrace();
-} catch (IOException e) {
-    System.out.println("I/O Error");
-}
-```
-
-Throwing and declaring:
-
-```java
-if (age < 18) throw new IllegalArgumentException("Too young");
-
-void readFile() throws IOException {
-    // code
-}
-```
-
-Custom exception:
-
-```java
-class InvalidUserException extends Exception {
-    InvalidUserException(String msg) { super(msg); }
-}
-```
-
-Try-with-resources:
+- Catch specific exceptions first, broader ones last.
+- `finally` always runs — even if you `return` inside `try`.
+- **Try-with-resources** — auto-closes anything implementing `AutoCloseable`:
 
 ```java
 try (BufferedReader br = new BufferedReader(new FileReader("data.txt"))) {
@@ -1127,93 +354,51 @@ try (BufferedReader br = new BufferedReader(new FileReader("data.txt"))) {
 }
 ```
 
----
+- **Checked** exceptions (must declare or catch): `IOException`, `SQLException`.
+- **Unchecked** exceptions (runtime, no forced handling): `NullPointerException`, `IllegalArgumentException`.
 
-### 2. The Collections Framework
-
-Hierarchy overview:
-
-```text
-Collection
-|-- List: ArrayList, LinkedList, Vector/Stack
-|-- Set: HashSet, LinkedHashSet, TreeSet
-`-- Queue: PriorityQueue, ArrayDeque
-
-Map: HashMap, LinkedHashMap, TreeMap
-```
-
-List:
+Custom exception:
 
 ```java
-List<String> names = new ArrayList<>();
-names.add("Alice");
-names.add("Bob");
-System.out.println(names.get(0));
-```
-
-Set:
-
-```java
-Set<String> set = new HashSet<>();
-set.add("A");
-set.add("A");
-System.out.println(set.size());
-```
-
-Map:
-
-```java
-Map<String, Integer> scores = new HashMap<>();
-scores.put("Alice", 90);
-scores.put("Bob", 80);
-System.out.println(scores.get("Alice"));
-```
-
-Queue:
-
-```java
-Queue<String> q = new LinkedList<>();
-q.offer("First");
-q.offer("Second");
-System.out.println(q.poll());
-```
-
-Sorting and iteration:
-
-```java
-List<Integer> nums = Arrays.asList(3,1,2);
-Collections.sort(nums);
-for (int n : nums) System.out.println(n);
-```
-
-Safe removal with Iterator:
-
-```java
-Iterator<String> it = names.iterator();
-while (it.hasNext()) {
-    if (it.next().equals("Bob")) it.remove();
+class InvalidUserException extends Exception {
+    InvalidUserException(String msg) { super(msg); }
 }
 ```
 
-HashMap vs LinkedHashMap vs TreeMap:
+### Collections Framework
 
-| Type | Order | Performance | Null Allowed |
-| --- | --- | --- | --- |
-| HashMap | unordered | fastest | yes |
-| LinkedHashMap | insertion | slightly slower | yes |
-| TreeMap | sorted by key | O(log n) | no |
+```
+Collection
+├── List   → ArrayList, LinkedList
+├── Set    → HashSet, LinkedHashSet, TreeSet
+└── Queue  → PriorityQueue, ArrayDeque
 
----
-
-### 3. Generics
-
-```java
-List<String> list = new ArrayList<>();
-list.add("Java");
-String s = list.get(0);
+Map        → HashMap, LinkedHashMap, TreeMap
 ```
 
-Generic class:
+**Choose by behavior:**
+
+| Collection | Order | Duplicates | Null | Performance |
+|---|---|---|---|---|
+| `ArrayList` | insertion | yes | yes | O(1) get |
+| `LinkedList` | insertion | yes | yes | O(1) add/remove at ends |
+| `HashSet` | none | no | one null | O(1) add/contains |
+| `TreeSet` | sorted | no | no | O(log n) |
+| `HashMap` | none | keys unique | yes | O(1) |
+| `LinkedHashMap` | insertion | keys unique | yes | O(1) |
+| `TreeMap` | key-sorted | keys unique | no | O(log n) |
+
+```java
+// Safe removal during iteration — never use for-each to remove
+Iterator<String> it = names.iterator();
+while (it.hasNext()) {
+    if (it.next().equals("Bob")) it.remove(); // safe
+}
+```
+
+### Generics
+
+Type-safe containers. Errors caught at compile time, not runtime.
 
 ```java
 class Box<T> {
@@ -1221,411 +406,200 @@ class Box<T> {
     void set(T v) { value = v; }
     T get() { return value; }
 }
-```
 
-Bounded types:
-
-```java
+// Bounded type
 class Calculator<T extends Number> {
-    double add(T a, T b) {
-        return a.doubleValue() + b.doubleValue();
-    }
+    double add(T a, T b) { return a.doubleValue() + b.doubleValue(); }
 }
 ```
 
 Wildcards:
 
-| Syntax | Meaning |
-| --- | --- |
-| `?` | any type |
-| `? extends T` | upper bound |
-| `? super T` | lower bound |
+| Syntax | Meaning | Use when |
+|---|---|---|
+| `?` | any type | read-only, unknown type |
+| `? extends T` | T or subtype | reading from structure |
+| `? super T` | T or supertype | writing to structure |
 
-Type erasure note: JVM doesn't retain generic type params at runtime.
+> ⚠️ Type erasure: generic type info is removed at runtime. `List<String>` and `List<Integer>` are both `List` at runtime.
 
----
-
-### 4. Inner Classes (Deeper)
-
-Member inner:
+### Comparable vs Comparator
 
 ```java
-class Outer {
-    private int x = 10;
-    class Inner {
-        void print() { System.out.println(x); }
-    }
-}
-new Outer().new Inner().print();
-```
-
-Static nested:
-
-```java
-class Outer {
-    static class Nested {
-        void show() { System.out.println("Static Nested"); }
-    }
-}
-Outer.Nested n = new Outer.Nested();
-```
-
-Local inner:
-
-```java
-class Test {
-    void display() {
-        class Local {
-            void msg() { System.out.println("Inside local class"); }
-        }
-        new Local().msg();
-    }
-}
-```
-
-Anonymous + lambda:
-
-```java
-Runnable r1 = new Runnable() {
-    public void run() { System.out.println("Running thread"); }
-};
-
-Runnable r2 = () -> System.out.println("Running thread");
-```
-
----
-
-### 5. Collections Utilities
-
-```java
-List<Integer> list = Arrays.asList(1,2,3);
-Collections.reverse(list);
-Collections.shuffle(list);
-Collections.sort(list);
-Collections.min(list);
-Collections.max(list);
-```
-
-Immutable (Java 9+):
-
-```java
-List<String> imm = List.of("A", "B", "C");
-```
-
----
-
-### 6. Comparable and Comparator
-
-Comparable:
-
-```java
+// Comparable — natural ordering, built into the class
 class Student implements Comparable<Student> {
     int id;
-    public int compareTo(Student s) {
-        return this.id - s.id;
-    }
+    public int compareTo(Student s) { return this.id - s.id; }
 }
-```
 
-Comparator:
-
-```java
+// Comparator — external, flexible, multiple orderings
 Comparator<Student> byName = (a, b) -> a.name.compareTo(b.name);
-Collections.sort(list, byName);
+list.sort(byName);
 ```
 
+### Key Pitfalls
+
+- `ConcurrentModificationException` — modifying a collection while iterating with for-each.
+- `equals()`/`hashCode()` mismatch — breaks `HashMap`, `HashSet`.
+- Mutable objects as `HashMap` keys — hash changes, key is lost.
+- Raw types (`List` instead of `List<String>`) — lose all type safety.
+
 ---
 
-### 7. EnumSet and EnumMap
+## Part 5 — Concurrency & Threads
+
+> **Core problem:** Multiple threads sharing mutable state → race conditions, data corruption, deadlocks.
+
+### Creating Threads
 
 ```java
-enum Direction { NORTH, SOUTH, EAST, WEST }
-
-EnumSet<Direction> dirs = EnumSet.of(Direction.NORTH, Direction.EAST);
-EnumMap<Direction, String> map = new EnumMap<>(Direction.class);
-map.put(Direction.NORTH, "Up");
-```
-
----
-
-### 8. Common Pitfalls
-
-1. `ConcurrentModificationException` while modifying during iteration.
-2. Unchecked casts / raw types.
-3. `equals()`/`hashCode()` mismatch breaks hashed collections.
-4. Mutable keys in HashMap.
-5. Misusing synchronized wrappers vs concurrent collections.
-
----
-
-### 9. Summary Checklist
-
-- Use try/catch/finally or try-with-resources.
-- Pick the right collection by behavior and performance.
-- Use generics for type safety.
-- Prefer lambdas for functional single-method cases.
-- Don't mutate collections during foreach iteration.
-
----
-
-## Part 5 - Concurrency & Threads
-
-### 1. What Is a Thread?
-
-A thread is a path of execution. Java starts with the main thread; you can create more.
-
----
-
-### 2. Creating Threads
-
-Extending `Thread`:
-
-```java
+// Option 1 — extend Thread (limits flexibility)
 class MyThread extends Thread {
-    public void run() {
-        System.out.println("Running in " + Thread.currentThread().getName());
-    }
+    public void run() { System.out.println("Running"); }
 }
+new MyThread().start();
 
-public class Demo {
-    public static void main(String[] args) {
-        MyThread t1 = new MyThread();
-        t1.start();
-    }
-}
+// Option 2 — implement Runnable (preferred)
+Thread t = new Thread(() -> System.out.println("Running"));
+t.start();
 ```
 
-Implementing `Runnable`:
+> ⚠️ `start()` schedules the thread. `run()` just calls the method on the current thread. Never call `run()` directly.
 
-```java
-class Task implements Runnable {
-    public void run() {
-        System.out.println("Running via Runnable");
-    }
-}
-
-public class Demo {
-    public static void main(String[] args) {
-        Thread t = new Thread(new Task());
-        t.start();
-    }
-}
-```
-
----
-
-### 3. Thread Lifecycle
+### Thread Lifecycle
 
 | State | Description |
-| --- | --- |
-| New | created, not started |
-| Runnable | ready/running |
-| Blocked/Waiting | waiting for resource/condition |
-| Timed waiting | sleeping |
-| Terminated | finished |
+|---|---|
+| New | Created, not started |
+| Runnable | Ready or actively running |
+| Blocked/Waiting | Waiting for lock or signal |
+| Timed Waiting | `sleep()` or `wait(timeout)` |
+| Terminated | Finished execution |
 
----
-
-### 4. Thread Methods
-
-`start()`, `run()`, `sleep()`, `join()`, `isAlive()`, `interrupt()`, priorities.
-
-```java
-t1.start();
-t1.join();
-```
-
----
-
-### 5. Synchronization
+### Synchronization
 
 ```java
 class Counter {
     private int count = 0;
-    public synchronized void increment() { count++; }
-    public int getCount() { return count; }
-}
-```
 
-Synchronized block:
+    public synchronized void increment() { count++; } // method-level lock
 
-```java
-void increment() {
-    synchronized(this) {
-        // critical section
+    public void decrement() {
+        synchronized(this) { count--; }               // block-level lock
     }
 }
 ```
 
-Static synchronization locks the class object.
+- `synchronized` on an instance method locks `this`.
+- `synchronized` on a static method locks the `Class` object.
+- `wait()` releases the lock. `sleep()` does not.
 
----
+### `volatile`
 
-### 6. Inter-Thread Communication
-
-```java
-class Shared {
-    synchronized void waitForSignal() {
-        try { wait(); } catch (InterruptedException e) {}
-    }
-
-    synchronized void sendSignal() {
-        notify();
-    }
-}
-```
-
-Must be in synchronized context; `wait()` releases the lock.
-
----
-
-### 7. Deadlocks
-
-Avoid by consistent lock ordering, minimal lock scope, higher-level utilities.
-
----
-
-### 8. `volatile`
-
-Visibility guarantee, not atomicity:
+Guarantees visibility across threads. Does **not** guarantee atomicity.
 
 ```java
-volatile boolean running = true;
+volatile boolean running = true; // reads/writes always go to main memory
 ```
 
----
+Use for simple flags. For increment/decrement, use `AtomicInteger`.
 
-### 9. Atomic Operations
+### Atomic Operations
 
 ```java
-AtomicInteger count = new AtomicInteger();
-count.incrementAndGet();
+AtomicInteger count = new AtomicInteger(0);
+count.incrementAndGet(); // thread-safe, no synchronization needed
+count.compareAndSet(5, 10); // CAS operation
 ```
 
----
-
-### 10. Executors, Callable, Future
+### Executors (Prefer Over Raw Threads)
 
 ```java
-ExecutorService executor = Executors.newFixedThreadPool(3);
-executor.submit(() -> System.out.println("Task executed"));
-executor.shutdown();
+ExecutorService pool = Executors.newFixedThreadPool(4);
+pool.submit(() -> System.out.println("Task"));
+pool.shutdown(); // don't forget this
 ```
 
-Callable/Future:
+### Callable + Future (Get Results from Threads)
 
 ```java
 Callable<Integer> task = () -> 5 + 10;
 ExecutorService ex = Executors.newSingleThreadExecutor();
 Future<Integer> result = ex.submit(task);
-System.out.println(result.get());
+System.out.println(result.get()); // blocks until done
 ex.shutdown();
 ```
 
----
-
-### 11. Locks (`ReentrantLock`)
+### `ReentrantLock` (More Control Than `synchronized`)
 
 ```java
 Lock lock = new ReentrantLock();
+lock.lock();
 try {
-    lock.lock();
+    // critical section
 } finally {
-    lock.unlock();
+    lock.unlock(); // always in finally
 }
 ```
 
----
-
-### 12. Concurrent Collections
-
-`ConcurrentHashMap`, `CopyOnWriteArrayList`, etc.
-
----
-
-### 13. ThreadLocal
+### Inter-Thread Communication
 
 ```java
-ThreadLocal<Integer> counter = ThreadLocal.withInitial(() -> 0);
-counter.set(counter.get() + 1);
-System.out.println(counter.get());
+// Must be inside synchronized block
+wait();    // releases lock, waits for notify()
+notify();  // wakes one waiting thread
+notifyAll(); // wakes all
 ```
 
----
+### Deadlocks
 
-### 14. Common Interview Traps
+Caused by two threads each holding a lock the other needs. Avoid by:
+- Always acquiring locks in the same order.
+- Keeping lock scope minimal.
+- Using `tryLock()` with timeout.
 
-- `start()` vs `run()`
-- `sleep()` doesn't release locks; `wait()` does
-- visibility issues without `volatile`/locks
-- deadlocks from lock order
+### Concurrent Collections
 
----
+Prefer over manually synchronized wrappers:
 
-### 15. Summary Checklist
+| Class | Use Case |
+|---|---|
+| `ConcurrentHashMap` | Thread-safe map, segment-level locking |
+| `CopyOnWriteArrayList` | Read-heavy, rare writes |
+| `ArrayBlockingQueue` | Producer-consumer pattern |
 
-- Prefer executors/pools over manual threads.
-- Use synchronized/locks/atomics correctly.
-- Use concurrent collections.
-- Design to minimize shared mutable state.
+### `ThreadLocal`
 
----
-
-## Part 6 - I/O, Files, and Serialization
-
-### 1. Java I/O Model
-
-Two hierarchies:
-
-| Type | For | Root |
-| --- | --- | --- |
-| Byte streams | binary data | `InputStream` / `OutputStream` |
-| Char streams | text | `Reader` / `Writer` |
-
----
-
-### 2. Byte Streams
-
-Read:
+Per-thread variable — each thread gets its own copy. Common in web frameworks for user context.
 
 ```java
-try (FileInputStream in = new FileInputStream("input.bin")) {
-    int data;
-    while ((data = in.read()) != -1) {
-        System.out.print((char) data);
-    }
-} catch (IOException e) {
-    e.printStackTrace();
-}
+ThreadLocal<Integer> threadId = ThreadLocal.withInitial(() -> 0);
 ```
 
-Write:
+### Key Pitfalls
 
-```java
-try (FileOutputStream out = new FileOutputStream("output.bin")) {
-    out.write("Hello".getBytes());
-} catch (IOException e) {
-    e.printStackTrace();
-}
-```
+- Calling `run()` instead of `start()` — no new thread created.
+- `sleep()` doesn't release locks — can cause contention.
+- Missing `volatile` on shared flags — thread may never see update.
+- Forgetting `finally` around `lock.unlock()` — deadlock on exception.
 
 ---
 
-### 3. Character Streams
+## Part 6 — I/O, Files, and Serialization
+
+> **Always use try-with-resources.** Always use buffered streams for performance.
+
+### I/O Stream Hierarchy
+
+| Type | Root Classes | For |
+|---|---|---|
+| Byte streams | `InputStream` / `OutputStream` | Binary data (images, files) |
+| Char streams | `Reader` / `Writer` | Text data |
+
+### Reading and Writing Files
 
 ```java
-try (FileReader fr = new FileReader("data.txt");
-     FileWriter fw = new FileWriter("copy.txt")) {
-    int ch;
-    while ((ch = fr.read()) != -1) {
-        fw.write(ch);
-    }
-}
-```
-
-Buffered:
-
-```java
+// Text — buffered for performance
 try (BufferedReader br = new BufferedReader(new FileReader("input.txt"));
      BufferedWriter bw = new BufferedWriter(new FileWriter("output.txt"))) {
     String line;
@@ -1636,353 +610,196 @@ try (BufferedReader br = new BufferedReader(new FileReader("input.txt"));
 }
 ```
 
----
-
-### 4. Data Streams
-
 ```java
-try (DataOutputStream dos = new DataOutputStream(new FileOutputStream("data.bin"))) {
-    dos.writeInt(42);
-    dos.writeDouble(3.14);
-}
-
-try (DataInputStream dis = new DataInputStream(new FileInputStream("data.bin"))) {
-    System.out.println(dis.readInt());
-    System.out.println(dis.readDouble());
+// Binary
+try (FileInputStream in = new FileInputStream("file.bin");
+     FileOutputStream out = new FileOutputStream("copy.bin")) {
+    byte[] buf = new byte[1024];
+    int bytesRead;
+    while ((bytesRead = in.read(buf)) != -1) {
+        out.write(buf, 0, bytesRead);
+    }
 }
 ```
 
----
-
-### 5. `File` and `java.nio.file`
-
-`File` basics:
-
-```java
-File f = new File("notes.txt");
-if (f.exists()) System.out.println(f.length());
-```
-
-NIO:
+### NIO (`java.nio.file`) — Prefer for Modern Code
 
 ```java
 Path path = Paths.get("data.txt");
-System.out.println(Files.exists(path));
+
+// Check existence
+Files.exists(path);
+
+// Read all lines
+List<String> lines = Files.readAllLines(path);
+
+// Write
+Files.write(path, lines);
+
+// Copy
 Files.copy(path, Paths.get("backup.txt"), StandardCopyOption.REPLACE_EXISTING);
-```
 
-Read all lines:
-
-```java
-List<String> lines = Files.readAllLines(Paths.get("data.txt"));
-```
-
----
-
-### 6. Serialization
-
-Serializable:
-
-```java
-class Employee implements Serializable {
-    private String name;
-    private int id;
-    Employee(String n, int i) { name = n; id = i; }
-}
-```
-
-Write:
-
-```java
-try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("emp.ser"))) {
-    Employee e = new Employee("Alice", 101);
-    out.writeObject(e);
-}
-```
-
-Read:
-
-```java
-try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("emp.ser"))) {
-    Employee e = (Employee) in.readObject();
-    System.out.println("Restored: " + e);
-}
-```
-
-`transient`:
-
-```java
-class User implements Serializable {
-    String name;
-    transient String password;
-}
-```
-
-`serialVersionUID`:
-
-```java
-private static final long serialVersionUID = 1L;
-```
-
-Externalizable:
-
-```java
-class Employee implements Externalizable {
-    String name;
-    int id;
-
-    public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeObject(name);
-        out.writeInt(id);
-    }
-
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        name = (String) in.readObject();
-        id = in.readInt();
-    }
-}
-```
-
----
-
-### 7. Utilities
-
-PrintWriter:
-
-```java
-try (PrintWriter pw = new PrintWriter("log.txt")) {
-    pw.println("Error: Something broke");
-}
-```
-
-Scanner:
-
-```java
-Scanner sc = new Scanner(new File("data.txt"));
-while (sc.hasNextLine()) System.out.println(sc.nextLine());
-sc.close();
-```
-
-Traversal:
-
-```java
-try (Stream<Path> paths = Files.walk(Paths.get("C:/projects"))) {
+// Walk directory tree
+try (Stream<Path> paths = Files.walk(Paths.get("/projects"))) {
     paths.filter(Files::isRegularFile).forEach(System.out::println);
 }
 ```
 
----
+### Serialization
 
-### 8. Summary Checklist
-
-- Prefer try-with-resources.
-- Use buffered streams for performance.
-- Prefer NIO for modern filesystem operations.
-- Serialization persists objects; use `transient` for secrets.
-
----
-
-## Part 7 - Networking & Distributed Systems
-
-### 1. Networking Basics
-
-- IP address identifies a device.
-- Port identifies a service.
-- Socket = IP + port.
-
----
-
-### 2. InetAddress
+Persist an object's state to disk or network.
 
 ```java
-import java.net.*;
+class Employee implements Serializable {
+    private static final long serialVersionUID = 1L; // versioning
+    private String name;
+    private int id;
+    transient String password; // excluded from serialization
+}
 
-public class IPDemo {
-    public static void main(String[] args) throws Exception {
-        InetAddress addr = InetAddress.getByName("www.example.com");
-        System.out.println("Host Name: " + addr.getHostName());
-        System.out.println("IP Address: " + addr.getHostAddress());
-    }
+// Write
+try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("emp.ser"))) {
+    out.writeObject(new Employee("Alice", 101));
+}
+
+// Read
+try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("emp.ser"))) {
+    Employee e = (Employee) in.readObject();
 }
 ```
 
----
+- `transient` — skips that field during serialization.
+- `serialVersionUID` — if it mismatches on deserialization, `InvalidClassException` is thrown. Always declare it explicitly.
 
-### 3. TCP Sockets (Client/Server)
+### `Externalizable` vs `Serializable`
 
-Server:
+| | `Serializable` | `Externalizable` |
+|---|---|---|
+| Control | Automatic | Full manual control |
+| Performance | Slower | Faster (you choose what to write) |
+| Methods needed | None | `writeExternal()` + `readExternal()` |
 
-```java
-import java.io.*;
-import java.net.*;
+### Key Pitfalls
 
-class Server {
-    public static void main(String[] args) throws IOException {
-        ServerSocket server = new ServerSocket(5000);
-        System.out.println("Server waiting...");
-        Socket socket = server.accept();
-        DataInputStream in = new DataInputStream(socket.getInputStream());
-        System.out.println("Client says: " + in.readUTF());
-        server.close();
-    }
-}
-```
-
-Client:
-
-```java
-import java.io.*;
-import java.net.*;
-
-class Client {
-    public static void main(String[] args) throws IOException {
-        Socket socket = new Socket("localhost", 5000);
-        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-        out.writeUTF("Hello Server");
-        socket.close();
-    }
-}
-```
+- Forgetting to close streams → resource leak. Use try-with-resources.
+- Unbuffered streams are slow — always wrap with `Buffered*`.
+- Serializing sensitive data without `transient` — passwords end up on disk.
+- Missing `serialVersionUID` — class changes break deserialization silently.
 
 ---
 
-### 4. Two-Way Communication
+## Part 7 — Networking & Distributed Systems
+
+> **TCP** = reliable, ordered, connection-based. **UDP** = fast, connectionless, no delivery guarantee.
+
+### TCP Client/Server
 
 ```java
-BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-bw.write("Hello back!\n");
-bw.flush();
-```
+// Server
+ServerSocket server = new ServerSocket(5000);
+Socket socket = server.accept(); // blocks until client connects
+DataInputStream in = new DataInputStream(socket.getInputStream());
+System.out.println(in.readUTF());
+server.close();
 
----
-
-### 5. UDP (Datagrams)
-
-Sender:
-
-```java
-DatagramSocket socket = new DatagramSocket();
-byte[] data = "Hello".getBytes();
-DatagramPacket packet = new DatagramPacket(
-    data, data.length, InetAddress.getLocalHost(), 5000
-);
-socket.send(packet);
+// Client
+Socket socket = new Socket("localhost", 5000);
+DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+out.writeUTF("Hello Server");
 socket.close();
 ```
 
-Receiver:
+For production: wrap in `BufferedReader`/`BufferedWriter` and handle each client in a thread pool.
+
+### UDP (Datagrams)
 
 ```java
+// Sender
+DatagramSocket socket = new DatagramSocket();
+byte[] data = "Hello".getBytes();
+DatagramPacket packet = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), 5000);
+socket.send(packet);
+socket.close();
+
+// Receiver
 DatagramSocket socket = new DatagramSocket(5000);
 byte[] buf = new byte[1024];
 DatagramPacket packet = new DatagramPacket(buf, buf.length);
 socket.receive(packet);
 System.out.println(new String(packet.getData()).trim());
-socket.close();
 ```
 
----
-
-### 6. URL and URLConnection
+### URL — Quick HTTP Read
 
 ```java
 URL url = new URL("https://example.com");
-BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-String line;
-while ((line = br.readLine()) != null) System.out.println(line);
-br.close();
-```
-
----
-
-### 7. RMI (Remote Method Invocation)
-
-Remote interface:
-
-```java
-import java.rmi.*;
-
-public interface Hello extends Remote {
-    String sayHello(String name) throws RemoteException;
+try (BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()))) {
+    br.lines().forEach(System.out::println);
 }
 ```
 
-Implementation:
+### RMI vs Sockets vs Modern Alternatives
+
+| Option | Level | Use Case |
+|---|---|---|
+| Sockets | Low (bytes) | Custom protocols, max control |
+| RMI | High (objects) | Legacy distributed Java objects |
+| REST + JSON | High | Standard web APIs — use this |
+| gRPC | High + typed | High-performance microservices |
+| WebSockets | Persistent | Real-time bidirectional |
+| Kafka/RabbitMQ | Async | Event-driven, decoupled systems |
+
+> RMI is legacy. For anything new, use REST or gRPC. For event-driven systems, use a message broker.
+
+### `InetAddress`
 
 ```java
-import java.rmi.*;
-import java.rmi.server.*;
-
-public class HelloImpl extends UnicastRemoteObject implements Hello {
-    HelloImpl() throws RemoteException {}
-    public String sayHello(String name) { return "Hello, " + name; }
-}
+InetAddress addr = InetAddress.getByName("www.example.com");
+addr.getHostName();    // domain name
+addr.getHostAddress(); // IP string
 ```
 
-Server:
+### Key Pitfalls
 
-```java
-import java.rmi.*;
-import java.rmi.registry.*;
-
-public class Server {
-    public static void main(String[] args) throws Exception {
-        HelloImpl obj = new HelloImpl();
-        LocateRegistry.createRegistry(1099);
-        Naming.rebind("rmi://localhost/HelloService", obj);
-        System.out.println("RMI Server ready");
-    }
-}
-```
-
-Client:
-
-```java
-import java.rmi.*;
-
-public class Client {
-    public static void main(String[] args) throws Exception {
-        Hello h = (Hello) Naming.lookup("rmi://localhost/HelloService");
-        System.out.println(h.sayHello("Nishanth"));
-    }
-}
-```
-
-Policy file idea (be careful in real systems):
-
-```text
-grant {
-    permission java.security.AllPermission;
-};
-```
+- Not running server before client — connection refused.
+- Not closing sockets → resource leak.
+- UDP has no delivery guarantee — implement your own ACK for reliability.
+- RMI requires registry running, policy files, and is a pain in firewalled environments. Use REST.
 
 ---
 
-### 8. RMI vs Sockets
+## Quick Reference — When to Use What
 
-| Feature | RMI | Sockets |
-| --- | --- | --- |
-| Level | high (objects) | low (bytes) |
-| Ease | easier | more control |
-| Performance | slower | faster |
-| Use case | distributed objects | custom protocols |
+### Collections
 
----
+| Need | Use |
+|---|---|
+| Fast random access | `ArrayList` |
+| Fast insert/delete at ends | `LinkedList` or `ArrayDeque` |
+| Unique elements, fast lookup | `HashSet` |
+| Unique + sorted | `TreeSet` |
+| Key-value, fast lookup | `HashMap` |
+| Key-value + insertion order | `LinkedHashMap` |
+| Key-value + sorted keys | `TreeMap` |
+| Thread-safe map | `ConcurrentHashMap` |
 
-### 9. Modern Alternatives
+### Concurrency
 
-- REST (HTTP + JSON)
-- gRPC
-- WebSockets
-- Message brokers (Kafka/RabbitMQ)
+| Need | Use |
+|---|---|
+| Thread pool | `ExecutorService` |
+| Thread-safe counter | `AtomicInteger` |
+| Return value from thread | `Callable` + `Future` |
+| Shared flag across threads | `volatile boolean` |
+| Fine-grained locking | `ReentrantLock` |
+| Per-thread state | `ThreadLocal` |
 
----
+### I/O
 
-### 10. Summary Checklist
-
-- TCP: `Socket` / `ServerSocket`
-- UDP: `DatagramSocket`
-- `InetAddress` for host/IP utilities
-- `URL`/`URLConnection` for basic web reads
-- RMI is legacy; prefer REST/gRPC for modern distributed systems
+| Need | Use |
+|---|---|
+| Read text file | `BufferedReader` + `FileReader` |
+| Write text file | `BufferedWriter` + `FileWriter` |
+| Read binary | `FileInputStream` |
+| Modern file ops | `Files` + `Paths` (NIO) |
+| Persist objects | `ObjectOutputStream` / `ObjectInputStream` |
