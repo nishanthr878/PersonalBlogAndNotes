@@ -1,5 +1,7 @@
 export type ContentKind = 'blog' | 'leetcode' | 'projects'
 
+export type PostType = 'deep-dive' | 'note' | 'reference'
+
 export type BaseFrontmatter = {
   title: string
   date: Date
@@ -9,7 +11,9 @@ export type BaseFrontmatter = {
 }
 
 export type BlogFrontmatter = BaseFrontmatter & {
-  // TODO: add blog-specific fields only if you truly need them
+  // Explicitly set in frontmatter as: postType: deep-dive | note | reference
+  // Falls back to tag-based derivation in the UI if not set.
+  postType?: PostType
 }
 
 export type LeetCodeDifficulty = 'easy' | 'medium' | 'hard'
@@ -41,6 +45,6 @@ export type ContentEntry<TFrontmatter> = {
   body: string
 }
 
-export type BlogEntry = ContentEntry<BlogFrontmatter> & { kind: 'blog' }
+export type BlogEntry   = ContentEntry<BlogFrontmatter>   & { kind: 'blog' }
 export type LeetCodeEntry = ContentEntry<LeetCodeFrontmatter> & { kind: 'leetcode' }
-export type ProjectEntry = ContentEntry<ProjectFrontmatter> & { kind: 'projects' }
+export type ProjectEntry  = ContentEntry<ProjectFrontmatter>  & { kind: 'projects' }

@@ -5,9 +5,21 @@ import { Header } from '@/components/Header'
 import { defaultDescription, metadataBase, siteName } from '@/lib/seo/site'
 import './globals.css'
 
-const bodyFont = IBM_Plex_Sans({ subsets: ['latin'], variable: '--font-body', weight: ['400', '500', '600'] })
-const displayFont = Fraunces({ subsets: ['latin'], variable: '--font-display', weight: ['600', '700'] })
-const monoFont = IBM_Plex_Mono({ subsets: ['latin'], variable: '--font-code', weight: ['400', '500'] })
+const bodyFont = IBM_Plex_Sans({
+  subsets: ['latin'],
+  variable: '--font-body',
+  weight: ['400', '500', '600'],
+})
+const displayFont = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-display',
+  weight: ['600', '700'],
+})
+const monoFont = IBM_Plex_Mono({
+  subsets: ['latin'],
+  variable: '--font-code',
+  weight: ['400', '500'],
+})
 
 const title = 'Nishanth'
 
@@ -27,20 +39,14 @@ export const metadata: Metadata = {
     title,
     description: defaultDescription,
     url: '/',
-    images: [
-      {
-        url: '/og.svg',
-        width: 1200,
-        height: 630,
-        alt: `${title} - ${defaultDescription}`,
-      },
-    ],
+    // opengraph-image.tsx in /app is picked up automatically by Next.js.
+    // No manual images array needed — removing /og.svg reference.
   },
   twitter: {
     card: 'summary_large_image',
     title,
     description: defaultDescription,
-    images: ['/og.svg'],
+    // Next.js auto-wires opengraph-image.tsx to twitter:image too.
   },
 }
 
@@ -52,23 +58,24 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      data-theme="dark"
       suppressHydrationWarning
       className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable}`}
     >
       <head>
         <script
           suppressHydrationWarning
-          // Set theme before paint to avoid flash.
+          // Runs before paint — reads localStorage and sets data-theme.
+          // Default is dark (no attribute = dark via :root in globals.css).
+          // Stored 'light' switches to html[data-theme='light'] vars.
           dangerouslySetInnerHTML={{
             __html: `(() => {
   try {
     const stored = localStorage.getItem('theme')
-    const theme = stored === 'light' ? 'light' : 'dark'
-    document.documentElement.dataset.theme = theme
-  } catch {
-    document.documentElement.dataset.theme = 'dark'
-  }
+    if (stored === 'light') {
+      document.documentElement.dataset.theme = 'light'
+    }
+    // No else — absence of data-theme = dark (default :root)
+  } catch {}
 })()`,
           }}
         />
