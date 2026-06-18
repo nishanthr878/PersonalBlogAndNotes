@@ -39,14 +39,23 @@ export const metadata: Metadata = {
     title,
     description: defaultDescription,
     url: '/',
-    // opengraph-image.tsx in /app is picked up automatically by Next.js.
-    // No manual images array needed — removing /og.svg reference.
+    images: [
+      {
+        url: '/og.png',
+        width: 1200,
+        height: 630,
+        alt: `${title} — backend engineer, bengaluru`,
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title,
     description: defaultDescription,
-    // Next.js auto-wires opengraph-image.tsx to twitter:image too.
+    images: ['/og.png'],
+  },
+  icons: {
+    icon: '/favicon.svg',
   },
 }
 
@@ -64,9 +73,6 @@ export default function RootLayout({
       <head>
         <script
           suppressHydrationWarning
-          // Runs before paint — reads localStorage and sets data-theme.
-          // Default is dark (no attribute = dark via :root in globals.css).
-          // Stored 'light' switches to html[data-theme='light'] vars.
           dangerouslySetInnerHTML={{
             __html: `(() => {
   try {
@@ -74,7 +80,6 @@ export default function RootLayout({
     if (stored === 'light') {
       document.documentElement.dataset.theme = 'light'
     }
-    // No else — absence of data-theme = dark (default :root)
   } catch {}
 })()`,
           }}
