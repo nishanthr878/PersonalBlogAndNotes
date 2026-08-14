@@ -347,3 +347,188 @@ public class NotifierFactory {
 
 > Any time we have a `static` mutable collection in a multi-threaded environment, 
 > `ConcurrentHashMap` over `HashMap`.
+
+----
+
+## Abstract Factory
+
+- Let's say we have to change the client through which we are sending the notification for example we were using AWS to email notification, if in case we want to change the provider we would need to create a new `AwsEmailNotifier` object or modify the `EmailNotifier` to avoid this we have `Abstract factory`
+
+- Instead of one factory that creates individual notifiers, you have family of factories.
+```bash
+NotifierFactory (interface)
+├── AwsNotifierFactory    → creates AwsEmailNotifier, AwsSmsNotifier, AwsPushNotifier
+└── TwilioNotifierFactory → creates TwilioEmailNotifier, TwilioSmsNotifier, TwilioPushNotifier
+```
+
+- Building Provider-specific notifier implementation
+```java
+package com.lld.notification.notifier;
+
+import com.lld.notification.model.Notification;
+
+public class AwsEmailNotifier implements Notifier {
+    @Override
+    public void send(Notification notification) {
+        System.out.println("[AWS SES] Sending email to: " + notification.getTo());
+    }
+}
+```
+```java
+package com.lld.notification.notifier;
+
+import com.lld.notification.model.Notification;
+
+public class AwsSmsNotifier implements Notifier {
+    @Override
+    public void send(Notification notification) {
+        System.out.println("[AWS SNS] Sending SMS to: " + notification.getTo());
+    }
+}
+```
+```java
+package com.lld.notification.notifier;
+
+import com.lld.notification.model.Notification;
+
+public class AwsPushNotifier implements Notifier{
+    @Override
+    public void send(Notification notification) {
+        System.out.println("[AWS Pinpoint] Sending push to: " + notification.getTo());
+    }
+}
+```
+
+```java
+package com.lld.notification.notifier;
+
+import com.lld.notification.model.Notification;
+
+public class TwilioEmailNotifier implements Notifier{
+    @Override
+    public void send(Notification notification) {
+        System.out.println("[Twilio SendGrid] Sending email to: " + notification.getTo());
+    }
+}
+```
+```java
+package com.lld.notification.notifier;
+
+import com.lld.notification.model.Notification;
+
+public class TwilioSmsNotifier implements Notifier{
+    @Override
+    public void send(Notification notification) {
+        System.out.println("[Twilio SMS] Sending SMS to: " + notification.getTo());
+    }
+}
+```
+```java
+package com.lld.notification.notifier;
+
+import com.lld.notification.model.Notification;
+
+public class TwilioPushNotifier implements Notifier{
+    @Override
+    public void send(Notification notification) {
+        System.out.println("[Twilio Push] Sending push to: " + notification.getTo());
+    }
+}
+```
+- Abstract Factory Interface
+```java
+package com.lld.notification.factory;
+
+
+import com.lld.notification.notifier.Notifier;
+
+public interface NotifierFactory {
+   Notifier createEmailNotifier();
+   Notifier createSmsNotifier();
+   Notifier createPushNotifier();
+}
+```
+```java
+package com.lld.notification.factory;
+
+import com.lld.notification.notifier.AwsEmailNotifier;
+import com.lld.notification.notifier.AwsPushNotifier;
+import com.lld.notification.notifier.AwsSmsNotifier;
+import com.lld.notification.notifier.Notifier;
+
+public class AwsNotifierFactory implements NotifierFactory {
+    @Override
+    public Notifier createEmailNotifier() {
+        return new AwsEmailNotifier();
+    }
+
+    @Override
+    public Notifier createSmsNotifier() {
+        return new AwsSmsNotifier();
+    }
+
+    @Override
+    public Notifier createPushNotifier() {
+        return new AwsPushNotifier();
+    }
+}
+```
+```java
+package com.lld.notification.factory;
+
+import com.lld.notification.notifier.Notifier;
+import com.lld.notification.notifier.TwilioEmailNotifier;
+import com.lld.notification.notifier.TwilioPushNotifier;
+import com.lld.notification.notifier.TwilioSmsNotifier;
+
+public class TwilioNotifierFactory implements NotifierFactory{
+    @Override
+    public Notifier createEmailNotifier() {
+        return new TwilioEmailNotifier();
+    }
+
+    @Override
+    public Notifier createSmsNotifier() {
+        return new TwilioSmsNotifier();
+    }
+
+    @Override
+    public Notifier createPushNotifier() {
+        return new TwilioPushNotifier();
+    }
+}
+```
+- service
+```java
+package com.lld.notification.service;
+
+import com.lld.notification.factory.NotifierFactory;
+import com.lld.notification.model.Notification;
+import com.lld.notification.notifier.Notifier;
+
+public class NotificationService {
+    private final NotifierFactory factory;
+
+    public NotificationService(NotifierFactory factory) {
+        this.factory = factory;
+    }
+
+    public void send(Notification notification) {
+        Notifier notifier = switch (notification.getChannel().toUpperCase()) {
+            case "EMAIL" -> factory.createEmailNotifier();
+            case "SMS"   -> factory.createSmsNotifier();
+            case "PUSH"  -> factory.createPushNotifier();
+            default -> throw new IllegalArgumentException("Unknown channel");
+        };
+        notifier.send(notification);
+    }
+}
+```
+- Switching provider is now one line at startup:
+```java
+// Use AWS
+NotificationService service = new NotificationService(new AwsNotifierFactory());
+
+// Switch to Twilio — nothing else changes
+NotificationService service = new NotificationService(new TwilioNotifierFactory());
+```
