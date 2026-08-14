@@ -207,8 +207,5 @@ Notification n = new Notification.Builder()
 Notification n = new Notification.Builder("user@example.com", "Hello", "EMAIL")
         .build(); // won't even compile without 'to'
 ```
-
-> [!info]
-> 
-> > Private constructor protects invariants at runtime. Required fields in Builder constructor protect them at compile time. Together they make invalid Notification objects impossible to construct.
+> Private constructor protects invariants at runtime. Required fields in Builder constructor protect them at compile time. Together they make invalid Notification objects impossible to construct.
 
