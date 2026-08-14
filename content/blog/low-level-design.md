@@ -209,3 +209,141 @@ Notification n = new Notification.Builder("user@example.com", "Hello", "EMAIL")
 ```
 > Private constructor protects invariants at runtime. Required fields in Builder constructor protect them at compile time. Together they make invalid Notification objects impossible to construct.
 
+----
+
+### Factor Method
+
+- If we have to write implementation for `EmailNotifier`, `SmsNotifier`, `PushNotifier`
+- Without Factory method, how would the caller decide which one to use
+
+```java
+public void sendNotification(Notification notification) {
+    if (notification.getChannel().equals("EMAIL")) {
+        EmailNotifier notifier = new EmailNotifier();
+        notifier.send(notification);
+    } else if (notification.getChannel().equals("SMS")) {
+        SmsNotifier notifier = new SmsNotifier();
+        notifier.send(notification);
+    } else if (notification.getChannel().equals("PUSH")) {
+        PushNotifier notifier = new PushNotifier();
+        notifier.send(notification);
+    }
+}
+```
+
+By implementing above we will run into below problems
+- **Open/Closed Violation** - Let's say we want to implement `whatsapp notification` , we have to open the above method and add another `else if conditon`
+- **Duplicate implementation** - Let's say we have to send notification `order successful`, `payment successful` so we will duplicating above code in both notification separately.
+
+**Factory Method solves this by**
+> Define an interface for creating an object, but let sub classes decide which class to instantiate.
+
+***move the `new` keyword and the if-else into one place, behind an interface.***
+
+```java
+package com.lld.notification.notifier;
+
+import com.lld.notification.model.Notification;
+
+public interface Notifier {
+    void send(Notification notification);
+}
+```
+
+```java
+package com.lld.notification.notifier;
+
+import com.lld.notification.model.Notification;
+
+public class EmailNotifier implements Notifier {
+    @Override
+    public void send(Notification notification) {
+        System.out.println("[EMAIL] To: " + notification.getTo()
+            + " | Subject: " + notification.getSubject()
+            + " | Body: " + notification.getBody());
+    }
+}
+```
+```java
+public class SmsNotifier implements Notifier {
+    @Override
+    public void send(Notification notification) {
+        System.out.println("[SMS] To: " + notification.getTo()
+            + " | Body: " + notification.getBody());
+    }
+}
+```
+```java
+public class PushNotifier implements Notifier {
+    @Override
+    public void send(Notification notification) {
+        System.out.println("[PUSH] To: " + notification.getTo()
+            + " | Body: " + notification.getBody());
+    }
+}
+```
+
+```java
+package com.lld.notification.factory;
+
+import com.lld.notification.notifier.*;
+
+public class NotifierFactory {
+
+    // Static factory method — caller passes channel, gets back correct Notifier
+    public static Notifier getNotifier(String channel) {
+        return switch (channel.toUpperCase()) {
+            case "EMAIL" -> new EmailNotifier();
+            case "SMS"   -> new SmsNotifier();
+            case "PUSH"  -> new PushNotifier();
+            default -> throw new IllegalArgumentException(
+                "Unknown channel: " + channel
+            );
+        };
+    }
+} 
+```
+```java
+public void sendNotification(Notification notification) {
+    Notifier notifier = NotifierFactory.getNotifier(notification.getChannel());
+    notifier.send(notification);
+}
+```
+
+- for the above approach lets's a system sending 10k+ notification/second, we will be creating a 10k+ object and we will run memory issue to resolve that we have to check if the object is already present, if so we will share the share object if not we will create a new object.
+
+```java
+package com.lld.notification.factory;
+
+import com.lld.notification.notifier.EmailNotifier;
+import com.lld.notification.notifier.Notifier;
+import com.lld.notification.notifier.PushNotifier;
+import com.lld.notification.notifier.SmsNotifer;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+
+public class NotifierFactory {
+    private static final Map<String, Notifier> notifierMap = new ConcurrentHashMap<>();
+    
+    public static Notifier getNotifier(String channel) {
+        return notifierMap.computeIfAbsent(channel.toUpperCase(), NotifierFactory::createNotifier);
+    }
+
+    private static Notifier createNotifier(String key) {
+        return switch (key) {
+            case "EMAIL" -> new EmailNotifier();
+            case "SMS"   -> new SmsNotifer();
+            case "PUSH"  -> new PushNotifier();
+            default -> throw new IllegalArgumentException("Unknown channel: " + key);
+        };
+    }
+}
+
+```
+
+- In the above code we are using `ConcurrentHashMap` instead of `HashMap` because if we are running this in spring or spring boot application, we will be having multiple threads which will be creating objects so if two thread want to use a same object we will not be able to do it so we will be using `ConcurrentHashMap` to get thread-safe reads and writes without explicitly looking.
+
+> Any time we have a `static` mutable collection in a multi-threaded environment, 
+> `ConcurrentHashMap` over `HashMap`.
