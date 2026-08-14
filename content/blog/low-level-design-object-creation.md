@@ -1,8 +1,8 @@
 ---
-title: "Low Level Design"
+title: "Low Level Design - Object creation design pattern"
 date: "2026-08-14"
 description: "Low Level Design Deep dive and learing"
-tags: ["lld", "java", "design-pattern"]
+tags: ["lld", "java", "design-pattern", "object creation"]
 ---
 
 So in this we will deep dive into Low level design
@@ -15,6 +15,8 @@ So in this we will deep dive into Low level design
 | 4 – Integration     | Chain of Responsibility, State                       | **Support Ticket / Vending Machine**                     |
 
 ---------------------------------------------------------------------------------
+
+In this below content we will learn about Object creation design pattern.
 
 ### Notifiaction service
 - Sends notification via Email, SMS and Push
@@ -348,6 +350,9 @@ public class NotifierFactory {
 > Any time we have a `static` mutable collection in a multi-threaded environment, 
 > `ConcurrentHashMap` over `HashMap`.
 
+> How do we differentiate when to use constructor and when to use Factory
+> Use constructor when the caller should know and control exactly what it's creating. Use Factory method when the caller shouldn't care which concrete class it gets - it just needs something that fulfills the contract.
+
 ----
 
 ## Abstract Factory
@@ -532,3 +537,163 @@ NotificationService service = new NotificationService(new AwsNotifierFactory());
 // Switch to Twilio — nothing else changes
 NotificationService service = new NotificationService(new TwilioNotifierFactory());
 ```
+
+The difference between Factory and Abstract factory is
+- **Factory method** - creates one type of thing, the caller decides which variant (ex `EMAIL` -> `EmailNotifier`)
+- **Abstract Factory** - creates a family of related that are designed to work together (`AwsFactory` -> `AwsEmail` + `AwsSMS` + `AwsPush)
+> **Factory Method:** "Give me the right notifier for this channel."  
+> **Abstract Factory:** "Give me a full set of notifiers that all belong to the same provider."
+
+
+----
+
+### Singleton
+
+- `NotificationFactory` has a `Static` map. That's already behaving singleton-like-one shared instance of the map across all calls.
+- but the difference with `static` and singleton is `static` is just data but Singleton is class so we can do below things using singleton
+	- *Implement interfaces* 
+	- Be injected as a dependency
+	- Be lazily initialized
+	- Hold state and behavior together
+
+with pure static fields:
+```java
+// can't do this — can't pass a "static config" as a dependency
+public NotificationService(NotificationConfig config) { ... }
+
+// can't do this — can't mock static fields in unit tests
+NotificationConfig.apiKey = "fake-key"; // dirty, global state
+```
+with singleton:
+```java
+// clean dependency injection
+public NotificationService(NotificationConfig config) {
+    this.config = config;
+}
+
+// mockable in tests
+NotificationConfig mockConfig = mock(NotificationConfig.class);
+```
+
+Singleton implementation
+```java
+package com.lld.notification.config;
+
+public class NotificationConfig {
+    
+    // volatile - eunsures visibility across threads
+    private static volatile NotificationConfig instance;
+    
+    private String awsRegion;
+    private String twilioAccountSid;
+    private String defaultChannel;
+    private int maxRetryCount;
+    
+    // private constructor - no one can cal new NotificationConfig()
+    private NotificationConfig() {
+        this.awsRegion = "ap-south-1";
+        this.twilioAccountSid = "AC-DUMMY-SID";
+        this.defaultChannel = "EMAIL";
+        this.maxRetryCount = 3;
+    }
+    
+    public static NotificationConfig getInstance() {
+        if (instance == null) {
+            synchronized (NotificationConfig.class) {
+                if (instance == null) {
+                    instance = new NotificationConfig();
+                }
+            }
+        }
+        return instance;
+    }
+    
+    public String getAwsRegion() {
+        return awsRegion;
+    }
+    public String getTwilioAccountSid() {
+        return twilioAccountSid;
+    }
+    public String getDefaultChannel() {
+        return defaultChannel;
+    }
+    public int getMaxRetryCount() {
+        return maxRetryCount;
+    }
+}
+```
+
+> Why `volatile`?
+> Without it, due to CPU instruction reordering, another thread could see `instance` as non-null before the constructor has finished running - and get a half-initialized object. `volatile` prevents that by ensuring writes are visible to all thread immediately 
+
+
+> ***Double-checked locking***
+> Why check `instance == null` twice?
+> - First check (outside `sychronized`) - avoids locking on every call once initialized. Lock acquisition is expensive at scale
+> - Second check (inside `synchronized`) - two threads could both pass the first check simultaneously. The inner check ensures only one of them actually creates the instance.
+
+Wiring them all to-gether
+```java
+package com.lld.notification;
+
+import com.lld.notification.config.NotificationConfig;
+import com.lld.notification.factory.AwsNotifierFactory;
+import com.lld.notification.factory.NotifierFactory;
+import com.lld.notification.factory.TwilioNotifierFactory;
+import com.lld.notification.model.Notification;
+import com.lld.notification.service.NotificationService;
+
+public class Main {
+    public static void main(String[] args) {
+
+        // Singleton config
+        NotificationConfig config = NotificationConfig.getInstance();
+        System.out.println("Config loaded. Region: " + config.getAwsRegion());
+
+        // Build notifications using Builder
+        Notification emailNotif = new Notification.Builder(
+                "user@example.com", "Your order has been placed", "EMAIL")
+                .subject("Order Confirmation")
+                .priority(1)
+                .retryCount(config.getMaxRetryCount())
+                .build();
+
+        Notification smsNotif = new Notification.Builder(
+                "+919876543210", "Your OTP is 4521", "SMS")
+                .priority(1)
+                .build();
+
+        // Use AWS factory
+        System.out.println("\n--- AWS Provider ---");
+        NotifierFactory awsFactory = new AwsNotifierFactory();
+        NotificationService awsService = new NotificationService(awsFactory);
+        awsService.send(emailNotif);
+        awsService.send(smsNotif);
+
+        // Switch to Twilio — zero other changes
+        System.out.println("\n--- Twilio Provider ---");
+        NotifierFactory twilioFactory = new TwilioNotifierFactory();
+        NotificationService twilioService = new NotificationService(twilioFactory);
+        twilioService.send(emailNotif);
+        twilioService.send(smsNotif);
+    }
+}
+```
+```bash
+Config loaded. Region ap-south-1
+
+--- AWS Provider ----
+[AWS SES] Sending email to: user@example.com
+[AWS SNS] Sending SMS to: +919876543210
+
+--- Twilio Provider ----
+[Twilio SendGrid] Sending email to: user@example.com
+[Twilio SMS] Sending SMS to: +919876543210
+```
+
+| Pattern          | Where                                         | What it solved                                              |
+| ---------------- | --------------------------------------------- | ----------------------------------------------------------- |
+| Builder          | `Notification`                                | Constructed complex object without telescoping constructors |
+| Factory Method   | `NotifierFactory`                             | Centralized notifier creation, eliminated scattered if-else |
+| Abstract Factory | `AwsNotifierFactory`, `TwilioNotifierFactory` | Swapped provider families without touching existing code    |
+| Singleton        | `NotificationConfig`                          | One shared config instance, thread-safe, injectable         |
