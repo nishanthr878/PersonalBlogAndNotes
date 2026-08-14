@@ -110,8 +110,8 @@ export default function About() {
               </div>
               <ul className="divide-y divide-[color:var(--border)]">
                 {[
-                  { company: 'Target', role: 'Backend Engineer', period: '2024 – now' },
-                  { company: 'Société Générale', role: 'Backend Engineer', period: '2021 – 2024' },
+                  { company: 'Target', role: 'Backend Engineer', period: '2026 – now' },
+                  { company: 'Société Générale', role: 'Backend Engineer', period: '2023 – 2026' },
                 ].map(({ company, role, period }) => (
                   <li key={company} className="py-3">
                     <div className="text-sm font-medium text-[color:var(--fg)]">{company}</div>
