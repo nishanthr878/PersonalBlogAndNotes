@@ -1,6 +1,6 @@
 ---
 title: Sliding Window Maximum
-date: 2026-08-13
+date: 2026-08-27
 description: Given an array find the maximum find the maximum of k elements in the array while sliding the array to right.
 tags:
   - leetcode
