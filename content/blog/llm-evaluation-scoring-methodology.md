@@ -5,7 +5,7 @@ description: "The scoring methodology behind llm-scoring-service  how LLM-as-jud
 tags: ["llm", "evaluation", "groq", "observability", "prompt-engineering"]
 ---
 
-Using an LLM to evaluate another LLM's responses sounds circular. It has real problems. It also happens to be the most practical approach available for production runtime evaluation — nothing else scales to arbitrary text without massive manual labeling effort.
+Using an LLM to evaluate another LLM's responses sounds circular. It has real problems. It also happens to be the most practical approach available for production runtime evaluation - nothing else scales to arbitrary text without massive manual labeling effort.
 
 This post covers the scoring methodology in `llm-scoring-service`: what dimensions I chose, how the rubric prompts work, what the scoring engine actually sends to Groq, and where LLM-as-judge breaks down.
 
@@ -15,12 +15,12 @@ This post covers the scoring methodology in `llm-scoring-service`: what dimensio
 
 The alternatives:
 
-- **Human evaluation** — accurate but doesn't scale, can't run in production on real traffic
-- **Rule-based heuristics** — fast, but can only catch surface-level issues (length, keyword presence)
-- **Embedding similarity** — measures semantic closeness to a reference, but requires a reference answer, which you often don't have
-- **Fine-tuned classifiers** — accurate for specific criteria but expensive to build and maintain per dimension
+- **Human evaluation** - accurate but doesn't scale, can't run in production on real traffic
+- **Rule-based heuristics** - fast, but can only catch surface-level issues (length, keyword presence)
+- **Embedding similarity** - measures semantic closeness to a reference, but requires a reference answer, which you often don't have
+- **Fine-tuned classifiers** - accurate for specific criteria but expensive to build and maintain per dimension
 
-LLM-as-judge covers the gap: it can evaluate free-form text against qualitative criteria at runtime, without reference answers. The cost is consistency — LLM judges have variance, exhibit biases, and can be gamed by response phrasing. You have to design around those weaknesses.
+LLM-as-judge covers the gap: it can evaluate free-form text against qualitative criteria at runtime, without reference answers. The cost is consistency - LLM judges have variance, exhibit biases, and can be gamed by response phrasing. You have to design around those weaknesses.
 
 ---
 
@@ -28,13 +28,13 @@ LLM-as-judge covers the gap: it can evaluate free-form text against qualitative 
 
 The service scores on three core dimensions by default:
 
-**Relevance** — Does the response actually address what the prompt asked? A response can be factually accurate and well-written but completely miss the question. This is especially common when the underlying retrieval step (in a RAG pipeline) pulled the wrong context.
+**Relevance** - Does the response actually address what the prompt asked? A response can be factually accurate and well-written but completely miss the question. This is especially common when the underlying retrieval step (in a RAG pipeline) pulled the wrong context.
 
-**Faithfulness** — Does the response stay grounded in the provided context, or does it hallucinate? Only applicable when `context` is provided. This is the most important dimension for RAG applications.
+**Faithfulness** - Does the response stay grounded in the provided context, or does it hallucinate? Only applicable when `context` is provided. This is the most important dimension for RAG applications.
 
-**Toxicity** — Does the response contain harmful, offensive, or inappropriate content? A binary-ish check. Less interesting for internal tooling, critical for user-facing applications.
+**Toxicity** - Does the response contain harmful, offensive, or inappropriate content? A binary-ish check. Less interesting for internal tooling, critical for user-facing applications.
 
-Each dimension produces a score from 0.0 to 1.0. The scoring engine also requests a `reasoning` field — a short explanation of why the score was assigned. This is what makes the results useful rather than just a number.
+Each dimension produces a score from 0.0 to 1.0. The scoring engine also requests a `reasoning` field - a short explanation of why the score was assigned. This is what makes the results useful rather than just a number.
 
 ---
 
@@ -77,7 +77,7 @@ Several design decisions embedded in this rubric:
 
 **Anchored scale.** The 5-point verbal anchor (1.0, 0.7-0.9, 0.4-0.6, etc.) reduces score variance significantly compared to asking for a raw float. Without anchors, the same response gets 0.6 in one call and 0.8 in another depending on random sampling. Anchors give the model a structured decision tree.
 
-**Single dimension per request.** The rubric evaluates faithfulness only, not faithfulness + relevance in the same call. Multi-criterion prompts produce correlated scores — the model tends to rate everything similarly if the response seems good overall. Separate requests per dimension are more expensive but more independent.
+**Single dimension per request.** The rubric evaluates faithfulness only, not faithfulness + relevance in the same call. Multi-criterion prompts produce correlated scores - the model tends to rate everything similarly if the response seems good overall. Separate requests per dimension are more expensive but more independent.
 
 **Mandatory JSON output.** The prompt ends with a structural constraint and example. Combined with a low temperature on the Groq call, this keeps the response parseable. You still need defensive parsing.
 
@@ -103,7 +103,7 @@ public class ScoringEngine {
     }
 
     private boolean isApplicable(Rubric rubric, EvaluationEvent event) {
-        // Faithfulness requires context — skip if not provided
+        // Faithfulness requires context - skip if not provided
         if (rubric.getName().equals("faithfulness") && event.context() == null) {
             return false;
         }
@@ -139,7 +139,7 @@ public class ScoringEngine {
             JsonNode node = objectMapper.readTree(cleaned);
 
             double rawScore = node.get("score").asDouble();
-            // Clamp to valid range — don't trust the model to stay within bounds
+            // Clamp to valid range - don't trust the model to stay within bounds
             double score = Math.max(0.0, Math.min(1.0, rawScore));
             String reasoning = node.get("reasoning").asText();
 
@@ -162,11 +162,11 @@ public class ScoringEngine {
 
 A few things worth noting:
 
-`temperature(0.1)` — not 0.0. At temperature 0 some models exhibit degenerate behavior (always returning the same score). 0.1 adds enough variance to feel natural while keeping scores tight enough to trend reliably.
+`temperature(0.1)` - not 0.0. At temperature 0 some models exhibit degenerate behavior (always returning the same score). 0.1 adds enough variance to feel natural while keeping scores tight enough to trend reliably.
 
-The clamping on `rawScore` (`Math.max(0.0, Math.min(1.0, rawScore))`) — the model will occasionally return 1.2 or -0.1. Don't trust it to stay in bounds.
+The clamping on `rawScore` (`Math.max(0.0, Math.min(1.0, rawScore))`) - the model will occasionally return 1.2 or -0.1. Don't trust it to stay in bounds.
 
-The `replaceAll("```json|```", "")` — this is the most annoying class of bug in LLM output parsing. Despite explicit instructions, models frequently wrap JSON in markdown code fences. You have to strip them defensively.
+The `replaceAll("```json|```", "")` - this is the most annoying class of bug in LLM output parsing. Despite explicit instructions, models frequently wrap JSON in markdown code fences. You have to strip them defensively.
 
 ---
 
@@ -186,9 +186,9 @@ The `replaceAll("```json|```", "")` — this is the most annoying class of bug i
 
 A single score on a single evaluation means almost nothing. The value is in aggregation:
 
-- **Score distribution per application** — is your RAG pipeline's average faithfulness 0.85 or 0.60?
-- **Score trend over time** — did a prompt change on Tuesday cause relevance to drop?
-- **Score distribution by model** — does `llama3-8b` produce more faithful responses than `mixtral-8x7b` on your specific workload?
-- **Low-score examples** — filtering for evaluations with faithfulness < 0.4 gives you a concrete sample of where the pipeline is hallucinating
+- **Score distribution per application** - is your RAG pipeline's average faithfulness 0.85 or 0.60?
+- **Score trend over time** - did a prompt change on Tuesday cause relevance to drop?
+- **Score distribution by model** - does `llama3-8b` produce more faithful responses than `mixtral-8x7b` on your specific workload?
+- **Low-score examples** - filtering for evaluations with faithfulness < 0.4 gives you a concrete sample of where the pipeline is hallucinating
 
-This is why the `reasoning` field matters. A score of 0.4 tells you there's a problem. The reasoning tells you *what* the problem is — something you can act on.
+This is why the `reasoning` field matters. A score of 0.4 tells you there's a problem. The reasoning tells you *what* the problem is - something you can act on.

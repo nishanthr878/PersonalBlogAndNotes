@@ -5,16 +5,16 @@ description: "Kafka deep dive and arcitecture patterns and design"
 tags: ["kafka", "spring-boot", "java", "async", "event-driven"]
 ---
 
-# BankStream — Architecture & Developer Guide
+# BankStream - Architecture & Developer Guide
 [BankStream Project Reference](https://github.com/nishanthr878/bankstream)
 
 ---
 
 ## 1. What Is BankStream?
 
-BankStream is a **real-time banking event processing system** built to implement and demonstrate production-grade Kafka patterns from first principles — this is explicitly a "Kafka deep dive" repo, not a product. Each phase of the repo's history bolts on one more real-world Kafka concern.
+BankStream is a **real-time banking event processing system** built to implement and demonstrate production-grade Kafka patterns from first principles - this is explicitly a "Kafka deep dive" repo, not a product. Each phase of the repo's history bolts on one more real-world Kafka concern.
 
-The key idea: **every banking event is durable, ordered, schema-safe, and eventually consistent across all services** — even under partial failures (broker down, service crash, network timeout, incompatible schema change).
+The key idea: **every banking event is durable, ordered, schema-safe, and eventually consistent across all services** - even under partial failures (broker down, service crash, network timeout, incompatible schema change).
 
 ### What does it do?
 
@@ -23,7 +23,7 @@ The key idea: **every banking event is durable, ordered, schema-safe, and eventu
 - **Publishes** transaction events to Kafka as Avro, validated against Schema Registry
 - **Seeds** account reference data onto `account.created` on startup
 - **Consumes** transaction events in `notification-service` with at-least-once delivery, typed Avro deserialization, retry + DLQ
-- **Detects fraud** in `fraud-detection-service` using Kafka Streams — stateful windowed aggregations joined against a live account reference table
+- **Detects fraud** in `fraud-detection-service` using Kafka Streams - stateful windowed aggregations joined against a live account reference table
 - **Guards** against duplicate processing via an idempotency table
 
 ### Who is this document for?
@@ -32,7 +32,7 @@ This is written as a working reference for a Kafka-focused learning project, cov
 
 ---
 
-## 2. Why This Architecture — The Thought Process
+## 2. Why This Architecture - The Thought Process
 
 ### The Problem with Direct Kafka Publishing
 
@@ -50,15 +50,15 @@ This seems simple but has a fatal flaw: **two separate systems, no atomicity**.
 
 | Failure scenario | Result |
 |---|---|
-| Kafka down when send() is called | DB committed, event never published — silent inconsistency |
-| App crashes after DB write, before send() | Same — event lost forever |
-| `@Transactional` rollback after send() | Kafka message already sent, can't unsend — phantom event |
+| Kafka down when send() is called | DB committed, event never published - silent inconsistency |
+| App crashes after DB write, before send() | Same - event lost forever |
+| `@Transactional` rollback after send() | Kafka message already sent, can't unsend - phantom event |
 
 `@Transactional` does not protect you here. `JpaTransactionManager` only covers Postgres. Kafka is outside the transaction boundary entirely.
 
 ### The Problem with Untyped JSON on the Wire
 
-Even once delivery is solved, a second problem shows up as soon as more than one service reads the same topic: **nothing enforces that producer and consumer agree on the message shape**. A field rename or type change on the producer side silently breaks every consumer at runtime, with no compile-time or even deploy-time signal. This is what Avro + Schema Registry solves — see [Section 5](#5-schema-registry--avro-serialization).
+Even once delivery is solved, a second problem shows up as soon as more than one service reads the same topic: **nothing enforces that producer and consumer agree on the message shape**. A field rename or type change on the producer side silently breaks every consumer at runtime, with no compile-time or even deploy-time signal. This is what Avro + Schema Registry solves - see [Section 5](#5-schema-registry--avro-serialization).
 
 ### How BankStream Solves This
 
@@ -135,17 +135,17 @@ Each layer handles exactly one failure mode:
 
 | Service | Port | Produces | Consumes | DB Tables |
 |---|---|---|---|---|
-| transaction-service | 8090 | `transaction.initiated` (Avro), `account.created` (Avro, seeded once at startup) | — | transactions, outbox |
+| transaction-service | 8090 | `transaction.initiated` (Avro), `account.created` (Avro, seeded once at startup) | - | transactions, outbox |
 | notification-service | 8091 | `transaction.dlq` | `transaction.initiated` (Avro) | processed_events |
-| fraud-detection-service | 8092 | `fraud.alert` (Avro) | `transaction.initiated`, `account.created` (Avro) | — (stateful, but state lives in RocksDB / changelog topics, not Postgres) |
+| fraud-detection-service | 8092 | `fraud.alert` (Avro) | `transaction.initiated`, `account.created` (Avro) | - (stateful, but state lives in RocksDB / changelog topics, not Postgres) |
 
-`fraud-detection-service` is fully implemented now (Kafka Streams topology, three fraud rules) — this used to be a placeholder in earlier revisions of this doc.
+`fraud-detection-service` is fully implemented now (Kafka Streams topology, three fraud rules) - this used to be a placeholder in earlier revisions of this doc.
 
 ---
 
 ## 4. Infrastructure Layer
 
-### Kafka Cluster (KRaft — No ZooKeeper)
+### Kafka Cluster (KRaft - No ZooKeeper)
 
 ```
 kafka1 (Controller + Broker)          kafka2 (Broker Only)
@@ -165,7 +165,7 @@ kafka1 (Controller + Broker)          kafka2 (Broker Only)
 
 ### Why kafka1 Is the Sole Controller
 
-Two-node Raft with both nodes as voters requires both to be alive to form a majority — chicken-and-egg on startup. kafka1 is the sole Raft voter. kafka2 is broker-only.
+Two-node Raft with both nodes as voters requires both to be alive to form a majority - chicken-and-egg on startup. kafka1 is the sole Raft voter. kafka2 is broker-only.
 
 Consequence:
 
@@ -196,14 +196,14 @@ Controller listener (CONTROLLER:9093):
 
 Stores Avro schemas in the Kafka `_schemas` topic (not in its own DB).
 Exposes a REST API on port 8081 for schema registration and compatibility checks.
-**Now fully active** — all three services (`transaction-service` producer, `notification-service` consumer, `fraud-detection-service` Kafka Streams) go through it. See [Section 5](#5-schema-registry--avro-serialization).
+**Now fully active** - all three services (`transaction-service` producer, `notification-service` consumer, `fraud-detection-service` Kafka Streams) go through it. See [Section 5](#5-schema-registry--avro-serialization).
 
 ### Kafka UI (Provectus)
 
 Lightweight web UI at `http://localhost:8080`.
 Shows: brokers, topics, partitions, consumer groups, lag, messages, schemas.
 Configured with `DYNAMIC_CONFIG_ENABLED=true` for runtime changes.
-`KAFKA_CLUSTERS_0_SCHEMAREGISTRY` points it at `http://schema-registry:8081` — schema tab shows registered subjects directly.
+`KAFKA_CLUSTERS_0_SCHEMAREGISTRY` points it at `http://schema-registry:8081` - schema tab shows registered subjects directly.
 
 ---
 
@@ -217,23 +217,23 @@ With plain JSON (what earlier phases of this repo used), nothing stops a produce
 
 Avro fixes this with three pieces working together:
 
-1. **`.avsc` schema files** — the canonical definition of a message shape, written once per event type (`src/main/avro/*.avsc` in each module).
-2. **`avro-maven-plugin`** — runs in the `generate-sources` Maven phase, reads every `.avsc` under `src/main/avro`, and generates typed Java classes (builders, getters, `SpecificRecord` implementations) into `target/generated-sources/avro`. These generated classes (`TransactionInitiatedEvent`, `AccountEvent`, `FraudAlertEvent`) are what the rest of the codebase imports — they are **not** hand-written POJOs.
-3. **Confluent Schema Registry** — a separate service (port 8081) that stores every schema version, assigns it a numeric ID, and enforces compatibility rules (default: `BACKWARD` — a new schema must be readable by consumers using the previous schema) before allowing registration.
+1. **`.avsc` schema files** - the canonical definition of a message shape, written once per event type (`src/main/avro/*.avsc` in each module).
+2. **`avro-maven-plugin`** - runs in the `generate-sources` Maven phase, reads every `.avsc` under `src/main/avro`, and generates typed Java classes (builders, getters, `SpecificRecord` implementations) into `target/generated-sources/avro`. These generated classes (`TransactionInitiatedEvent`, `AccountEvent`, `FraudAlertEvent`) are what the rest of the codebase imports - they are **not** hand-written POJOs.
+3. **Confluent Schema Registry** - a separate service (port 8081) that stores every schema version, assigns it a numeric ID, and enforces compatibility rules (default: `BACKWARD` - a new schema must be readable by consumers using the previous schema) before allowing registration.
 
 ### The Wire Format
 
-A message published with `KafkaAvroSerializer` is **not** raw Avro binary — it's:
+A message published with `KafkaAvroSerializer` is **not** raw Avro binary - it's:
 
 ```
 [magic byte (0x0)] [schema ID (4 bytes, big-endian int)] [Avro binary payload]
 ```
 
-- **Magic byte** — always `0x0`, a sanity marker.
-- **Schema ID** — a 4-byte integer identifying which schema version (registered in Schema Registry) encoded this payload. The consumer's `KafkaAvroDeserializer` looks this ID up (with local caching) to know how to decode the rest of the bytes.
-- **Payload** — the actual Avro binary encoding, which is compact (no field names on the wire — just values in schema-defined order).
+- **Magic byte** - always `0x0`, a sanity marker.
+- **Schema ID** - a 4-byte integer identifying which schema version (registered in Schema Registry) encoded this payload. The consumer's `KafkaAvroDeserializer` looks this ID up (with local caching) to know how to decode the rest of the bytes.
+- **Payload** - the actual Avro binary encoding, which is compact (no field names on the wire - just values in schema-defined order).
 
-This is why you cannot just `Base64.decode()` an Avro payload and expect to read it without a deserializer that knows to strip the 5-byte header first — see the outbox quirk in [Section 6.6](#66-outbox-pattern).
+This is why you cannot just `Base64.decode()` an Avro payload and expect to read it without a deserializer that knows to strip the 5-byte header first - see the outbox quirk in [Section 6.6](#66-outbox-pattern).
 
 ### Where Each Schema Lives
 
@@ -241,30 +241,30 @@ This is why you cannot just `Base64.decode()` an Avro payload and expect to read
 |---|---|---|
 | `TransactionInitiatedEvent.avsc` | `transaction-service/src/main/avro/` | `notification-service`, `fraud-detection-service` |
 | `AccountEvent.avsc` | `transaction-service/src/main/avro/` | `fraud-detection-service` |
-| `FraudAlertEvent.avsc` | `fraud-detection-service/src/main/avro/` | — (only producer needs it) |
+| `FraudAlertEvent.avsc` | `fraud-detection-service/src/main/avro/` | - (only producer needs it) |
 
-**Note on the copies:** each consuming module has its own `.avsc` copy under its own `src/main/avro/`, rather than sharing a single schema module. This means the generated Java classes live in separate packages per module (all still resolving to `com.bankstream.transaction.event.avro.TransactionInitiatedEvent`, etc., because the `.avsc` `namespace` field is what controls the generated package — not the module). This works because Avro Maven codegen doesn't care which module it runs in, only what `namespace` the schema declares. **Risk:** if the copies drift (someone edits the schema in one module but forgets the other), you get a silent mismatch that Schema Registry compatibility checks won't catch (each module registers under the same subject name, so the last one to publish "wins" the registered schema, but stale local copies still exist in source). Not currently a problem because these are all internal learning-repo copies, but worth remembering if this pattern is copied into a real multi-team system — the correct fix there is a shared schema module or a schema registry client tool (e.g. `gradle-avro-plugin` fetching from the registry) rather than hand-copied `.avsc` files.
+**Note on the copies:** each consuming module has its own `.avsc` copy under its own `src/main/avro/`, rather than sharing a single schema module. This means the generated Java classes live in separate packages per module (all still resolving to `com.bankstream.transaction.event.avro.TransactionInitiatedEvent`, etc., because the `.avsc` `namespace` field is what controls the generated package - not the module). This works because Avro Maven codegen doesn't care which module it runs in, only what `namespace` the schema declares. **Risk:** if the copies drift (someone edits the schema in one module but forgets the other), you get a silent mismatch that Schema Registry compatibility checks won't catch (each module registers under the same subject name, so the last one to publish "wins" the registered schema, but stale local copies still exist in source). Not currently a problem because these are all internal learning-repo copies, but worth remembering if this pattern is copied into a real multi-team system - the correct fix there is a shared schema module or a schema registry client tool (e.g. `gradle-avro-plugin` fetching from the registry) rather than hand-copied `.avsc` files.
 
-### Schema Evolution — Why `TransactionInitiatedEvent.avsc` Has a Nullable `merchantId`
+### Schema Evolution - Why `TransactionInitiatedEvent.avsc` Has a Nullable `merchantId`
 
 ```json
 {
   "name": "merchantId",
   "type": ["null", "string"],
   "default": null,
-  "doc": "Optional merchant ID — added in v2, backward compatible"
+  "doc": "Optional merchant ID - added in v2, backward compatible"
 }
 ```
 
-Adding a field with a `default` value is a **backward-compatible** change under Schema Registry's default `BACKWARD` compatibility mode: old consumers (compiled against a schema without `merchantId`) can still read new messages (the field is just ignored), and new consumers reading old messages get `default` (`null`) for the missing field. This is the standard Avro evolution pattern — always add new fields as `["null", type]` with `"default": null`, never remove or retype an existing field without a major version bump.
+Adding a field with a `default` value is a **backward-compatible** change under Schema Registry's default `BACKWARD` compatibility mode: old consumers (compiled against a schema without `merchantId`) can still read new messages (the field is just ignored), and new consumers reading old messages get `default` (`null`) for the missing field. This is the standard Avro evolution pattern - always add new fields as `["null", type]` with `"default": null`, never remove or retype an existing field without a major version bump.
 
 ### `specific.avro.reader=true`
 
-Set in `notification-service`'s consumer config and implicitly used by `SpecificAvroSerde` in `fraud-detection-service`. This tells the Avro deserializer to produce the generated typed class (`TransactionInitiatedEvent`) instead of a generic, map-like `GenericRecord`. Without it you'd get `GenericRecord` and have to call `.get("fieldName")` with no compile-time safety — exactly the problem Avro was meant to solve.
+Set in `notification-service`'s consumer config and implicitly used by `SpecificAvroSerde` in `fraud-detection-service`. This tells the Avro deserializer to produce the generated typed class (`TransactionInitiatedEvent`) instead of a generic, map-like `GenericRecord`. Without it you'd get `GenericRecord` and have to call `.get("fieldName")` with no compile-time safety - exactly the problem Avro was meant to solve.
 
 ### `ErrorHandlingDeserializer`
 
-`notification-service`'s `KafkaConsumerConfig` wraps the real `KafkaAvroDeserializer` in Spring Kafka's `ErrorHandlingDeserializer`. Without this wrapper, a deserialization failure (e.g. a message from an incompatible schema, or a producer bug) throws inside the Kafka client's poll loop and **kills the consumer thread**. With the wrapper, the exception is caught and handed to the listener as a poison-pill record — the current code path treats it as "unexpected message type" and routes it straight to DLQ instead of crashing the app.
+`notification-service`'s `KafkaConsumerConfig` wraps the real `KafkaAvroDeserializer` in Spring Kafka's `ErrorHandlingDeserializer`. Without this wrapper, a deserialization failure (e.g. a message from an incompatible schema, or a producer bug) throws inside the Kafka client's poll loop and **kills the consumer thread**. With the wrapper, the exception is caught and handed to the listener as a poison-pill record - the current code path treats it as "unexpected message type" and routes it straight to DLQ instead of crashing the app.
 
 ---
 
@@ -285,7 +285,7 @@ com.bankstream.transaction/
 │   ├── TransactionType.java              ← DEBIT, CREDIT
 │   └── Outbox.java                       ← @Entity, outbox table
 ├── event/
-│   └── (Avro-generated — see 6.2)        ← generated into target/generated-sources/avro
+│   └── (Avro-generated - see 6.2)        ← generated into target/generated-sources/avro
 ├── outbox/
 │   └── OutboxPoller.java                 ← @Scheduled, publishes unpublished entries as raw Avro bytes
 ├── producer/
@@ -339,15 +339,15 @@ public class Transaction {
 ```
 
 **Key decisions:**
-- `@GeneratedValue(strategy = GenerationType.UUID)` — Hibernate generates UUID before insert, no DB sequence needed
-- `@Enumerated(EnumType.STRING)` — stores enum name as string in DB, readable without decoding
-- `@PrePersist` / `@PreUpdate` — timestamps set automatically, not by caller
+- `@GeneratedValue(strategy = GenerationType.UUID)` - Hibernate generates UUID before insert, no DB sequence needed
+- `@Enumerated(EnumType.STRING)` - stores enum name as string in DB, readable without decoding
+- `@PrePersist` / `@PreUpdate` - timestamps set automatically, not by caller
 
 ---
 
 ### 6.2 Event Objects (Avro)
 
-**Location:** `src/main/avro/*.avsc` (source), generated into `target/generated-sources/avro/...` at build time — there is **no hand-written `event/` POJO anymore**.
+**Location:** `src/main/avro/*.avsc` (source), generated into `target/generated-sources/avro/...` at build time - there is **no hand-written `event/` POJO anymore**.
 
 ```json
 // transaction-service/src/main/avro/TransactionInitiatedEvent.avsc
@@ -366,12 +366,12 @@ public class Transaction {
     {"name": "description",   "type": ["null", "string"], "default": null},
     {"name": "occurredAt",    "type": "long"},
     {"name": "merchantId",    "type": ["null", "string"], "default": null,
-     "doc": "Optional merchant ID — added in v2, backward compatible"}
+     "doc": "Optional merchant ID - added in v2, backward compatible"}
   ]
 }
 ```
 
-Generated class usage — builder pattern, not `@Builder` from Lombok, this is Avro-generated code:
+Generated class usage - builder pattern, not `@Builder` from Lombok, this is Avro-generated code:
 
 ```java
 TransactionInitiatedEvent event = TransactionInitiatedEvent.newBuilder()
@@ -389,7 +389,7 @@ TransactionInitiatedEvent event = TransactionInitiatedEvent.newBuilder()
 
 **Why still separate from the `Transaction` entity?** Same reasoning as before Avro was introduced: DB schema changes and Kafka schema changes are two different concerns with two different evolution rules (Hibernate DDL vs. Schema Registry compatibility). Keeping them separate means a DB column rename doesn't force a wire-format break, and vice versa.
 
-**`account.created` (`AccountEvent.avsc`)** — flat reference-data event, used to seed `fraud-detection-service`'s `GlobalKTable`:
+**`account.created` (`AccountEvent.avsc`)** - flat reference-data event, used to seed `fraud-detection-service`'s `GlobalKTable`:
 
 ```json
 {
@@ -413,10 +413,10 @@ TransactionInitiatedEvent event = TransactionInitiatedEvent.newBuilder()
 **Location:** `repository/`
 
 ```java
-// Standard JPA repository — nothing special
+// Standard JPA repository - nothing special
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {}
 
-// Outbox repository — native query with FOR UPDATE SKIP LOCKED
+// Outbox repository - native query with FOR UPDATE SKIP LOCKED
 public interface OutboxRepository extends JpaRepository<Outbox, UUID> {
 
     @Query(value = """
@@ -435,7 +435,7 @@ public interface OutboxRepository extends JpaRepository<Outbox, UUID> {
 When multiple instances of transaction-service run simultaneously, multiple outbox pollers run simultaneously. Without locking, both instances would read the same unpublished rows and publish them twice.
 
 `FOR UPDATE` locks the selected rows.
-`SKIP LOCKED` means: if another instance already locked a row, skip it — don't block, don't duplicate.
+`SKIP LOCKED` means: if another instance already locked a row, skip it - don't block, don't duplicate.
 
 **Why no `@Lock` annotation?**
 `@Lock(LockModeType.PESSIMISTIC_WRITE)` only works with JPQL queries, not native queries. The lock clause in the SQL itself is sufficient.
@@ -481,7 +481,7 @@ public class TransactionService {
                 .build();
 
         // Step 3: serialize to raw Avro wire bytes (magic byte + schema id + payload)
-        // and write them, base64-encoded, into the outbox — same DB transaction as the entity save
+        // and write them, base64-encoded, into the outbox - same DB transaction as the entity save
         byte[] avroBytes = kafkaAvroSerializer.serialize("transaction.initiated", avroEvent);
         String base64Payload = Base64.getEncoder().encodeToString(avroBytes);
 
@@ -495,14 +495,14 @@ public class TransactionService {
         transactionProducer.publishTransactionInitiated(avroEvent);
 
         return transaction;
-        // @Transactional commits here — Transaction + Outbox rows, atomically
+        // @Transactional commits here - Transaction + Outbox rows, atomically
     }
 }
 ```
 
-**The critical invariant that still holds:** the DB write (transaction + outbox row) is atomic — either both commit or neither does.
+**The critical invariant that still holds:** the DB write (transaction + outbox row) is atomic - either both commit or neither does.
 
-**⚠️ What changed vs. the original outbox design, and why it matters:** this method now publishes to `transaction.initiated` **twice** — once (eventually, ~1s later) via the `OutboxPoller`, and once immediately via `transactionProducer.publishTransactionInitiated(avroEvent)` at the end of this same method, which is a **direct, non-transactional Kafka call inside the code path**, not gated by the outbox at all. That reintroduces exactly the dual-write problem the outbox pattern exists to prevent (see [Section 18](#18-known-issues--things-to-clean-up) — this looks like leftover code from migrating the outbox payload format from JSON to Avro, not an intentional design). Every transaction currently produces two `transaction.initiated` messages with two different `eventId`s. Both `notification-service` and `fraud-detection-service` are unaffected in practice because notification-service dedupes by `eventId` (the two messages have different IDs, so idempotency won't catch it — you'll see two notifications logged) and fraud-detection-service's velocity/spend counts will be inflated (each real transaction counts as two).
+**⚠️ What changed vs. the original outbox design, and why it matters:** this method now publishes to `transaction.initiated` **twice** - once (eventually, ~1s later) via the `OutboxPoller`, and once immediately via `transactionProducer.publishTransactionInitiated(avroEvent)` at the end of this same method, which is a **direct, non-transactional Kafka call inside the code path**, not gated by the outbox at all. That reintroduces exactly the dual-write problem the outbox pattern exists to prevent (see [Section 18](#18-known-issues--things-to-clean-up) - this looks like leftover code from migrating the outbox payload format from JSON to Avro, not an intentional design). Every transaction currently produces two `transaction.initiated` messages with two different `eventId`s. Both `notification-service` and `fraud-detection-service` are unaffected in practice because notification-service dedupes by `eventId` (the two messages have different IDs, so idempotency won't catch it - you'll see two notifications logged) and fraud-detection-service's velocity/spend counts will be inflated (each real transaction counts as two).
 
 ---
 
@@ -540,7 +540,7 @@ public class TransactionProducer {
 }
 ```
 
-Uses the `avroKafkaTemplate` bean (`KafkaAvroSerializer` value serializer) — this re-serializes and re-registers the schema through the normal Confluent client path (schema-ID caching, compatibility check on first use), unlike the outbox path which serializes once manually and ships raw bytes. See [6.6](#66-outbox-pattern) for why that split exists.
+Uses the `avroKafkaTemplate` bean (`KafkaAvroSerializer` value serializer) - this re-serializes and re-registers the schema through the normal Confluent client path (schema-ID caching, compatibility check on first use), unlike the outbox path which serializes once manually and ships raw bytes. See [6.6](#66-outbox-pattern) for why that split exists.
 
 ---
 
@@ -599,17 +599,17 @@ public class OutboxPoller {
 
 **Why `bytesKafkaTemplate` (`ByteArraySerializer`) instead of the Avro or JSON template?**
 
-The outbox row already holds a fully-formed Avro wire payload — magic byte + schema ID + Avro binary — produced once by `KafkaAvroSerializer.serialize(...)` in `TransactionService` (see 6.4). Sending it through `KafkaAvroSerializer` again would try to re-serialize an already-serialized `byte[]`, which is wrong; sending it through `JsonSerializer` would wrap the bytes as a JSON value, corrupting the wire format entirely. `ByteArraySerializer` sends the bytes exactly as they are — the only serializer that's a no-op passthrough. This is the same principle as the old `stringKafkaTemplate` pattern from the JSON phase (see [Decision 2](#13-key-design-decisions)), just applied to raw bytes instead of a JSON string.
+The outbox row already holds a fully-formed Avro wire payload - magic byte + schema ID + Avro binary - produced once by `KafkaAvroSerializer.serialize(...)` in `TransactionService` (see 6.4). Sending it through `KafkaAvroSerializer` again would try to re-serialize an already-serialized `byte[]`, which is wrong; sending it through `JsonSerializer` would wrap the bytes as a JSON value, corrupting the wire format entirely. `ByteArraySerializer` sends the bytes exactly as they are - the only serializer that's a no-op passthrough. This is the same principle as the old `stringKafkaTemplate` pattern from the JSON phase (see [Decision 2](#13-key-design-decisions)), just applied to raw bytes instead of a JSON string.
 
 **Why base64-encode the bytes before storing them in the JSONB `payload` column?**
 
-Postgres `jsonb` (and `TEXT`) columns are for textual data — raw Avro binary can contain arbitrary byte sequences including nulls, which break both JSON validation and most text encodings. Base64 makes the binary payload safe to store as a JSON string.
+Postgres `jsonb` (and `TEXT`) columns are for textual data - raw Avro binary can contain arbitrary byte sequences including nulls, which break both JSON validation and most text encodings. Base64 makes the binary payload safe to store as a JSON string.
 
 **Why `@Transactional` on the poller?**
 
-`FOR UPDATE SKIP LOCKED` holds the row lock only for the duration of the transaction. Without it, the lock releases immediately after the SELECT — before the update. Two instances could then both select and publish the same row.
+`FOR UPDATE SKIP LOCKED` holds the row lock only for the duration of the transaction. Without it, the lock releases immediately after the SELECT - before the update. Two instances could then both select and publish the same row.
 
-**⚠️ See [Section 18](#18-known-issues--things-to-clean-up)** — this poller is currently redundant with the direct publish in `TransactionService.initiateTransaction()`.
+**⚠️ See [Section 18](#18-known-issues--things-to-clean-up)** - this poller is currently redundant with the direct publish in `TransactionService.initiateTransaction()`.
 
 ---
 
@@ -651,13 +651,13 @@ Records are immutable by default and generate constructor, getters, `equals`, `h
 
 **Location:** `config/KafkaProducerConfig.java`
 
-**Four** `ProducerFactory`/`KafkaTemplate` bean pairs now exist — one per serialization strategy in use somewhere in this service:
+**Four** `ProducerFactory`/`KafkaTemplate` bean pairs now exist - one per serialization strategy in use somewhere in this service:
 
 | Bean name | Serializer | Used by | Purpose |
 |---|---|---|---|
-| `objectKafkaTemplate` | `JsonSerializer` | (unused currently — legacy from the JSON phase) | Typed Java object → JSON |
+| `objectKafkaTemplate` | `JsonSerializer` | (unused currently - legacy from the JSON phase) | Typed Java object → JSON |
 | `avroKafkaTemplate` | `KafkaAvroSerializer` | `TransactionProducer` | Typed Avro object → registered Avro wire bytes, schema managed automatically |
-| `stringKafkaTemplate` | `StringSerializer` | (unused currently — legacy from the JSON-outbox phase) | Pre-serialized JSON string → bytes as-is |
+| `stringKafkaTemplate` | `StringSerializer` | (unused currently - legacy from the JSON-outbox phase) | Pre-serialized JSON string → bytes as-is |
 | `bytesKafkaTemplate` | `ByteArraySerializer` | `OutboxPoller` | Pre-serialized Avro bytes → bytes as-is, no re-encoding |
 
 ```java
@@ -682,11 +682,11 @@ public KafkaTemplate<String, byte[]> bytesKafkaTemplate() {
 }
 ```
 
-Plus a standalone `KafkaAvroSerializer` bean (not wrapped in a `KafkaTemplate`) — this is what `TransactionService` calls directly (`kafkaAvroSerializer.serialize(topic, avroEvent)`) to produce raw bytes for the outbox row, rather than going through a `KafkaTemplate.send()`.
+Plus a standalone `KafkaAvroSerializer` bean (not wrapped in a `KafkaTemplate`) - this is what `TransactionService` calls directly (`kafkaAvroSerializer.serialize(topic, avroEvent)`) to produce raw bytes for the outbox row, rather than going through a `KafkaTemplate.send()`.
 
 **Why `@Bean("name")` and `@Qualifier`?**
 
-Java generics are erased at runtime — all four `KafkaTemplate<String, ...>` beans collapse to raw type `KafkaTemplate` for Spring's autowiring. Without qualifier names, Spring throws `NoUniqueBeanDefinitionException`. `@Qualifier` forces explicit selection by name.
+Java generics are erased at runtime - all four `KafkaTemplate<String, ...>` beans collapse to raw type `KafkaTemplate` for Spring's autowiring. Without qualifier names, Spring throws `NoUniqueBeanDefinitionException`. `@Qualifier` forces explicit selection by name.
 
 **Why does `@Qualifier` usage mean no `@RequiredArgsConstructor` on `OutboxPoller`/`TransactionProducer`?**
 
@@ -731,9 +731,9 @@ public class AccountSeeder implements ApplicationRunner {
 
 **What this is for:** `fraud-detection-service`'s `GlobalKTable` (see [8.3](#83-globalktable-enrichment)) needs `account.created` events to know each account's tier (used for the high-value fraud threshold). This seeder writes the same three accounts that exist in `init.sql`'s `accounts` table directly onto the Kafka topic on `transaction-service` startup, using a raw `KafkaProducer` (not a Spring `KafkaTemplate` bean) configured inline.
 
-**Why `ApplicationRunner` instead of e.g. a `CommandLineRunner` or a manual endpoint?** `ApplicationRunner` runs once, automatically, right after the Spring context is fully initialized — appropriate for "prime the topic with reference data on every service start" semantics. Since `account.created` messages are keyed by `accountId` and Kafka topics are logs (not queues), re-running the seeder on every restart just re-appends the same three account states — harmless, and `GlobalKTable` always resolves to the latest value per key.
+**Why `ApplicationRunner` instead of e.g. a `CommandLineRunner` or a manual endpoint?** `ApplicationRunner` runs once, automatically, right after the Spring context is fully initialized - appropriate for "prime the topic with reference data on every service start" semantics. Since `account.created` messages are keyed by `accountId` and Kafka topics are logs (not queues), re-running the seeder on every restart just re-appends the same three account states - harmless, and `GlobalKTable` always resolves to the latest value per key.
 
-**Why does the seeder duplicate `init.sql`'s account data instead of the app reading from Postgres?** Because this is deliberately Kafka-native reference data for the Streams app — `fraud-detection-service` has zero Postgres dependency and gets everything it needs from Kafka topics, which is the idiomatic Kafka Streams pattern (see [8.1](#81-why-kafka-streams-instead-of-kafkalistener)). Keeping the seed data in sync with `init.sql` by hand is a manual step — if you add an account to one, add it to the other.
+**Why does the seeder duplicate `init.sql`'s account data instead of the app reading from Postgres?** Because this is deliberately Kafka-native reference data for the Streams app - `fraud-detection-service` has zero Postgres dependency and gets everything it needs from Kafka topics, which is the idiomatic Kafka Streams pattern (see [8.1](#81-why-kafka-streams-instead-of-kafkalistener)). Keeping the seed data in sync with `init.sql` by hand is a manual step - if you add an account to one, add it to the other.
 
 ---
 
@@ -772,7 +772,7 @@ value instanceof TransactionInitiatedEvent?
   → no (ErrorHandlingDeserializer already caught a deser failure, or wrong type):
     DLQ + ack + return
   ↓
-extract eventId directly — event.getEventId() is a typed String field now, no map.get("eventId") casting
+extract eventId directly - event.getEventId() is a typed String field now, no map.get("eventId") casting
   ↓
 idempotency check (processed_events table)
   → already processed: ack + return (skip)
@@ -786,11 +786,11 @@ retry loop (max 3 attempts, exponential backoff)
   → attempt 3: failure: DLQ + ack + return
 ```
 
-The biggest change from the JSON phase: with `specific.avro.reader=true` (see [Section 5](#5-schema-registry--avro-serialization)), `record.value()` deserializes straight into the generated `TransactionInitiatedEvent` class — `event.getEventId()`, `event.getAccountId()` etc. are now typed field accessors, not `Map.get("...")` casts with no compile-time safety.
+The biggest change from the JSON phase: with `specific.avro.reader=true` (see [Section 5](#5-schema-registry--avro-serialization)), `record.value()` deserializes straight into the generated `TransactionInitiatedEvent` class - `event.getEventId()`, `event.getAccountId()` etc. are now typed field accessors, not `Map.get("...")` casts with no compile-time safety.
 
 **Why ack after DLQ routing?**
 
-If we don't ack after routing to DLQ, the offset never advances. On restart, the consumer reads the same offset again, fails again, routes to DLQ again — infinite loop. The original topic must move on. The DLQ holds the message for manual inspection.
+If we don't ack after routing to DLQ, the offset never advances. On restart, the consumer reads the same offset again, fails again, routes to DLQ again - infinite loop. The original topic must move on. The DLQ holds the message for manual inspection.
 
 **Retry backoff calculation:**
 
@@ -798,7 +798,7 @@ If we don't ack after routing to DLQ, the offset never advances. On restart, the
 // attempt 1 → 1s  (2^0 * 1000)
 // attempt 2 → 2s  (2^1 * 1000)
 // attempt 3 → 4s  (2^2 * 1000)
-// Total before DLQ: 7 seconds — well under max.poll.interval.ms (default 5 min)
+// Total before DLQ: 7 seconds - well under max.poll.interval.ms (default 5 min)
 long backoffMs = (long) Math.pow(2, attempt - 1) * 1000;
 Thread.sleep(backoffMs);
 ```
@@ -830,11 +830,11 @@ public class DlqProducer {
 }
 ```
 
-Note this still uses the plain `JsonSerializer`-backed `kafkaTemplate` bean, **not** Avro — the DLQ payload can be either a raw Avro `SpecificRecord` (Jackson serializes it via its getters) or an arbitrary malformed value, so keeping the DLQ itself schema-free is deliberate: it must be able to accept anything that failed to conform, including things that aren't valid Avro at all.
+Note this still uses the plain `JsonSerializer`-backed `kafkaTemplate` bean, **not** Avro - the DLQ payload can be either a raw Avro `SpecificRecord` (Jackson serializes it via its getters) or an arbitrary malformed value, so keeping the DLQ itself schema-free is deliberate: it must be able to accept anything that failed to conform, including things that aren't valid Avro at all.
 
 **What if DLQ publish also fails?**
 
-The message is lost. This is an acceptable tradeoff — DLQ failure means Kafka itself is severely degraded. In production, add an alert on DLQ publish failures and consider writing to a fallback DB table.
+The message is lost. This is an acceptable tradeoff - DLQ failure means Kafka itself is severely degraded. In production, add an alert on DLQ publish failures and consider writing to a fallback DB table.
 
 ---
 
@@ -881,9 +881,9 @@ Race condition (two instances process same message):
   Instance B: catch DVE → log, ack, continue (safe to ignore)
 ```
 
-The DB primary key constraint is the real idempotency enforcer — not the application-level check. The check is just an optimization to avoid processing work we know is already done.
+The DB primary key constraint is the real idempotency enforcer - not the application-level check. The check is just an optimization to avoid processing work we know is already done.
 
-**Reminder:** this guard dedupes by `eventId`, and the [dual-publish issue](#18-known-issues--things-to-clean-up) in `transaction-service` currently generates two *different* `eventId`s per logical transaction — so this guard will **not** catch that particular duplication. It only protects against Kafka-level redelivery of the *same* message (rebalances, retries, at-least-once semantics), which is the problem it was actually built for.
+**Reminder:** this guard dedupes by `eventId`, and the [dual-publish issue](#18-known-issues--things-to-clean-up) in `transaction-service` currently generates two *different* `eventId`s per logical transaction - so this guard will **not** catch that particular duplication. It only protects against Kafka-level redelivery of the *same* message (rebalances, retries, at-least-once semantics), which is the problem it was actually built for.
 
 ---
 
@@ -901,7 +901,7 @@ public ConsumerFactory<String, Object> consumerFactory() {
     props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
     props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);
 
-    // ErrorHandlingDeserializer wraps the real deserializer — a deser failure
+    // ErrorHandlingDeserializer wraps the real deserializer - a deser failure
     // is handed to the listener as a poison record instead of killing the consumer thread
     props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
     props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
@@ -928,17 +928,17 @@ public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerCont
 
 | Config | Value | Reason |
 |---|---|---|
-| `auto-offset-reset` | `earliest` | On first run, start from beginning — never miss events |
-| `enable-auto-commit` | `false` | Manual commit only — we control exactly when offset advances |
-| `max-poll-records` | 10 | Small batches — reduces work lost on consumer failure |
-| `concurrency` | 3 | Matches partition count — maximum parallelism |
+| `auto-offset-reset` | `earliest` | On first run, start from beginning - never miss events |
+| `enable-auto-commit` | `false` | Manual commit only - we control exactly when offset advances |
+| `max-poll-records` | 10 | Small batches - reduces work lost on consumer failure |
+| `concurrency` | 3 | Matches partition count - maximum parallelism |
 | `specific.avro.reader` | `true` | Deserialize to the generated typed class, not `GenericRecord` |
 
 ---
 
 ## 8. Service Deep-Dive: fraud-detection-service (Kafka Streams)
 
-This service is fully implemented — it used to be a Phase 6 placeholder in earlier revisions of this doc, now it's a real, non-trivial Kafka Streams topology.
+This service is fully implemented - it used to be a Phase 6 placeholder in earlier revisions of this doc, now it's a real, non-trivial Kafka Streams topology.
 
 ### Package Structure
 
@@ -955,13 +955,13 @@ com.bankstream.fraud/
 
 ### 8.1 Why Kafka Streams Instead of `@KafkaListener`
 
-`notification-service` uses `@KafkaListener` — simple, stateless, one record at a time. Fraud detection needs things `@KafkaListener` cannot give you without hand-building them:
+`notification-service` uses `@KafkaListener` - simple, stateless, one record at a time. Fraud detection needs things `@KafkaListener` cannot give you without hand-building them:
 
-- **State across messages** — "has this account made ≥3 transactions in the last 5 minutes?" requires remembering a rolling count per key. `@KafkaListener` has no built-in state store; you'd have to build this yourself (e.g., in Redis) and handle failure/recovery of that state manually.
-- **Joins against another stream/table** — "what's this account's tier?" requires correlating two topics (`transaction.initiated` and `account.created`) by key. Kafka Streams' `GlobalKTable` gives you this as a first-class operator.
-- **Windowing with correctness guarantees** — sliding/tumbling windows, grace periods for late data, and exactly-once processing are all built into the DSL rather than hand-rolled.
+- **State across messages** - "has this account made ≥3 transactions in the last 5 minutes?" requires remembering a rolling count per key. `@KafkaListener` has no built-in state store; you'd have to build this yourself (e.g., in Redis) and handle failure/recovery of that state manually.
+- **Joins against another stream/table** - "what's this account's tier?" requires correlating two topics (`transaction.initiated` and `account.created`) by key. Kafka Streams' `GlobalKTable` gives you this as a first-class operator.
+- **Windowing with correctness guarantees** - sliding/tumbling windows, grace periods for late data, and exactly-once processing are all built into the DSL rather than hand-rolled.
 
-Kafka Streams gets you all of this as a **library**, not a separate cluster — it runs embedded inside the Spring Boot app (`spring-kafka`'s `@EnableKafkaStreams` wires a `StreamsBuilderFactoryBean`), with state persisted locally in RocksDB and backed by Kafka changelog topics for fault tolerance.
+Kafka Streams gets you all of this as a **library**, not a separate cluster - it runs embedded inside the Spring Boot app (`spring-kafka`'s `@EnableKafkaStreams` wires a `StreamsBuilderFactoryBean`), with state persisted locally in RocksDB and backed by Kafka changelog topics for fault tolerance.
 
 ### 8.2 The Topology, Piece by Piece
 
@@ -984,15 +984,15 @@ public void buildTopology(StreamsBuilder builder) {
 }
 ```
 
-Spring Kafka calls any `@Autowired`-annotated method that takes a `StreamsBuilder` parameter after constructing the `StreamsBuilder` bean but before starting the streams application — this is the hook point for defining your topology. There is no `main()`-style "run the pipeline" call; the DSL calls (`.stream()`, `.groupByKey()`, `.to()`, etc.) *build a processing graph declaratively*, which `spring-kafka` then starts as a background thread pool once the Spring context finishes initializing.
+Spring Kafka calls any `@Autowired`-annotated method that takes a `StreamsBuilder` parameter after constructing the `StreamsBuilder` bean but before starting the streams application - this is the hook point for defining your topology. There is no `main()`-style "run the pipeline" call; the DSL calls (`.stream()`, `.groupByKey()`, `.to()`, etc.) *build a processing graph declaratively*, which `spring-kafka` then starts as a background thread pool once the Spring context finishes initializing.
 
 Three fraud rules are attached, all writing to `fraud.alert`:
 
 | Rule | Alert Type | Trigger | Needs account data? |
 |---|---|---|---|
-| Velocity | `VELOCITY` | ≥3 transactions for one account in a 5-minute sliding window | No — raw transaction stream only |
-| Rapid large spend | `RAPID_LARGE` | Total spend for one account exceeds ₹1,00,000 in a 1-hour tumbling window | No — raw transaction stream only |
-| High value | `HIGH_VALUE` | A single transaction exceeds the account's tier-specific threshold | Yes — joined against `GlobalKTable` |
+| Velocity | `VELOCITY` | ≥3 transactions for one account in a 5-minute sliding window | No - raw transaction stream only |
+| Rapid large spend | `RAPID_LARGE` | Total spend for one account exceeds ₹1,00,000 in a 1-hour tumbling window | No - raw transaction stream only |
+| High value | `HIGH_VALUE` | A single transaction exceeds the account's tier-specific threshold | Yes - joined against `GlobalKTable` |
 
 ### 8.3 GlobalKTable Enrichment
 
@@ -1017,18 +1017,18 @@ enriched
 
 **Why `GlobalKTable` and not a regular `KTable`?**
 
-A regular `KTable` is partitioned the same way as the stream it's built from — a join only works correctly if both sides are co-partitioned (same key, same partition count, same partitioning strategy). `account.created` and `transaction.initiated` are keyed the same way (`accountId`) here, so a `KTable` join *would* technically work — but `GlobalKTable` is used instead because:
+A regular `KTable` is partitioned the same way as the stream it's built from - a join only works correctly if both sides are co-partitioned (same key, same partition count, same partitioning strategy). `account.created` and `transaction.initiated` are keyed the same way (`accountId`) here, so a `KTable` join *would* technically work - but `GlobalKTable` is used instead because:
 
 - The full account reference dataset is small (a handful of accounts in this repo) and needed by every stream task, not just the partition-matching one.
-- `GlobalKTable` is fully replicated to every Streams instance — no re-partitioning needed, no risk of a mismatched partition count between the two topics silently breaking the join.
-- It's the idiomatic Kafka Streams pattern for "small, slowly-changing reference/dimension data joined against a large, high-throughput fact stream" — exactly this use case (accounts vs. transactions).
+- `GlobalKTable` is fully replicated to every Streams instance - no re-partitioning needed, no risk of a mismatched partition count between the two topics silently breaking the join.
+- It's the idiomatic Kafka Streams pattern for "small, slowly-changing reference/dimension data joined against a large, high-throughput fact stream" - exactly this use case (accounts vs. transactions).
 
-`EnrichedTransaction` is a local `record` (not Avro-generated) — it exists only inside the topology to carry both sides of the join through the `.filter()`/`.map()` chain; it never touches Kafka.
+`EnrichedTransaction` is a local `record` (not Avro-generated) - it exists only inside the topology to carry both sides of the join through the `.filter()`/`.map()` chain; it never touches Kafka.
 
 ### 8.4 Windowed Aggregations (Velocity & Rapid Spend)
 
 ```java
-// Velocity — sliding window, 5 minutes, grace period 30s for late-arriving events
+// Velocity - sliding window, 5 minutes, grace period 30s for late-arriving events
 transactions
     .groupByKey(Grouped.with(Serdes.String(), transactionSerde))
     .windowedBy(SlidingWindows.ofTimeDifferenceAndGrace(Duration.ofMinutes(5), Duration.ofSeconds(30)))
@@ -1039,7 +1039,7 @@ transactions
     .map((windowedKey, count) -> KeyValue.pair(windowedKey.key(), buildVelocityAlert(windowedKey, count)))
     .to("fraud.alert", Produced.with(Serdes.String(), fraudAlertSerde));
 
-// Rapid large spend — tumbling window, 1 hour
+// Rapid large spend - tumbling window, 1 hour
 transactions
     .groupByKey(Grouped.with(Serdes.String(), transactionSerde))
     .windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofHours(1), Duration.ofSeconds(30)))
@@ -1052,14 +1052,14 @@ transactions
     .to("fraud.alert", Produced.with(Serdes.String(), fraudAlertSerde));
 ```
 
-**Sliding vs. tumbling window — why different window types for the two rules?**
+**Sliding vs. tumbling window - why different window types for the two rules?**
 
-- **Velocity uses a sliding window**: "3 transactions in *any* 5-minute period" needs to catch bursts that straddle a window boundary. A tumbling window (fixed, non-overlapping 5-min buckets) could miss a burst that happens 2 minutes before one bucket ends and 3 minutes into the next — the count would be split across two buckets and never hit 3 in either. Sliding windows evaluate a new window on every event, catching bursts regardless of alignment.
-- **Rapid spend uses a tumbling window**: hourly spend limits are naturally aligned to fixed hour-long buckets — no need for the (more expensive) sliding window overlap here, and "total spend this hour" is a simpler, cheaper aggregate that doesn't need sub-window precision.
+- **Velocity uses a sliding window**: "3 transactions in *any* 5-minute period" needs to catch bursts that straddle a window boundary. A tumbling window (fixed, non-overlapping 5-min buckets) could miss a burst that happens 2 minutes before one bucket ends and 3 minutes into the next - the count would be split across two buckets and never hit 3 in either. Sliding windows evaluate a new window on every event, catching bursts regardless of alignment.
+- **Rapid spend uses a tumbling window**: hourly spend limits are naturally aligned to fixed hour-long buckets - no need for the (more expensive) sliding window overlap here, and "total spend this hour" is a simpler, cheaper aggregate that doesn't need sub-window precision.
 
-**Why a grace period?** Real event streams have out-of-order arrival (network delay, retries). The grace period keeps a window open for late-arriving events for an extra 30 seconds after its nominal close time before finalizing the aggregate — without it, a slightly-late event would either be dropped or land in the wrong window.
+**Why a grace period?** Real event streams have out-of-order arrival (network delay, retries). The grace period keeps a window open for late-arriving events for an extra 30 seconds after its nominal close time before finalizing the aggregate - without it, a slightly-late event would either be dropped or land in the wrong window.
 
-**Why `Materialized.as("store-name")`?** Naming the state store makes it queryable (via Interactive Queries, not currently used here) and gives it a durable, named RocksDB directory + a named Kafka changelog topic for fault-tolerant recovery — if the app restarts, the aggregate state is rebuilt from the changelog rather than lost.
+**Why `Materialized.as("store-name")`?** Naming the state store makes it queryable (via Interactive Queries, not currently used here) and gives it a durable, named RocksDB directory + a named Kafka changelog topic for fault-tolerant recovery - if the app restarts, the aggregate state is rebuilt from the changelog rather than lost.
 
 ### 8.5 Kafka Streams Config
 
@@ -1094,9 +1094,9 @@ public class KafkaStreamsConfig {
 
 **Why the bean must be named exactly `KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME`?** Spring Kafka's `@EnableKafkaStreams` looks up the `KafkaStreamsConfiguration` bean by this exact name to build the underlying `StreamsBuilderFactoryBean`. Any other bean name means Spring Kafka can't find your config and either fails to start or falls back to defaults.
 
-**Why `EXACTLY_ONCE_V2`?** Without it, Kafka Streams gives at-least-once processing — a crash mid-aggregation-update could double-count a transaction into the velocity/spend windows. `EXACTLY_ONCE_V2` wraps the read-process-write cycle (consume from `transaction.initiated`, update RocksDB state, produce to `fraud.alert`) in a Kafka transaction, so either the whole cycle commits or none of it does — the windowed counts stay accurate even across crashes and rebalances.
+**Why `EXACTLY_ONCE_V2`?** Without it, Kafka Streams gives at-least-once processing - a crash mid-aggregation-update could double-count a transaction into the velocity/spend windows. `EXACTLY_ONCE_V2` wraps the read-process-write cycle (consume from `transaction.initiated`, update RocksDB state, produce to `fraud.alert`) in a Kafka transaction, so either the whole cycle commits or none of it does - the windowed counts stay accurate even across crashes and rebalances.
 
-**Why is `application-id` also the consumer group?** Kafka Streams uses the `application.id` as the underlying consumer group ID for all internal consumers reading `transaction.initiated`/`account.created`. All instances sharing the same `application.id` form one Streams application and share partition assignment — same as `group-id` does for a plain consumer.
+**Why is `application-id` also the consumer group?** Kafka Streams uses the `application.id` as the underlying consumer group ID for all internal consumers reading `transaction.initiated`/`account.created`. All instances sharing the same `application.id` form one Streams application and share partition assignment - same as `group-id` does for a plain consumer.
 
 ---
 
@@ -1112,7 +1112,7 @@ Partition 1: Leader=kafka2, Follower=kafka1, ISR=[1,2]
 Partition 2: Leader=kafka1, Follower=kafka2, ISR=[1,2]
 ```
 
-Kafka distributes partition leadership evenly across brokers. Both brokers serve traffic — neither is passive.
+Kafka distributes partition leadership evenly across brokers. Both brokers serve traffic - neither is passive.
 
 ### Replication Flow
 
@@ -1171,12 +1171,12 @@ kafka2 comes back:
 
 | Topic | Partitions | Replication | Key | Purpose |
 |---|---|---|---|---|
-| `account.created` | 3 | 2 | account_id | Reference data — seeded once by `AccountSeeder`, consumed as a `GlobalKTable` by fraud-detection-service |
-| `transaction.initiated` | 3 | 2 | account_id | New transactions — ordered per account, consumed by both notification-service and fraud-detection-service |
-| `transaction.completed` | 3 | 2 | account_id | Reserved — not currently produced or consumed by any service |
-| `transaction.failed` | 3 | 2 | account_id | Reserved — not currently produced or consumed by any service |
-| `fraud.alert` | 3 | 2 | account_id | Fraud detection results — produced by fraud-detection-service's three rules |
-| `transaction.dlq` | 1 | 2 | original key | Dead letter queue — single partition for ordered inspection |
+| `account.created` | 3 | 2 | account_id | Reference data - seeded once by `AccountSeeder`, consumed as a `GlobalKTable` by fraud-detection-service |
+| `transaction.initiated` | 3 | 2 | account_id | New transactions - ordered per account, consumed by both notification-service and fraud-detection-service |
+| `transaction.completed` | 3 | 2 | account_id | Reserved - not currently produced or consumed by any service |
+| `transaction.failed` | 3 | 2 | account_id | Reserved - not currently produced or consumed by any service |
+| `fraud.alert` | 3 | 2 | account_id | Fraud detection results - produced by fraud-detection-service's three rules |
+| `transaction.dlq` | 1 | 2 | original key | Dead letter queue - single partition for ordered inspection |
 
 ### Why account_id as Partition Key?
 
@@ -1191,7 +1191,7 @@ Without a key (round-robin):
   Fraud detection sees events out of sequence → wrong velocity/spend counts
 ```
 
-This matters even more now than in earlier phases — the Kafka Streams velocity and spend windows in `fraud-detection-service` depend on per-account ordering to produce correct counts.
+This matters even more now than in earlier phases - the Kafka Streams velocity and spend windows in `fraud-detection-service` depend on per-account ordering to produce correct counts.
 
 ### Why DLQ Has 1 Partition?
 
@@ -1214,7 +1214,7 @@ CREATE TABLE accounts (
     created_at     TIMESTAMP NOT NULL
 );
 
--- Business records — owned by transaction-service
+-- Business records - owned by transaction-service
 CREATE TABLE transactions (
     id          UUID PRIMARY KEY,
     account_id  UUID NOT NULL REFERENCES accounts(id),
@@ -1227,7 +1227,7 @@ CREATE TABLE transactions (
     updated_at  TIMESTAMP NOT NULL
 );
 
--- Outbox table — owned by transaction-service
+-- Outbox table - owned by transaction-service
 -- Written atomically with transactions, read by OutboxPoller
 -- payload now holds a base64-encoded Avro wire payload (magic byte + schema id + binary), quoted as a JSON string
 CREATE TABLE outbox (
@@ -1244,14 +1244,14 @@ CREATE TABLE outbox (
 
 CREATE INDEX idx_outbox_unpublished ON outbox(created_at) WHERE published = false;
 
--- Idempotency guard — owned by notification-service
+-- Idempotency guard - owned by notification-service
 CREATE TABLE processed_events (
     event_id       UUID PRIMARY KEY,
     consumer_group VARCHAR(255) NOT NULL,
     processed_at   TIMESTAMP NOT NULL
 );
 
--- No fraud_alerts table exists. fraud-detection-service is Postgres-free —
+-- No fraud_alerts table exists. fraud-detection-service is Postgres-free -
 -- fraud state lives entirely in Kafka (fraud.alert topic + RocksDB/changelog
 -- topics for windowed aggregates), not in a relational table. Earlier revisions
 -- of this doc mentioned a fraud_alerts table for a Phase 6 that hadn't landed yet;
@@ -1260,7 +1260,7 @@ CREATE TABLE processed_events (
 
 ### Why JSONB for outbox payload?
 
-`JSONB` in Postgres is binary JSON — queryable, indexable, validated at insert time. Using `TEXT`/`VARCHAR` would store the JSON as a plain string with no validation or queryability. This still applies even though the payload is now a base64-encoded Avro blob rather than a readable JSON object — it's stored as a JSON *string* value inside the `jsonb` column.
+`JSONB` in Postgres is binary JSON - queryable, indexable, validated at insert time. Using `TEXT`/`VARCHAR` would store the JSON as a plain string with no validation or queryability. This still applies even though the payload is now a base64-encoded Avro blob rather than a readable JSON object - it's stored as a JSON *string* value inside the `jsonb` column.
 
 **Hibernate gotcha:** Hibernate sends `String` as `VARCHAR` by default. Must annotate with both:
 
@@ -1274,7 +1274,7 @@ private String payload;
 
 ## 12. Runtime Data Flows
 
-### Flow 1: Happy Path — Transaction Created Successfully
+### Flow 1: Happy Path - Transaction Created Successfully
 
 ```
 1. POST /api/transactions
@@ -1303,20 +1303,20 @@ private String payload;
    → SELECT unpublished FOR UPDATE SKIP LOCKED → finds the outbox row from step 5
    → decodes base64 → raw Avro bytes → bytesKafkaTemplate.send(...).get()
    → publishes a SECOND message, this time with an entirely new eventId B
-     (the outbox payload was built with a different eventId than step 7 rebuilds — actually
+     (the outbox payload was built with a different eventId than step 7 rebuilds - actually
       the SAME eventId A is in the outbox payload since it was serialized before either publish;
       see Section 18 for the precise duplication mechanics)
    → UPDATE outbox SET published=true
 
 10. notification-service consumer receives BOTH messages (from steps 7 and 9)
     on the account's partition, processes each independently
-    (idempotency guard does not fully collapse them — see Section 18)
+    (idempotency guard does not fully collapse them - see Section 18)
 
 11. fraud-detection-service's Kafka Streams topology also sees BOTH messages,
     inflating velocity/spend window counts for that account
 ```
 
-**Read [Section 18](#18-known-issues--things-to-clean-up) before relying on this flow for anything beyond learning purposes** — step 7 undermines the atomicity guarantee the outbox pattern (steps 3–6, 9) is designed to provide.
+**Read [Section 18](#18-known-issues--things-to-clean-up) before relying on this flow for anything beyond learning purposes** - step 7 undermines the atomicity guarantee the outbox pattern (steps 3–6, 9) is designed to provide.
 
 ### Flow 2: Kafka Down During Outbox Poll
 
@@ -1329,7 +1329,7 @@ private String payload;
 6. OutboxPoller fires again → send succeeds → outbox.published=true
 ```
 
-Note: the *direct* publish in `TransactionService` (step 7 in Flow 1) has no such retry — if Kafka is down at request time, that publish silently fails (logged, not retried) while the outbox path still recovers on its own schedule.
+Note: the *direct* publish in `TransactionService` (step 7 in Flow 1) has no such retry - if Kafka is down at request time, that publish silently fails (logged, not retried) while the outbox path still recovers on its own schedule.
 
 ### Flow 3: Consumer Processing Failure → DLQ
 
@@ -1343,11 +1343,11 @@ Note: the *direct* publish in `TransactionService` (step 7 in Flow 1) has no suc
 7. Attempt 3: throws again
 8. Max retries exhausted
 9. DlqProducer.sendToDlq("transaction.dlq", key, payload, reason)
-10. acknowledgment.acknowledge() ← MUST ack — moves offset forward
+10. acknowledgment.acknowledge() ← MUST ack - moves offset forward
 11. Consumer continues with next message
 ```
 
-### Flow 4: Fraud Detection — High-Value Transaction
+### Flow 4: Fraud Detection - High-Value Transaction
 
 ```
 1. Kafka Streams reads a TransactionInitiatedEvent from transaction.initiated
@@ -1363,10 +1363,10 @@ Note: the *direct* publish in `TransactionService` (step 7 in Flow 1) has no suc
    → no: transaction passes through, no alert
 
 (Velocity and rapid-spend rules run in parallel on the same raw transaction stream,
- independent of the join — see Section 8.4)
+ independent of the join - see Section 8.4)
 ```
 
-### Flow 5: Consumer Rebalance — No Message Loss
+### Flow 5: Consumer Rebalance - No Message Loss
 
 ```
 1. Consumer C handles Partition 2 (committed offset: 47)
@@ -1375,7 +1375,7 @@ Note: the *direct* publish in `TransactionService` (step 7 in Flow 1) has no suc
 4. ALL consumption pauses
 5. Partition 2 reassigned to Consumer A
 6. Consumer A asks coordinator: last committed offset for Partition 2?
-7. Coordinator: offset 47 (stored in __consumer_offsets — not in dead Consumer C)
+7. Coordinator: offset 47 (stored in __consumer_offsets - not in dead Consumer C)
 8. Consumer A resumes from offset 48
 9. Messages 48+ redelivered if Consumer C was mid-processing → idempotency handles duplicates
 ```
@@ -1396,7 +1396,7 @@ TransactionInitiatedEvent (Avro SpecificRecord, in-memory)
   └─→ avroKafkaTemplate (KafkaAvroSerializer, re-serializes + registers schema)
         Kafka message bytes  [magic byte][schema id][avro binary]
   ↓ KafkaAvroDeserializer (consumer side, specific.avro.reader=true)
-TransactionInitiatedEvent (Avro SpecificRecord, typed — notification-service & fraud-detection-service)
+TransactionInitiatedEvent (Avro SpecificRecord, typed - notification-service & fraud-detection-service)
   ↓ processed / windowed / joined
 ack / fraud.alert
 ```
@@ -1411,51 +1411,51 @@ ack / fraud.alert
 **Decision:** Write to outbox table in same DB transaction. Separate poller publishes to Kafka.
 **Tradeoff:** Up to 1 second latency between transaction creation and Kafka event.
 **Alternative:** Debezium CDC (sub-millisecond, but adds operational complexity).
-**Status:** currently undermined by a direct publish also happening in the same request path — see [Section 18](#18-known-issues--things-to-clean-up).
+**Status:** currently undermined by a direct publish also happening in the same request path - see [Section 18](#18-known-issues--things-to-clean-up).
 
 ### Decision 2: Multiple KafkaTemplate Beans, One Per Serialization Strategy
 
 **Problem:** A pre-serialized payload sent through the wrong serializer gets double-encoded or corrupted (e.g., raw Avro bytes through `JsonSerializer`).
-**Decision:** One `KafkaTemplate` bean per serializer — `objectKafkaTemplate` (JSON), `avroKafkaTemplate` (typed Avro objects, schema managed by Confluent client), `stringKafkaTemplate` (pre-serialized JSON strings), `bytesKafkaTemplate` (pre-serialized raw bytes, passthrough).
-**Why not one:** Type erasure — all collapse to raw `KafkaTemplate` at runtime. `@Qualifier` required for disambiguation.
+**Decision:** One `KafkaTemplate` bean per serializer - `objectKafkaTemplate` (JSON), `avroKafkaTemplate` (typed Avro objects, schema managed by Confluent client), `stringKafkaTemplate` (pre-serialized JSON strings), `bytesKafkaTemplate` (pre-serialized raw bytes, passthrough).
+**Why not one:** Type erasure - all collapse to raw `KafkaTemplate` at runtime. `@Qualifier` required for disambiguation.
 
 ### Decision 3: Manual Offset Commit (MANUAL_IMMEDIATE)
 
-**Problem:** Auto-commit fires on timer — can commit offsets for messages still being processed.
+**Problem:** Auto-commit fires on timer - can commit offsets for messages still being processed.
 **Decision:** Commit offset only after successful processing AND DB write to processed_events.
-**Tradeoff:** At-least-once delivery — message can be redelivered on failure. Idempotency guard handles duplicates.
+**Tradeoff:** At-least-once delivery - message can be redelivered on failure. Idempotency guard handles duplicates.
 
 ### Decision 4: Idempotency via DB Primary Key
 
 **Problem:** At-least-once delivery means duplicate messages are inevitable.
-**Decision:** `processed_events` table with `event_id` as primary key. DB constraint is the enforcer — not application logic.
-**Tradeoff:** Extra DB write per message. Acceptable for banking — correctness over throughput.
-**Caveat:** only catches duplicates that share an `eventId` — see the dual-publish issue in [Section 18](#18-known-issues--things-to-clean-up).
+**Decision:** `processed_events` table with `event_id` as primary key. DB constraint is the enforcer - not application logic.
+**Tradeoff:** Extra DB write per message. Acceptable for banking - correctness over throughput.
+**Caveat:** only catches duplicates that share an `eventId` - see the dual-publish issue in [Section 18](#18-known-issues--things-to-clean-up).
 
 ### Decision 5: kafka1 as Sole Controller
 
-**Problem:** 2-node Raft with both as voters requires both alive simultaneously — startup deadlock.
+**Problem:** 2-node Raft with both as voters requires both alive simultaneously - startup deadlock.
 **Decision:** kafka1 is controller + broker. kafka2 is broker only.
 **Tradeoff:** kafka1 failure = control plane outage. Acceptable for dev. Production needs 3 controller nodes.
 
 ### Decision 6: `fixedDelay` over `fixedRate` for OutboxPoller
 
-**Problem:** `fixedRate` fires every N ms regardless of previous execution time. If previous poll takes 30s (Kafka slow), next fires before previous completes — concurrent pollers, lock contention.
-**Decision:** `fixedDelay=1000` — waits 1s after previous execution COMPLETES before starting next.
+**Problem:** `fixedRate` fires every N ms regardless of previous execution time. If previous poll takes 30s (Kafka slow), next fires before previous completes - concurrent pollers, lock contention.
+**Decision:** `fixedDelay=1000` - waits 1s after previous execution COMPLETES before starting next.
 **Result:** One poll cycle at a time, no overlap.
 
 ### Decision 7: Avro + Schema Registry over JSON
 
 **Problem:** JSON gives zero compile-time or deploy-time guarantee that producer and consumer agree on message shape; a producer field rename silently breaks every consumer at runtime.
 **Decision:** All three services now speak Avro, validated against a shared Schema Registry, with generated typed classes from `.avsc` files.
-**Tradeoff:** Extra moving part (Schema Registry must be up for producers/consumers to work), extra build step (avro-maven-plugin codegen), less human-readable wire format (binary, not inspectable in Kafka UI without schema-aware tooling — Kafka UI handles this via its own registry connection).
-**Alternative considered implicitly:** Protobuf (similar guarantees, different ecosystem) — Avro chosen for tighter Confluent tooling integration.
+**Tradeoff:** Extra moving part (Schema Registry must be up for producers/consumers to work), extra build step (avro-maven-plugin codegen), less human-readable wire format (binary, not inspectable in Kafka UI without schema-aware tooling - Kafka UI handles this via its own registry connection).
+**Alternative considered implicitly:** Protobuf (similar guarantees, different ecosystem) - Avro chosen for tighter Confluent tooling integration.
 
 ### Decision 8: `GlobalKTable` for Account Reference Data in fraud-detection-service
 
 **Problem:** Fraud rules need per-transaction account context (tier) without depending on Postgres from a Kafka Streams app.
 **Decision:** Publish account data onto `account.created` (via `AccountSeeder`) and join against it as a `GlobalKTable` inside the Streams topology.
-**Tradeoff:** Reference data lives in two places (Postgres `accounts` table for transaction-service/init.sql, and `account.created` topic for fraud-detection-service) with no automated sync — see [6.9](#69-account-seeder).
+**Tradeoff:** Reference data lives in two places (Postgres `accounts` table for transaction-service/init.sql, and `account.created` topic for fraud-detection-service) with no automated sync - see [6.9](#69-account-seeder).
 
 ### Decision 9: `EXACTLY_ONCE_V2` for the Fraud Detection Streams App
 
@@ -1469,16 +1469,16 @@ ack / fraud.alert
 
 | Location | Pattern | Example | Rationale |
 |---|---|---|---|
-| `domain/` | `<Entity>.java` | `Transaction.java` | JPA entity — matches table name |
+| `domain/` | `<Entity>.java` | `Transaction.java` | JPA entity - matches table name |
 | `domain/` | `<Entity>Status.java` | `TransactionStatus.java` | Enum for entity status field |
 | `domain/` | `<Entity>Type.java` | `TransactionType.java` | Enum for entity type field |
-| `src/main/avro/` | `<Entity><Action>Event.avsc` | `TransactionInitiatedEvent.avsc` | Avro schema — source of truth for the generated Kafka payload class |
+| `src/main/avro/` | `<Entity><Action>Event.avsc` | `TransactionInitiatedEvent.avsc` | Avro schema - source of truth for the generated Kafka payload class |
 | `repository/` | `<Entity>Repository.java` | `TransactionRepository.java` | Spring Data convention |
 | `service/` | `<Entity>Service.java` | `TransactionService.java` | Business logic orchestration |
 | `producer/` | `<Entity>Producer.java` | `TransactionProducer.java` | Kafka message publisher |
 | `consumer/` | `<Entity>Consumer.java` | `TransactionConsumer.java` | Kafka message listener |
-| `outbox/` | `OutboxPoller.java` | — | Scheduled outbox publisher |
-| `dlq/` | `DlqProducer.java` | — | Dead letter queue publisher |
+| `outbox/` | `OutboxPoller.java` | - | Scheduled outbox publisher |
+| `dlq/` | `DlqProducer.java` | - | Dead letter queue publisher |
 | `seeder/` | `<Entity>Seeder.java` | `AccountSeeder.java` | One-time (per-startup) reference-data publisher |
 | `streams/` | `<Domain>Topology.java` | `FraudDetectionTopology.java` | Kafka Streams DAG definition |
 | `config/` | `Kafka<Role>Config.java` | `KafkaProducerConfig.java`, `KafkaStreamsConfig.java` | Spring @Configuration |
@@ -1497,7 +1497,7 @@ bankstream/
 ├── pom.xml                         ← parent Maven POM (groupId: com.bankstream), Avro + Confluent deps
 ├── docs/
 │   ├── Arcitecture.md              ← this file
-│   └── BankStream — Kafka & Spring Boot Reference.md
+│   └── BankStream - Kafka & Spring Boot Reference.md
 │
 ├── transaction-service/            ← port 8090
 │   ├── pom.xml                     ← avro-maven-plugin bound to generate-sources
@@ -1584,7 +1584,7 @@ outboxRepository.save(Outbox.builder()
     .build());
 ```
 
-Do **not** also call a direct producer publish alongside the outbox write in the same method — that's the exact anti-pattern flagged in [Section 18](#18-known-issues--things-to-clean-up). Let the `OutboxPoller` be the only path to Kafka for this event.
+Do **not** also call a direct producer publish alongside the outbox write in the same method - that's the exact anti-pattern flagged in [Section 18](#18-known-issues--things-to-clean-up). Let the `OutboxPoller` be the only path to Kafka for this event.
 
 ### Step 3: Verify the topic exists
 
@@ -1593,7 +1593,7 @@ docker exec -it bankstream-kafka1 kafka-topics \
   --bootstrap-server kafka1:9092 --describe --topic transaction.completed
 ```
 
-If not: create it (auto-create is disabled — see [Section 17](#17-build--run-reference)).
+If not: create it (auto-create is disabled - see [Section 17](#17-build--run-reference)).
 
 ### Step 4: Copy the `.avsc` into any consuming service and generate its class
 
@@ -1639,20 +1639,20 @@ docker exec -it bankstream-kafka1 kafka-topics \
 ```bash
 cd bankstream
 mvn clean install
-# avro-maven-plugin runs in the generate-sources phase for each module —
+# avro-maven-plugin runs in the generate-sources phase for each module -
 # no separate "generate avro" step needed, it's part of the normal Maven lifecycle
 ```
 
 ### Run Services
 
 ```bash
-# Terminal 1 — also seeds account.created on startup via AccountSeeder
+# Terminal 1 - also seeds account.created on startup via AccountSeeder
 mvn spring-boot:run -pl transaction-service
 
 # Terminal 2
 mvn spring-boot:run -pl notification-service
 
-# Terminal 3 — Kafka Streams app, needs Schema Registry + account.created + transaction.initiated
+# Terminal 3 - Kafka Streams app, needs Schema Registry + account.created + transaction.initiated
 mvn spring-boot:run -pl fraud-detection-service
 ```
 
@@ -1674,7 +1674,7 @@ curl -X POST http://localhost:8090/api/transactions \
   -H "Content-Type: application/json" \
   -d '{"accountId":"a0000001-0000-0000-0000-000000000001","amount":150000.00,"type":"DEBIT","description":"Should trigger HIGH_VALUE alert"}'
 
-# Velocity fraud trigger — fire this 3+ times within 5 minutes for the same account
+# Velocity fraud trigger - fire this 3+ times within 5 minutes for the same account
 curl -X POST http://localhost:8090/api/transactions \
   -H "Content-Type: application/json" \
   -d '{"accountId":"a0000001-0000-0000-0000-000000000002","amount":500.00,"type":"DEBIT","description":"velocity test"}'
@@ -1715,7 +1715,7 @@ docker exec -it bankstream-postgres psql -U bankstream -d bankstream \
 # Inspect fraud-detection-service's local RocksDB state dir (velocity/spend window stores)
 ls -la /tmp/kafka-streams/fraud-detection
 
-# Wipe everything and start fresh (also wipes Kafka Streams local state — safe, rebuilds from changelog)
+# Wipe everything and start fresh (also wipes Kafka Streams local state - safe, rebuilds from changelog)
 docker compose down -v && docker compose up -d
 ```
 
@@ -1729,16 +1729,16 @@ These are honest notes about the current state of the code, written so they don'
 
 **Where:** `transaction-service/src/main/java/com/bankstream/transaction/service/TransactionService.java`, method `initiateTransaction(...)`.
 
-**What happens:** the method (a) writes an outbox row containing the Avro-serialized event (published asynchronously, ~1s later, by `OutboxPoller`), **and** (b) calls `transactionProducer.publishTransactionInitiated(avroEvent)` directly, synchronously, in the same method, before returning. Both sends target the exact same topic (`transaction.initiated`), same partition key, and — since the same `avroEvent` object (built once, with one `eventId`) is used for both — actually the **same `eventId`**, meaning the two messages are near-identical, differing only in exact serialization path (`bytesKafkaTemplate` sending pre-serialized bytes vs. `avroKafkaTemplate` re-serializing the object through `KafkaAvroSerializer` directly).
+**What happens:** the method (a) writes an outbox row containing the Avro-serialized event (published asynchronously, ~1s later, by `OutboxPoller`), **and** (b) calls `transactionProducer.publishTransactionInitiated(avroEvent)` directly, synchronously, in the same method, before returning. Both sends target the exact same topic (`transaction.initiated`), same partition key, and - since the same `avroEvent` object (built once, with one `eventId`) is used for both - actually the **same `eventId`**, meaning the two messages are near-identical, differing only in exact serialization path (`bytesKafkaTemplate` sending pre-serialized bytes vs. `avroKafkaTemplate` re-serializing the object through `KafkaAvroSerializer` directly).
 
 **Why this matters:**
-- It defeats the atomicity guarantee the outbox pattern exists to provide — step (b) is a direct, non-transactional Kafka call with no retry-via-outbox if it fails at request time (it just logs and moves on).
-- Every transaction currently produces two messages on the topic. Because both carry the *same* `eventId`, `notification-service`'s idempotency guard (dedup by `eventId`) actually *does* catch the second one as a duplicate — so end-user-visible behavior (one notification per transaction) looks correct by luck, not by design.
-- `fraud-detection-service` has **no idempotency concept at all** — its velocity and spend window counts are Kafka Streams aggregates over the raw stream, so they count both messages. Every account will trip the velocity rule (≥3 in 5 minutes) roughly twice as fast as intended, and hourly spend totals will read double actual spend.
+- It defeats the atomicity guarantee the outbox pattern exists to provide - step (b) is a direct, non-transactional Kafka call with no retry-via-outbox if it fails at request time (it just logs and moves on).
+- Every transaction currently produces two messages on the topic. Because both carry the *same* `eventId`, `notification-service`'s idempotency guard (dedup by `eventId`) actually *does* catch the second one as a duplicate - so end-user-visible behavior (one notification per transaction) looks correct by luck, not by design.
+- `fraud-detection-service` has **no idempotency concept at all** - its velocity and spend window counts are Kafka Streams aggregates over the raw stream, so they count both messages. Every account will trip the velocity rule (≥3 in 5 minutes) roughly twice as fast as intended, and hourly spend totals will read double actual spend.
 
-**Likely origin:** this looks like leftover code from migrating the outbox payload from JSON to Avro — the original JSON-era code (still visible, commented out, directly above this block in the source) only wrote to the outbox and let the poller be the sole publisher. The direct-publish call appears to have been added during Avro work (possibly for quick manual testing of the Avro producer path) and never removed.
+**Likely origin:** this looks like leftover code from migrating the outbox payload from JSON to Avro - the original JSON-era code (still visible, commented out, directly above this block in the source) only wrote to the outbox and let the poller be the sole publisher. The direct-publish call appears to have been added during Avro work (possibly for quick manual testing of the Avro producer path) and never removed.
 
-**What to do about it:** pick one path. If you want to keep the outbox's atomicity guarantee (recommended, matches [Decision 1](#13-key-design-decisions)), delete the `transactionProducer.publishTransactionInitiated(avroEvent)` call from `TransactionService` entirely — the `OutboxPoller` is sufficient. `TransactionProducer` itself and the `avroKafkaTemplate` bean can either be deleted or kept around purely as a "here's how you'd publish Avro directly, for comparison" teaching artifact — just don't call it from the main write path.
+**What to do about it:** pick one path. If you want to keep the outbox's atomicity guarantee (recommended, matches [Decision 1](#13-key-design-decisions)), delete the `transactionProducer.publishTransactionInitiated(avroEvent)` call from `TransactionService` entirely - the `OutboxPoller` is sufficient. `TransactionProducer` itself and the `avroKafkaTemplate` bean can either be deleted or kept around purely as a "here's how you'd publish Avro directly, for comparison" teaching artifact - just don't call it from the main write path.
 
 ### 18.2 Unused/legacy `KafkaTemplate` beans
 
@@ -1746,7 +1746,7 @@ These are honest notes about the current state of the code, written so they don'
 
 ### 18.3 `.avsc` files are hand-copied across modules, not shared
 
-See [Section 5, "Where Each Schema Lives"](#5-schema-registry--avro-serialization) — `TransactionInitiatedEvent.avsc` and `AccountEvent.avsc` exist as separate file copies in multiple modules. No tooling currently enforces they stay identical. If you change a schema, grep for the schema name across all three service directories and update every copy.
+See [Section 5, "Where Each Schema Lives"](#5-schema-registry--avro-serialization) - `TransactionInitiatedEvent.avsc` and `AccountEvent.avsc` exist as separate file copies in multiple modules. No tooling currently enforces they stay identical. If you change a schema, grep for the schema name across all three service directories and update every copy.
 
 ### 18.4 `transaction.completed` / `transaction.failed` topics exist in config but nothing publishes to them yet
 
@@ -1754,7 +1754,7 @@ Both are created by the topic-creation script in [Section 17](#17-build--run-ref
 
 ### 18.5 No `fraud_alerts` Postgres table, despite the DB schema section in earlier doc revisions implying one
 
-`fraud-detection-service` never got a JPA/Postgres layer — it's intentionally Kafka-native (state in RocksDB + changelog topics, alerts land on the `fraud.alert` topic only). If you want alerts queryable outside Kafka (e.g., for a dashboard), you'd add a consumer that reads `fraud.alert` and writes to Postgres — that consumer doesn't exist yet.
+`fraud-detection-service` never got a JPA/Postgres layer - it's intentionally Kafka-native (state in RocksDB + changelog topics, alerts land on the `fraud.alert` topic only). If you want alerts queryable outside Kafka (e.g., for a dashboard), you'd add a consumer that reads `fraud.alert` and writes to Postgres - that consumer doesn't exist yet.
 
 ---
 
@@ -1763,22 +1763,22 @@ Both are created by the topic-creation script in [Section 17](#17-build--run-ref
 | # | Gotcha | Root Cause | Fix |
 |---|--------|------------|-----|
 | 1 | `column "payload" is of type jsonb but expression is of type character varying` | Hibernate sends String as VARCHAR | Add `@JdbcTypeCode(SqlTypes.JSON)` to payload field |
-| 2 | `Could not instantiate com.fasterxml.jackson.databind.JsonSerializer` | Wrong import — Jackson's abstract class | Import `org.springframework.kafka.support.serializer.JsonSerializer` |
-| 3 | `Illegal attempt to set lock mode for a native query` | `@Lock` on native query | Remove `@Lock` — `FOR UPDATE SKIP LOCKED` in SQL is enough |
+| 2 | `Could not instantiate com.fasterxml.jackson.databind.JsonSerializer` | Wrong import - Jackson's abstract class | Import `org.springframework.kafka.support.serializer.JsonSerializer` |
+| 3 | `Illegal attempt to set lock mode for a native query` | `@Lock` on native query | Remove `@Lock` - `FOR UPDATE SKIP LOCKED` in SQL is enough |
 | 4 | `required a bean of type KafkaTemplate that could not be found` | Multiple beans, type erasure, Spring can't choose | Add `@Bean("name")` + `@Qualifier("name")` |
 | 5 | `constructor X is already defined` | `@RequiredArgsConstructor` + manual constructor conflict | Remove `@RequiredArgsConstructor` when writing constructor manually with `@Qualifier` |
-| 6 | `UnknownHostException: kafka2` | Both brokers as Raft voters — kafka1 tries to reach kafka2 before it starts | Make kafka2 broker-only, kafka1 sole controller |
+| 6 | `UnknownHostException: kafka2` | Both brokers as Raft voters - kafka1 tries to reach kafka2 before it starts | Make kafka2 broker-only, kafka1 sole controller |
 | 7 | Consumer receives `String`/`Map` instead of the typed Avro class | `specific.avro.reader` not set to `true`, or wrong deserializer configured | Set `specific.avro.reader=true` and use `KafkaAvroDeserializer` |
-| 8 | Consumer stuck on same offset forever | Not acking after DLQ routing | Always `acknowledgment.acknowledge()` even after DLQ — original topic must move on |
+| 8 | Consumer stuck on same offset forever | Not acking after DLQ routing | Always `acknowledgment.acknowledge()` even after DLQ - original topic must move on |
 | 9 | Leader imbalance after broker recovery | Kafka doesn't auto-restore preferred leader | Run `kafka-leader-election --election-type preferred` manually |
 | 10 | Outbox table growing unbounded | No cleanup job | Run `DELETE FROM outbox WHERE published=true AND published_at < now() - INTERVAL '7 days'` nightly |
-| 11 | `auto_create_topics_enable=false` causes `NoSuchTopicException` | Topic not created before producer sends | Create topics explicitly before starting services — see build reference above |
-| 12 | `application.yml` kafka settings ignored | Programmatic `@Configuration` bean overrides auto-config entirely | Set ALL settings in the bean — nothing is inherited from yml |
-| 13 | `DataIntegrityViolationException` on processed_events insert | Race condition — two instances processed same message | Catch `DVE`, log, ack and continue — this is expected and safe |
-| 14 | `version` attribute obsolete warning in docker compose | Old `version: '3.8'` top-level key | Remove the `version:` line — Docker Compose v2 doesn't need it |
-| 15 | `org.apache.kafka.common.errors.SerializationException: Error registering Avro schema` | Schema Registry unreachable, or a genuinely incompatible schema change (e.g. removed a required field) | Check Schema Registry health (`curl localhost:8081/subjects`); if it's a real incompatibility, evolve the schema correctly — new fields need `["null", type]` + `"default": null` |
-| 16 | `KafkaAvroDeserializer` throws `SerializationException: Unknown magic byte!` | Trying to deserialize non-Avro bytes as Avro (e.g. an old JSON message still sitting in a topic from before the Avro migration, or the raw outbox base64 bytes were mis-decoded) | Wipe the topic (`docker compose down -v`) when switching serialization formats on an existing topic — old and new formats cannot coexist on one topic |
-| 17 | Fraud detection velocity/spend counts look roughly 2x what you'd expect | The dual-publish issue — see [Section 18.1](#181-transactionservice-publishes-transactioninitiated-twice-per-request) | Remove the direct `transactionProducer.publishTransactionInitiated()` call from `TransactionService`, rely on the outbox only |
-| 18 | `fraud-detection-service` doesn't see any accounts / `HIGH_VALUE` rule never fires | `AccountSeeder` only runs when `transaction-service` starts up — if fraud-detection-service was started first, or Postgres/Kafka weren't ready when the seeder ran, `account.created` may be empty | Restart `transaction-service` to re-run the seeder (idempotent — re-publishing the same keys is safe), confirm with `kafka-console-consumer --topic account.created --from-beginning` |
+| 11 | `auto_create_topics_enable=false` causes `NoSuchTopicException` | Topic not created before producer sends | Create topics explicitly before starting services - see build reference above |
+| 12 | `application.yml` kafka settings ignored | Programmatic `@Configuration` bean overrides auto-config entirely | Set ALL settings in the bean - nothing is inherited from yml |
+| 13 | `DataIntegrityViolationException` on processed_events insert | Race condition - two instances processed same message | Catch `DVE`, log, ack and continue - this is expected and safe |
+| 14 | `version` attribute obsolete warning in docker compose | Old `version: '3.8'` top-level key | Remove the `version:` line - Docker Compose v2 doesn't need it |
+| 15 | `org.apache.kafka.common.errors.SerializationException: Error registering Avro schema` | Schema Registry unreachable, or a genuinely incompatible schema change (e.g. removed a required field) | Check Schema Registry health (`curl localhost:8081/subjects`); if it's a real incompatibility, evolve the schema correctly - new fields need `["null", type]` + `"default": null` |
+| 16 | `KafkaAvroDeserializer` throws `SerializationException: Unknown magic byte!` | Trying to deserialize non-Avro bytes as Avro (e.g. an old JSON message still sitting in a topic from before the Avro migration, or the raw outbox base64 bytes were mis-decoded) | Wipe the topic (`docker compose down -v`) when switching serialization formats on an existing topic - old and new formats cannot coexist on one topic |
+| 17 | Fraud detection velocity/spend counts look roughly 2x what you'd expect | The dual-publish issue - see [Section 18.1](#181-transactionservice-publishes-transactioninitiated-twice-per-request) | Remove the direct `transactionProducer.publishTransactionInitiated()` call from `TransactionService`, rely on the outbox only |
+| 18 | `fraud-detection-service` doesn't see any accounts / `HIGH_VALUE` rule never fires | `AccountSeeder` only runs when `transaction-service` starts up - if fraud-detection-service was started first, or Postgres/Kafka weren't ready when the seeder ran, `account.created` may be empty | Restart `transaction-service` to re-run the seeder (idempotent - re-publishing the same keys is safe), confirm with `kafka-console-consumer --topic account.created --from-beginning` |
 | 19 | Kafka Streams app fails to start with `Missing source topic(s)` | `transaction.initiated` or `account.created` doesn't exist yet when fraud-detection-service starts (auto-create is disabled) | Create topics first (see [Section 17](#17-build--run-reference)) before starting fraud-detection-service |
-| 20 | `SpecificAvroSerde` `ClassCastException` inside the Streams topology | Local `.avsc` copy in `fraud-detection-service` has drifted from the one `transaction-service` actually produced with | Diff the `.avsc` files across modules — see [Section 18.3](#183-avsc-files-are-hand-copied-across-modules-not-shared) |
+| 20 | `SpecificAvroSerde` `ClassCastException` inside the Streams topology | Local `.avsc` copy in `fraud-detection-service` has drifted from the one `transaction-service` actually produced with | Diff the `.avsc` files across modules - see [Section 18.3](#183-avsc-files-are-hand-copied-across-modules-not-shared) |

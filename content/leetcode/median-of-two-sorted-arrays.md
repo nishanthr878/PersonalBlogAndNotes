@@ -74,11 +74,11 @@ so the algorithm will be
 ```
 1. Two sorted arrays, m and n elements.
 2. Binary search a candidate i over nums1's index range (0 to m); derive j = half - i where half = (m+n+1)/2.
-3. Compute left1, right1, left2, right2 — the four boundary values at that cut.
+3. Compute left1, right1, left2, right2 - the four boundary values at that cut.
 4. Check left1 ≤ right2 and left2 ≤ right1.
-5. If both hold — stop. This is the valid partition.
-6. If left2 > right1 fails — nums2's left chunk is oversized — increase i (forces j down).
-7. If left1 > right2 fails — nums1's left chunk is oversized — decrease i (forces j up).
+5. If both hold - stop. This is the valid partition.
+6. If left2 > right1 fails - nums2's left chunk is oversized - increase i (forces j down).
+7. If left1 > right2 fails - nums1's left chunk is oversized - decrease i (forces j up).
 8. Median: odd total → max(left1, left2). Even total → (max(left1,left2) + min(right1,right2)) / 2.
 ```
 

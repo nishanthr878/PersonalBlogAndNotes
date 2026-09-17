@@ -33,5 +33,5 @@ Automated testing tool that replaces manual call testing of voice AI systems. A 
 
 ## Next steps
 
-- STT transcribes per RTP chunk instead of per full utterance — UtteranceBuffer fix pending
-- React UI not yet built — use API directly
+- STT transcribes per RTP chunk instead of per full utterance - UtteranceBuffer fix pending
+- React UI not yet built - use API directly

@@ -66,10 +66,10 @@ public Notification(String to, String body, String subject, String channel, int 
 ```
 
 #### Problem with this:
-1. Unreadable at call site — new Notification("a@b.com", "Hello", null, "EMAIL", 1, null, null, null, 3, null) — what does that 3 mean?
-2. Order-sensitive — swap two String arguments, compiler won't catch it, bug in production
-3. Combinatorial explosion — 10 fields means potentially dozens of constructors to cover meaningful combinations
-4. Adding a new optional field — you touch every constructor
+1. Unreadable at call site - new Notification("a@b.com", "Hello", null, "EMAIL", 1, null, null, null, 3, null) - what does that 3 mean?
+2. Order-sensitive - swap two String arguments, compiler won't catch it, bug in production
+3. Combinatorial explosion - 10 fields means potentially dozens of constructors to cover meaningful combinations
+4. Adding a new optional field - you touch every constructor
 
 #### Builder Implementation
 ```java
@@ -81,7 +81,7 @@ import java.util.Map;
 
 public class Notification {
 
-    // All fields private, final — object is immutable once built
+    // All fields private, final - object is immutable once built
     private final String to;
     private final String subject;
     private final String body;
@@ -93,7 +93,7 @@ public class Notification {
     private final int retryCount;
     private final LocalDateTime scheduledAt;
 
-    // Private constructor — ONLY Builder can call this
+    // Private constructor - ONLY Builder can call this
     private Notification(Builder builder) {
         this.to = builder.to;
         this.subject = builder.subject;
@@ -107,7 +107,7 @@ public class Notification {
         this.scheduledAt = builder.scheduledAt;
     }
 
-    // Getters only — no setters, immutable
+    // Getters only - no setters, immutable
     public String getTo() { return to; }
     public String getSubject() { return subject; }
     public String getBody() { return body; }
@@ -147,7 +147,7 @@ public class Notification {
         private int retryCount = 3;
         private LocalDateTime scheduledAt = null;
 
-        // Required fields go in Builder constructor — enforced at compile time
+        // Required fields go in Builder constructor - enforced at compile time
         public Builder(String to, String body, String channel) {
             this.to = to;
             this.body = body;
@@ -156,7 +156,7 @@ public class Notification {
 
         public Builder subject(String subject) {
             this.subject = subject;
-            return this;            // returns Builder — enables method chaining
+            return this;            // returns Builder - enables method chaining
         }
 
         public Builder priority(int priority) {
@@ -189,7 +189,7 @@ public class Notification {
             return this;
         }
 
-        // Terminal method — calls private Notification constructor
+        // Terminal method - calls private Notification constructor
         public Notification build() {
             return new Notification(this);
         }
@@ -201,7 +201,7 @@ public class Notification {
 ```java
 Notification n = new Notification.Builder()
         .body("Hello")
-        .build(); // compiles fine, but 'to' is null — runtime bug
+        .build(); // compiles fine, but 'to' is null - runtime bug
 ```
 
 - If `to` is in the Builder constructior:
@@ -292,7 +292,7 @@ import com.lld.notification.notifier.*;
 
 public class NotifierFactory {
 
-    // Static factory method — caller passes channel, gets back correct Notifier
+    // Static factory method - caller passes channel, gets back correct Notifier
     public static Notifier getNotifier(String channel) {
         return switch (channel.toUpperCase()) {
             case "EMAIL" -> new EmailNotifier();
@@ -534,7 +534,7 @@ public class NotificationService {
 // Use AWS
 NotificationService service = new NotificationService(new AwsNotifierFactory());
 
-// Switch to Twilio — nothing else changes
+// Switch to Twilio - nothing else changes
 NotificationService service = new NotificationService(new TwilioNotifierFactory());
 ```
 
@@ -558,10 +558,10 @@ The difference between Factory and Abstract factory is
 
 with pure static fields:
 ```java
-// can't do this — can't pass a "static config" as a dependency
+// can't do this - can't pass a "static config" as a dependency
 public NotificationService(NotificationConfig config) { ... }
 
-// can't do this — can't mock static fields in unit tests
+// can't do this - can't mock static fields in unit tests
 NotificationConfig.apiKey = "fake-key"; // dirty, global state
 ```
 with singleton:
@@ -670,7 +670,7 @@ public class Main {
         awsService.send(emailNotif);
         awsService.send(smsNotif);
 
-        // Switch to Twilio — zero other changes
+        // Switch to Twilio - zero other changes
         System.out.println("\n--- Twilio Provider ---");
         NotifierFactory twilioFactory = new TwilioNotifierFactory();
         NotificationService twilioService = new NotificationService(twilioFactory);

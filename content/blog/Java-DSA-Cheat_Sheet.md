@@ -25,7 +25,7 @@ Arrays.fill(arr, 10);
 
 // Sort
 Arrays.sort(arr);                              // ASC
-Arrays.sort(arr, Collections.reverseOrder());  // DESC — requires Integer[], not int[]
+Arrays.sort(arr, Collections.reverseOrder());  // DESC - requires Integer[], not int[]
 
 // Reverse
 Collections.reverse(Arrays.asList(arr));
@@ -68,7 +68,7 @@ for (int i = 0; i < n; i++) grid.add(new ArrayList<>());
 |`list.clear()`|Remove all|O(n)|
 |`list.addAll(other)`|Append collection|O(k)|
 |`list.toArray()`|Convert to Object[]|O(n)|
-|`list.subList(i, j)`|View of [i, j) — not a copy|O(1)|
+|`list.subList(i, j)`|View of [i, j) - not a copy|O(1)|
 
 ```java
 // Sorting
@@ -93,25 +93,25 @@ LinkedList<String> ll = new LinkedList<>();
 |`ll.offerFirst(val)` / `ll.offerLast(val)`|Add to head / tail|O(1)|
 |`ll.get(i)`|Get by index|O(n)|
 |`ll.getFirst()` / `ll.getLast()`|View head / tail|O(1)|
-|`ll.peek()` / `ll.peekFirst()` / `ll.peekLast()`|View without removing — null if empty|O(1)|
-|`ll.poll()` / `ll.pollFirst()` / `ll.pollLast()`|Remove and return — null if empty|O(1)|
-|`ll.remove()` / `ll.removeFirst()` / `ll.removeLast()`|Remove — throws if empty|O(1)|
+|`ll.peek()` / `ll.peekFirst()` / `ll.peekLast()`|View without removing - null if empty|O(1)|
+|`ll.poll()` / `ll.pollFirst()` / `ll.pollLast()`|Remove and return - null if empty|O(1)|
+|`ll.remove()` / `ll.removeFirst()` / `ll.removeLast()`|Remove - throws if empty|O(1)|
 
-> [!tip] Use `LinkedList` as a Deque when you need O(1) insert/remove at both ends. Random access `get(i)` is O(n) — use `ArrayList` if you need that.
+> [!tip] Use `LinkedList` as a Deque when you need O(1) insert/remove at both ends. Random access `get(i)` is O(n) - use `ArrayList` if you need that.
 
 ---
 
 ## Stack
 
 ```java
-// Prefer Deque over Stack (Stack extends Vector — synchronized, slow)
+// Prefer Deque over Stack (Stack extends Vector - synchronized, slow)
 Deque<Integer> stack = new ArrayDeque<>();
 ```
 
 |Method|Description|Cost|
 |---|---|---|
 |`stack.push(val)`|Push onto top|O(1)|
-|`stack.pop()`|Remove and return top — throws if empty|O(1)|
+|`stack.pop()`|Remove and return top - throws if empty|O(1)|
 |`stack.peek()`|View top without removing|O(1)|
 |`stack.isEmpty()`|Boolean check|O(1)|
 |`stack.size()`|Element count|O(1)|
@@ -128,11 +128,11 @@ Queue<Integer> q = new ArrayDeque<>();  // faster than LinkedList in practice
 
 |Method|Description|Cost|
 |---|---|---|
-|`q.offer(val)`|Enqueue — returns `false` if full|O(1)|
-|`q.add(val)`|Enqueue — throws `IllegalStateException` if full|O(1)|
-|`q.poll()`|Dequeue head — returns `null` if empty|O(1)|
-|`q.remove()`|Dequeue head — throws if empty|O(1)|
-|`q.peek()`|View head — returns `null` if empty|O(1)|
+|`q.offer(val)`|Enqueue - returns `false` if full|O(1)|
+|`q.add(val)`|Enqueue - throws `IllegalStateException` if full|O(1)|
+|`q.poll()`|Dequeue head - returns `null` if empty|O(1)|
+|`q.remove()`|Dequeue head - throws if empty|O(1)|
+|`q.peek()`|View head - returns `null` if empty|O(1)|
 |`q.isEmpty()` / `q.size()`|Check / count|O(1)|
 
 ### offer vs add
@@ -142,7 +142,7 @@ Queue<Integer> q = new ArrayDeque<>();  // faster than LinkedList in practice
 |`add()`|throws `IllegalStateException`|returns `true`|
 |`offer()`|returns `false`|returns `true`|
 
-> [!tip] Default to `offer / poll / peek` — they never throw on capacity issues.
+> [!tip] Default to `offer / poll / peek` - they never throw on capacity issues.
 
 ---
 
@@ -152,13 +152,13 @@ Queue<Integer> q = new ArrayDeque<>();  // faster than LinkedList in practice
 Deque<Integer> dq = new ArrayDeque<>();
 ```
 
-`ArrayDeque` is the single best general-purpose structure — use it as both Stack and Queue.
+`ArrayDeque` is the single best general-purpose structure - use it as both Stack and Queue.
 
 |Method|Description|Cost|
 |---|---|---|
 |`dq.offerFirst(val)` / `dq.offerLast(val)`|Add to front / back|O(1)|
-|`dq.pollFirst()` / `dq.pollLast()`|Remove from front / back — null if empty|O(1)|
-|`dq.peekFirst()` / `dq.peekLast()`|View front / back — null if empty|O(1)|
+|`dq.pollFirst()` / `dq.pollLast()`|Remove from front / back - null if empty|O(1)|
+|`dq.peekFirst()` / `dq.peekLast()`|View front / back - null if empty|O(1)|
 
 > [!tip] Deque is the backbone of **sliding window maximum/minimum** problems. Use it as a monotonic deque to get O(n) total over a naive O(nk).
 
@@ -167,13 +167,13 @@ Deque<Integer> dq = new ArrayDeque<>();
 ## PriorityQueue (Heap)
 
 ```java
-// Min-heap (default — smallest at top)
+// Min-heap (default - smallest at top)
 PriorityQueue<Integer> minH = new PriorityQueue<>();
 
 // Max-heap
 PriorityQueue<Integer> maxH = new PriorityQueue<>(Collections.reverseOrder());
 
-// Custom comparator — sort int[] by index 1
+// Custom comparator - sort int[] by index 1
 PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]); // min-heap on [1]
 PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> b[1] - a[1]); // max-heap on [1]
 ```
@@ -190,7 +190,7 @@ PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> b[1] - a[1]); // max-hea
 ### Common PQ Patterns
 
 ```java
-// Top K largest elements — maintain a min-heap of size K
+// Top K largest elements - maintain a min-heap of size K
 PriorityQueue<Integer> pq = new PriorityQueue<>();
 for (int num : nums) {
     pq.offer(num);
@@ -226,9 +226,9 @@ Map<Integer, List<String>> map = new HashMap<>();
 |`map.containsKey(k)`|Key existence check|O(1) avg|
 |`map.remove(k)`|Delete entry|O(1) avg|
 |`map.size()` / `map.isEmpty()`|Count / empty check|O(1)|
-|`map.keySet()`|Set of all keys|—|
-|`map.values()`|Collection of all values|—|
-|`map.entrySet()`|Set of key-value pairs|—|
+|`map.keySet()`|Set of all keys|-|
+|`map.values()`|Collection of all values|-|
+|`map.entrySet()`|Set of key-value pairs|-|
 |`map.putIfAbsent(k, v)`|Put only if key absent|O(1) avg|
 |`map.merge(k, 1, Integer::sum)`|Insert or combine with existing|O(1) avg|
 
@@ -239,10 +239,10 @@ for (Map.Entry<String, Integer> e : map.entrySet()) {
     int v = e.getValue();
 }
 
-// computeIfAbsent — creates value if key absent (use for nested structures)
+// computeIfAbsent - creates value if key absent (use for nested structures)
 map.computeIfAbsent(key, k -> new ArrayList<>()).add(item);
 
-// Frequency count — two equivalent ways
+// Frequency count - two equivalent ways
 map.merge(num, 1, Integer::sum);
 map.put(num, map.getOrDefault(num, 0) + 1);
 ```
@@ -280,7 +280,7 @@ Set<String> set = new HashSet<>();
 
 |Method|Description|Cost|
 |---|---|---|
-|`set.add(val)`|Insert — ignores duplicates, returns boolean|O(1) avg|
+|`set.add(val)`|Insert - ignores duplicates, returns boolean|O(1) avg|
 |`set.contains(val)`|Membership check|O(1) avg|
 |`set.remove(val)`|Delete if present|O(1) avg|
 |`set.size()` / `set.isEmpty()` / `set.clear()`|Count / check / wipe|O(1)|
@@ -304,7 +304,7 @@ TreeSet<Integer> ts = new TreeSet<>(Comparator.reverseOrder());   // DESC
 |Method|Description|Cost|
 |---|---|---|
 |`ts.add / ts.contains / ts.remove`|Standard set ops|O(log n)|
-|`ts.first()` / `ts.last()`|View min / max — no removal|O(log n)|
+|`ts.first()` / `ts.last()`|View min / max - no removal|O(log n)|
 |`ts.pollFirst()` / `ts.pollLast()`|Remove and return min / max|O(log n)|
 |`ts.floor(val)`|Largest element ≤ val|O(log n)|
 |`ts.ceiling(val)`|Smallest element ≥ val|O(log n)|
@@ -352,7 +352,7 @@ s.trim()                             // strip leading/trailing whitespace
 s.replace('a', 'b')
 s.contains("abc")
 s.startsWith("ab") / s.endsWith("cd")
-s.equals(other)                      // content equality — never use ==
+s.equals(other)                      // content equality - never use ==
 s.compareTo(other)                   // lexicographic comparison
 String.join("-", "a", "b", "c")     // "a-b-c"
 String.valueOf(charArray)            // char[] → String
@@ -408,7 +408,7 @@ for (int mask = 0; mask < (1 << n); mask++) {
 ## Two Pointers
 
 ```java
-// Opposite ends — sorted array, pair sum
+// Opposite ends - sorted array, pair sum
 int l = 0, r = arr.length - 1;
 while (l < r) {
     int sum = arr[l] + arr[r];
@@ -417,7 +417,7 @@ while (l < r) {
     else r--;
 }
 
-// Fast / slow — cycle detection (Floyd's)
+// Fast / slow - cycle detection (Floyd's)
 int slow = head, fast = head;
 while (fast != null && fast.next != null) {
     slow = slow.next;
@@ -440,7 +440,7 @@ for (int i = k; i < arr.length; i++) {
     maxSum = Math.max(maxSum, windowSum);
 }
 
-// Variable size window — shrink left when window becomes invalid
+// Variable size window - shrink left when window becomes invalid
 int l = 0, result = 0;
 Map<Character, Integer> freq = new HashMap<>();
 for (int r = 0; r < s.length(); r++) {
@@ -480,17 +480,17 @@ int sum = p[r2+1][c2+1] - p[r1][c2+1] - p[r2+1][c1] + p[r1][c1];
 ## Binary Search
 
 ```java
-// Standard — find exact target in sorted array
+// Standard - find exact target in sorted array
 int l = 0, r = arr.length - 1;
 while (l <= r) {
-    int mid = l + (r - l) / 2;   // never (l + r) / 2 — overflows
+    int mid = l + (r - l) / 2;   // never (l + r) / 2 - overflows
     if (arr[mid] == target) return mid;
     else if (arr[mid] < target) l = mid + 1;
     else r = mid - 1;
 }
 return -1;
 
-// Lower bound — leftmost index where arr[i] >= target
+// Lower bound - leftmost index where arr[i] >= target
 int l = 0, r = arr.length;
 while (l < r) {
     int mid = l + (r - l) / 2;
@@ -499,7 +499,7 @@ while (l < r) {
 }
 // l is the answer
 
-// Upper bound — leftmost index where arr[i] > target  (i.e. r-1 is last occurrence of target)
+// Upper bound - leftmost index where arr[i] > target  (i.e. r-1 is last occurrence of target)
 int l = 0, r = arr.length;
 while (l < r) {
     int mid = l + (r - l) / 2;
@@ -508,7 +508,7 @@ while (l < r) {
 }
 // l - 1 is last occurrence of target
 
-// Binary search on answer — "search on the result space, not the array"
+// Binary search on answer - "search on the result space, not the array"
 // Pattern: find minimum X such that condition(X) is true
 int l = minPossible, r = maxPossible;
 while (l < r) {
@@ -533,7 +533,7 @@ for (int[] edge : edges) {
     graph.computeIfAbsent(edge[1], k -> new ArrayList<>()).add(edge[0]); // undirected
 }
 
-// BFS — shortest path in unweighted graph, level-by-level
+// BFS - shortest path in unweighted graph, level-by-level
 Queue<Integer> queue = new ArrayDeque<>();
 boolean[] visited = new boolean[n];
 queue.offer(start);
@@ -553,7 +553,7 @@ while (!queue.isEmpty()) {
     level++;
 }
 
-// DFS — iterative
+// DFS - iterative
 Deque<Integer> stack = new ArrayDeque<>();
 boolean[] visited = new boolean[n];
 stack.push(start);
@@ -565,7 +565,7 @@ while (!stack.isEmpty()) {
         if (!visited[nb]) stack.push(nb);
 }
 
-// DFS — recursive
+// DFS - recursive
 boolean[] visited = new boolean[n];
 void dfs(int node) {
     visited[node] = true;
@@ -687,16 +687,16 @@ boolean overflows = (long) a + b > Integer.MAX_VALUE;
 |ArrayList|O(1)|O(n)|O(1)*|O(n)|
 |LinkedList|O(n)|O(n)|O(1)|O(1)|
 |ArrayDeque (Stack/Queue)|O(1)|O(n)|O(1)|O(1)|
-|HashMap / HashSet|—|O(1)*|O(1)*|O(1)*|
-|TreeMap / TreeSet|—|O(log n)|O(log n)|O(log n)|
+|HashMap / HashSet|-|O(1)*|O(1)*|O(1)*|
+|TreeMap / TreeSet|-|O(log n)|O(log n)|O(log n)|
 |PriorityQueue|O(1) peek|O(n)|O(log n)|O(log n)|
-|Binary Search (sorted array)|—|O(log n)|—|—|
+|Binary Search (sorted array)|-|O(log n)|-|-|
 
 `*` = amortized average
 
 ---
 
-## Quick Reference — Pick the Right Structure
+## Quick Reference - Pick the Right Structure
 
 |Need|Use|
 |---|---|

@@ -1,13 +1,13 @@
 ---
 title: "Building an Async Scoring Pipeline with Kafka and Spring Boot"
 date: "2026-06-09"
-description: "How the llm-scoring-service uses Kafka to decouple LLM response ingestion from scoring — with actual producer/consumer code, error handling, and the failure modes you have to think through."
+description: "How the llm-scoring-service uses Kafka to decouple LLM response ingestion from scoring - with actual producer/consumer code, error handling, and the failure modes you have to think through."
 tags: ["kafka", "spring-boot", "java", "async", "event-driven"]
 ---
 
 The core promise of the scoring pipeline: a client submits an LLM evaluation, gets back a 202 immediately, and scoring happens in the background without affecting the caller's latency. Kafka is what makes that guarantee hold under pressure.
 
-This post is about the actual implementation — producer setup, consumer setup, the error handling decisions, and the failure modes I had to reason through.
+This post is about the actual implementation - producer setup, consumer setup, the error handling decisions, and the failure modes I had to reason through.
 
 ---
 
@@ -27,7 +27,7 @@ public record EvaluationEvent(
 ) {}
 ```
 
-I use a Java record intentionally — immutable, no boilerplate. The event is serialized to JSON. I considered Avro for schema evolution guarantees, but for a v1 the operational overhead wasn't worth it. The tradeoff: adding a required field to the event in the future requires coordinating producer and consumer deploys carefully.
+I use a Java record intentionally - immutable, no boilerplate. The event is serialized to JSON. I considered Avro for schema evolution guarantees, but for a v1 the operational overhead wasn't worth it. The tradeoff: adding a required field to the event in the future requires coordinating producer and consumer deploys carefully.
 
 ---
 
@@ -45,19 +45,19 @@ public class EvaluationIngestService {
 
     @Transactional
     public EvaluationResponse ingest(EvaluationRequest request) {
-        // 1. Persist first — evaluation exists regardless of Kafka state
+        // 1. Persist first - evaluation exists regardless of Kafka state
         Evaluation saved = evaluationRepository.save(
             Evaluation.from(request)
         );
 
-        // 2. Publish event — keyed by applicationId for partition ordering
+        // 2. Publish event - keyed by applicationId for partition ordering
         EvaluationEvent event = EvaluationEvent.from(saved);
         kafkaTemplate.send("llm-evaluation-events", saved.getApplicationId(), event)
             .whenComplete((result, ex) -> {
                 if (ex != null) {
                     log.error("Failed to publish evaluation event [id={}]: {}",
                         saved.getId(), ex.getMessage());
-                    // Not rethrowing — DB record exists, scoring will be handled
+                    // Not rethrowing - DB record exists, scoring will be handled
                     // by the missed-events reconciliation job (see below)
                 }
             });
@@ -67,9 +67,9 @@ public class EvaluationIngestService {
 }
 ```
 
-**Why DB first, then Kafka — not the reverse?**
+**Why DB first, then Kafka - not the reverse?**
 
-If Kafka publish fails after a successful DB write, the evaluation exists but is unscored. That's recoverable — a reconciliation job can find unscored evaluations and republish. If Kafka publish succeeds but the DB write fails (say you do it the other way), you have an event in Kafka referencing an evaluation that doesn't exist. The consumer will fail and you have no recovery path without event replay logic.
+If Kafka publish fails after a successful DB write, the evaluation exists but is unscored. That's recoverable - a reconciliation job can find unscored evaluations and republish. If Kafka publish succeeds but the DB write fails (say you do it the other way), you have an event in Kafka referencing an evaluation that doesn't exist. The consumer will fail and you have no recovery path without event replay logic.
 
 **Partition key = `applicationId`**
 
@@ -97,7 +97,7 @@ public class KafkaProducerConfig {
         config.put(ProducerConfig.RETRIES_CONFIG, 3);
         config.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000);
 
-        // Idempotent producer — prevents duplicate messages on retry
+        // Idempotent producer - prevents duplicate messages on retry
         config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
 
         return new DefaultKafkaProducerFactory<>(config);
@@ -105,7 +105,7 @@ public class KafkaProducerConfig {
 }
 ```
 
-`ACKS=all` + `ENABLE_IDEMPOTENCE=true` together ensure: if the producer retries because it didn't receive an ack, Kafka deduplicates the message server-side. Without idempotence, a retry after a network timeout where the message actually did land would produce a duplicate event — and a duplicate scoring run.
+`ACKS=all` + `ENABLE_IDEMPOTENCE=true` together ensure: if the producer retries because it didn't receive an ack, Kafka deduplicates the message server-side. Without idempotence, a retry after a network timeout where the message actually did land would produce a duplicate event - and a duplicate scoring run.
 
 ---
 
@@ -140,7 +140,7 @@ public class EvaluationScoringConsumer {
         } catch (ScoringException ex) {
             log.error("Scoring failed for evaluation [id={}]: {}",
                 event.evaluationId(), ex.getMessage());
-            // Do NOT acknowledge — message goes to retry topic via error handler
+            // Do NOT acknowledge - message goes to retry topic via error handler
             throw ex;
         }
     }
@@ -149,7 +149,7 @@ public class EvaluationScoringConsumer {
 
 **Manual acknowledgment is non-negotiable here.**
 
-The default Spring Kafka behavior commits the offset as soon as the message is received, before your processing logic runs. If scoring fails mid-flight, the offset is already committed and the event is lost. With `AckMode.MANUAL`, the offset only advances after `acknowledgment.acknowledge()` is explicitly called — meaning a failed scoring run keeps the message available for retry.
+The default Spring Kafka behavior commits the offset as soon as the message is received, before your processing logic runs. If scoring fails mid-flight, the offset is already committed and the event is lost. With `AckMode.MANUAL`, the offset only advances after `acknowledgment.acknowledge()` is explicitly called - meaning a failed scoring run keeps the message available for retry.
 
 ---
 
@@ -179,7 +179,7 @@ public DefaultErrorHandler errorHandler(KafkaTemplate<String, Object> template) 
 }
 ```
 
-The DLT (`llm-evaluation-events.DLT`) is monitored separately. Failed events there represent evaluations that exist in PostgreSQL but have no scores — they show up in the dashboard with a `SCORING_FAILED` status. This is intentional: the data is preserved, the failure is visible, and you can replay the DLT once you fix the underlying issue.
+The DLT (`llm-evaluation-events.DLT`) is monitored separately. Failed events there represent evaluations that exist in PostgreSQL but have no scores - they show up in the dashboard with a `SCORING_FAILED` status. This is intentional: the data is preserved, the failure is visible, and you can replay the DLT once you fix the underlying issue.
 
 ---
 

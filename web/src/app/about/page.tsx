@@ -22,11 +22,11 @@ export default function About() {
 
         <div className="grid gap-12 lg:grid-cols-3">
 
-          {/* Bio — takes 2 cols */}
+          {/* Bio - takes 2 cols */}
           <div className="lg:col-span-2">
             <div className="space-y-4 text-sm leading-relaxed text-[color:var(--muted)]">
               <p>
-                I build backend systems that don&apos;t fall apart under load — mostly in Java and
+                I build backend systems that don&apos;t fall apart under load - mostly in Java and
                 Spring Boot, with Kafka for async pipelines when things need to scale beyond a single
                 service. Based in Bengaluru.
               </p>
@@ -55,7 +55,7 @@ export default function About() {
                 >
                   Voice AI Testing Suite
                 </a>{' '}
-                — a custom SIP engine over raw UDP that simulates full voice conversations using STT
+                - a custom SIP engine over raw UDP that simulates full voice conversations using STT
                 and TTS pipelines. It exists because manual IVR testing doesn&apos;t scale, and most
                 tools in this space are either expensive or inadequate.
               </p>
@@ -69,7 +69,7 @@ export default function About() {
                 >
                   LLM Scoring Service
                 </a>{' '}
-                — an open-source evaluation platform for scoring LLM responses in production. It uses
+                - an open-source evaluation platform for scoring LLM responses in production. It uses
                 an async Kafka pipeline, supports multiple scoring strategies, and provides real-time
                 visibility into model performance. The goal is simple: make LLM behavior measurable
                 instead of hand-wavy.

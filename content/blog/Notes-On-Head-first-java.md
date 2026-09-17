@@ -15,7 +15,7 @@ draft: false
 
 ---
 
-## Part 1 — Java Fundamentals
+## Part 1 - Java Fundamentals
 
 > **Core idea:** Java compiles to bytecode → JVM runs it on any OS. Write once, run anywhere.
 
@@ -68,9 +68,9 @@ Dog d = new Dog(); // reference on stack → object on heap
 
 ### Strings
 
-- **Immutable** — modifications create a new object.
+- **Immutable** - modifications create a new object.
 - `==` checks reference equality. `equals()` checks content.
-- Use `StringBuilder` in loops — string concatenation with `+` creates a new object each time.
+- Use `StringBuilder` in loops - string concatenation with `+` creates a new object each time.
 
 ```java
 StringBuilder sb = new StringBuilder("Hi");
@@ -80,16 +80,16 @@ sb.toString(); // "Hi there"
 
 ### Key Pitfalls
 
-- `==` vs `equals()` — classic trap.
-- Instance vars get defaults (0/null/false); local vars do not — compiler error if uninitialized.
+- `==` vs `equals()` - classic trap.
+- Instance vars get defaults (0/null/false); local vars do not - compiler error if uninitialized.
 - Static methods can't access instance vars directly.
 - Default no-arg constructor disappears once you define any constructor.
 - Pass-by-value always. References are copied, not objects.
-- GC timing is not guaranteed — only eligibility matters.
+- GC timing is not guaranteed - only eligibility matters.
 
 ---
 
-## Part 2 — Object-Oriented Programming
+## Part 2 - Object-Oriented Programming
 
 > **The four pillars:** Encapsulation, Abstraction, Inheritance, Polymorphism.
 
@@ -123,7 +123,7 @@ class Dog extends Animal {
 
 - Single inheritance only (`extends` one class).
 - Private members are not inherited.
-- `super()` calls parent constructor — must be first statement.
+- `super()` calls parent constructor - must be first statement.
 
 ### Method Overriding vs Overloading
 
@@ -140,7 +140,7 @@ Rules for overriding: same signature, can't reduce visibility, can't override `f
 
 ```java
 Animal a = new Dog(); // reference type = Animal, object type = Dog
-a.eat();              // Dog's eat() runs — determined at runtime
+a.eat();              // Dog's eat() runs - determined at runtime
 ```
 
 Reference type controls what you can *call*. Object type controls what *runs*.
@@ -169,7 +169,7 @@ interface Flyable {
 
 ### `Object` Class
 
-Every class extends `java.lang.Object`. Always override both `equals()` and `hashCode()` together — breaking one breaks hashed collections.
+Every class extends `java.lang.Object`. Always override both `equals()` and `hashCode()` together - breaking one breaks hashed collections.
 
 ```java
 @Override
@@ -186,7 +186,7 @@ public int hashCode() { return name.hashCode(); }
 ### IS-A vs HAS-A
 
 - **IS-A** → inheritance (`Dog extends Animal`)
-- **HAS-A** → composition (prefer this — less coupling)
+- **HAS-A** → composition (prefer this - less coupling)
 
 ```java
 class Car {
@@ -199,18 +199,18 @@ class Car {
 - Prefer composition over inheritance.
 - Program to an interface: `List<String> list = new ArrayList<>();`
 - Encapsulate what varies.
-- Don't call overridable methods in constructors — the subclass isn't fully initialized yet.
+- Don't call overridable methods in constructors - the subclass isn't fully initialized yet.
 
 ### Key Pitfalls
 
 - Constructors are not inherited.
 - Static methods are hidden, not overridden.
 - Overusing `instanceof` signals poor polymorphic design.
-- Avoid deep inheritance chains — they become unmaintainable.
+- Avoid deep inheritance chains - they become unmaintainable.
 
 ---
 
-## Part 3 — Core Java Concepts
+## Part 3 - Core Java Concepts
 
 ### `static` vs Instance
 
@@ -311,7 +311,7 @@ final class Employee {
 
 ### `var` (Java 10+)
 
-Local variables only. Type inferred at compile time — not dynamic.
+Local variables only. Type inferred at compile time - not dynamic.
 
 ```java
 var list = new ArrayList<String>(); // inferred as ArrayList<String>
@@ -328,7 +328,7 @@ var list = new ArrayList<String>(); // inferred as ArrayList<String>
 
 ---
 
-## Part 4 — Advanced Java
+## Part 4 - Advanced Java
 
 ### Exception Handling
 
@@ -338,13 +338,13 @@ try {
 } catch (ArithmeticException e) {
     System.out.println("Caught: " + e.getMessage());
 } finally {
-    System.out.println("Always runs — cleanup here");
+    System.out.println("Always runs - cleanup here");
 }
 ```
 
 - Catch specific exceptions first, broader ones last.
-- `finally` always runs — even if you `return` inside `try`.
-- **Try-with-resources** — auto-closes anything implementing `AutoCloseable`:
+- `finally` always runs - even if you `return` inside `try`.
+- **Try-with-resources** - auto-closes anything implementing `AutoCloseable`:
 
 ```java
 try (BufferedReader br = new BufferedReader(new FileReader("data.txt"))) {
@@ -389,7 +389,7 @@ Map        → HashMap, LinkedHashMap, TreeMap
 | `TreeMap` | key-sorted | keys unique | no | O(log n) |
 
 ```java
-// Safe removal during iteration — never use for-each to remove
+// Safe removal during iteration - never use for-each to remove
 Iterator<String> it = names.iterator();
 while (it.hasNext()) {
     if (it.next().equals("Bob")) it.remove(); // safe
@@ -426,40 +426,40 @@ Wildcards:
 ### Comparable vs Comparator
 
 ```java
-// Comparable — natural ordering, built into the class
+// Comparable - natural ordering, built into the class
 class Student implements Comparable<Student> {
     int id;
     public int compareTo(Student s) { return this.id - s.id; }
 }
 
-// Comparator — external, flexible, multiple orderings
+// Comparator - external, flexible, multiple orderings
 Comparator<Student> byName = (a, b) -> a.name.compareTo(b.name);
 list.sort(byName);
 ```
 
 ### Key Pitfalls
 
-- `ConcurrentModificationException` — modifying a collection while iterating with for-each.
-- `equals()`/`hashCode()` mismatch — breaks `HashMap`, `HashSet`.
-- Mutable objects as `HashMap` keys — hash changes, key is lost.
-- Raw types (`List` instead of `List<String>`) — lose all type safety.
+- `ConcurrentModificationException` - modifying a collection while iterating with for-each.
+- `equals()`/`hashCode()` mismatch - breaks `HashMap`, `HashSet`.
+- Mutable objects as `HashMap` keys - hash changes, key is lost.
+- Raw types (`List` instead of `List<String>`) - lose all type safety.
 
 ---
 
-## Part 5 — Concurrency & Threads
+## Part 5 - Concurrency & Threads
 
 > **Core problem:** Multiple threads sharing mutable state → race conditions, data corruption, deadlocks.
 
 ### Creating Threads
 
 ```java
-// Option 1 — extend Thread (limits flexibility)
+// Option 1 - extend Thread (limits flexibility)
 class MyThread extends Thread {
     public void run() { System.out.println("Running"); }
 }
 new MyThread().start();
 
-// Option 2 — implement Runnable (preferred)
+// Option 2 - implement Runnable (preferred)
 Thread t = new Thread(() -> System.out.println("Running"));
 t.start();
 ```
@@ -570,7 +570,7 @@ Prefer over manually synchronized wrappers:
 
 ### `ThreadLocal`
 
-Per-thread variable — each thread gets its own copy. Common in web frameworks for user context.
+Per-thread variable - each thread gets its own copy. Common in web frameworks for user context.
 
 ```java
 ThreadLocal<Integer> threadId = ThreadLocal.withInitial(() -> 0);
@@ -578,14 +578,14 @@ ThreadLocal<Integer> threadId = ThreadLocal.withInitial(() -> 0);
 
 ### Key Pitfalls
 
-- Calling `run()` instead of `start()` — no new thread created.
-- `sleep()` doesn't release locks — can cause contention.
-- Missing `volatile` on shared flags — thread may never see update.
-- Forgetting `finally` around `lock.unlock()` — deadlock on exception.
+- Calling `run()` instead of `start()` - no new thread created.
+- `sleep()` doesn't release locks - can cause contention.
+- Missing `volatile` on shared flags - thread may never see update.
+- Forgetting `finally` around `lock.unlock()` - deadlock on exception.
 
 ---
 
-## Part 6 — I/O, Files, and Serialization
+## Part 6 - I/O, Files, and Serialization
 
 > **Always use try-with-resources.** Always use buffered streams for performance.
 
@@ -599,7 +599,7 @@ ThreadLocal<Integer> threadId = ThreadLocal.withInitial(() -> 0);
 ### Reading and Writing Files
 
 ```java
-// Text — buffered for performance
+// Text - buffered for performance
 try (BufferedReader br = new BufferedReader(new FileReader("input.txt"));
      BufferedWriter bw = new BufferedWriter(new FileWriter("output.txt"))) {
     String line;
@@ -622,7 +622,7 @@ try (FileInputStream in = new FileInputStream("file.bin");
 }
 ```
 
-### NIO (`java.nio.file`) — Prefer for Modern Code
+### NIO (`java.nio.file`) - Prefer for Modern Code
 
 ```java
 Path path = Paths.get("data.txt");
@@ -668,8 +668,8 @@ try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("emp.ser")
 }
 ```
 
-- `transient` — skips that field during serialization.
-- `serialVersionUID` — if it mismatches on deserialization, `InvalidClassException` is thrown. Always declare it explicitly.
+- `transient` - skips that field during serialization.
+- `serialVersionUID` - if it mismatches on deserialization, `InvalidClassException` is thrown. Always declare it explicitly.
 
 ### `Externalizable` vs `Serializable`
 
@@ -682,13 +682,13 @@ try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("emp.ser")
 ### Key Pitfalls
 
 - Forgetting to close streams → resource leak. Use try-with-resources.
-- Unbuffered streams are slow — always wrap with `Buffered*`.
-- Serializing sensitive data without `transient` — passwords end up on disk.
-- Missing `serialVersionUID` — class changes break deserialization silently.
+- Unbuffered streams are slow - always wrap with `Buffered*`.
+- Serializing sensitive data without `transient` - passwords end up on disk.
+- Missing `serialVersionUID` - class changes break deserialization silently.
 
 ---
 
-## Part 7 — Networking & Distributed Systems
+## Part 7 - Networking & Distributed Systems
 
 > **TCP** = reliable, ordered, connection-based. **UDP** = fast, connectionless, no delivery guarantee.
 
@@ -729,7 +729,7 @@ socket.receive(packet);
 System.out.println(new String(packet.getData()).trim());
 ```
 
-### URL — Quick HTTP Read
+### URL - Quick HTTP Read
 
 ```java
 URL url = new URL("https://example.com");
@@ -744,7 +744,7 @@ try (BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream
 |---|---|---|
 | Sockets | Low (bytes) | Custom protocols, max control |
 | RMI | High (objects) | Legacy distributed Java objects |
-| REST + JSON | High | Standard web APIs — use this |
+| REST + JSON | High | Standard web APIs - use this |
 | gRPC | High + typed | High-performance microservices |
 | WebSockets | Persistent | Real-time bidirectional |
 | Kafka/RabbitMQ | Async | Event-driven, decoupled systems |
@@ -761,14 +761,14 @@ addr.getHostAddress(); // IP string
 
 ### Key Pitfalls
 
-- Not running server before client — connection refused.
+- Not running server before client - connection refused.
 - Not closing sockets → resource leak.
-- UDP has no delivery guarantee — implement your own ACK for reliability.
+- UDP has no delivery guarantee - implement your own ACK for reliability.
 - RMI requires registry running, policy files, and is a pain in firewalled environments. Use REST.
 
 ---
 
-## Quick Reference — When to Use What
+## Quick Reference - When to Use What
 
 ### Collections
 

@@ -15,7 +15,7 @@ draft: false
 
 ---
 
-## Part 1 — Fundamentals of React
+## Part 1 - Fundamentals of React
 
 > **Mental model:** `UI = f(state)`. State changes → re-render → diff virtual DOM → minimal real DOM updates.
 
@@ -30,13 +30,13 @@ React is a **view library**, not a framework. It handles rendering and state. Ev
 | Unidirectional data flow | Data moves parent → child via props only |
 | Virtual DOM | In-memory representation; React diffs it and patches only what changed |
 
-### Setup (Vite — use this, not CRA)
+### Setup (Vite - use this, not CRA)
 
 ```bash
 npm create vite@latest my-app -- --template react
 cd my-app
 npm install
-npm run dev      # dev server — NOT production-ready
+npm run dev      # dev server - NOT production-ready
 npm run build    # optimized production build
 npm run preview  # serve the production build locally
 ```
@@ -49,7 +49,7 @@ JSX = JavaScript + HTML syntax sugar. Transpiled by Babel to `React.createElemen
 const name = 'Nishanth';
 const element = <h1>{name}</h1>; // {} embeds any JS expression
 
-// Must have one root — use Fragment to avoid extra DOM nodes
+// Must have one root - use Fragment to avoid extra DOM nodes
 return (
   <>
     <Header />
@@ -70,10 +70,10 @@ HTML → JSX attribute differences:
 ### Rendering Lists
 
 ```jsx
-// ✅ Good — stable unique key
+// ✅ Good - stable unique key
 items.map(item => <li key={item.id}>{item.name}</li>)
 
-// ❌ Bad — index as key breaks reordering
+// ❌ Bad - index as key breaks reordering
 items.map((item, index) => <li key={index}>{item}</li>)
 ```
 
@@ -88,14 +88,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 
 ### Key Pitfalls
 
-- JSX is not HTML — `class` → `className`, `for` → `htmlFor`.
+- JSX is not HTML - `class` → `className`, `for` → `htmlFor`.
 - Fragment (`<>`) avoids unnecessary wrapper `div`s.
 - Never use array index as key if list can reorder or filter.
 - JSX must return one root element.
 
 ---
 
-## Part 2 — Components and Props
+## Part 2 - Components and Props
 
 > Props are immutable inputs. If a child needs to change something in the parent, pass a callback down.
 
@@ -119,7 +119,7 @@ const Welcome = ({ name }) => <h2>Hello {name}</h2>;
 
 // Child receives via destructuring
 function UserCard({ name, role }) {
-  return <p>{name} — {role}</p>;
+  return <p>{name} - {role}</p>;
 }
 ```
 
@@ -128,7 +128,7 @@ Props are **read-only**. Never mutate them:
 ```jsx
 // ❌ Never do this
 function Profile(props) {
-  props.name = 'Changed'; // mutation — will cause bugs
+  props.name = 'Changed'; // mutation - will cause bugs
 }
 ```
 
@@ -150,11 +150,11 @@ function Parent() {
 ### Spread and Rest Props
 
 ```jsx
-// Spread — pass all props of an object
+// Spread - pass all props of an object
 const user = { name: 'Nishanth', role: 'Engineer' };
 <UserCard {...user} />
 
-// Rest — capture remaining props
+// Rest - capture remaining props
 function Card({ title, ...rest }) {
   return <div {...rest}>{title}</div>; // rest forwarded to div
 }
@@ -168,7 +168,7 @@ function Button({ label = 'Submit', size = 'md' }) {
 }
 ```
 
-### Prop Types (runtime validation — use TypeScript in real projects)
+### Prop Types (runtime validation - use TypeScript in real projects)
 
 ```jsx
 import PropTypes from 'prop-types';
@@ -183,11 +183,11 @@ Button.propTypes = {
 
 - Props vs state: props are external inputs, state is internal mutable data.
 - Child → parent always through callbacks, never by mutating props.
-- `children` is a special prop — what you put between component tags.
+- `children` is a special prop - what you put between component tags.
 
 ---
 
-## Part 3 — State Management in React
+## Part 3 - State Management in React
 
 > State is data that changes over time and triggers re-renders.
 
@@ -196,14 +196,14 @@ Button.propTypes = {
 ```jsx
 const [count, setCount] = useState(0);
 
-// Functional update — use when new state depends on old state
+// Functional update - use when new state depends on old state
 setCount(prev => prev + 1); // safe in async context
 setCount(count + 1);        // can be stale in batched updates
 ```
 
 ### Rules of Hooks
 
-1. Call hooks only at the **top level** — never inside loops, conditions, or nested functions.
+1. Call hooks only at the **top level** - never inside loops, conditions, or nested functions.
 2. Call hooks only in **React function components** or **custom hooks**.
 
 ### Lifting State Up
@@ -226,13 +226,13 @@ function App() {
 ### Controlled vs Uncontrolled Components
 
 ```jsx
-// Controlled — React owns the value
+// Controlled - React owns the value
 function ControlledInput() {
   const [value, setValue] = useState('');
   return <input value={value} onChange={e => setValue(e.target.value)} />;
 }
 
-// Uncontrolled — DOM owns the value, ref to read it
+// Uncontrolled - DOM owns the value, ref to read it
 function UncontrolledForm() {
   const inputRef = useRef();
   const handleSubmit = e => {
@@ -248,9 +248,9 @@ function UncontrolledForm() {
 }
 ```
 
-Prefer controlled components — React has full control of the data.
+Prefer controlled components - React has full control of the data.
 
-### `useReducer` — When State Logic Gets Complex
+### `useReducer` - When State Logic Gets Complex
 
 Use over `useState` when:
 - Multiple sub-values are interdependent
@@ -281,14 +281,14 @@ function Counter() {
 
 ### Key Pitfalls
 
-- Never mutate state directly: `state.items.push(x)` — React won't re-render.
+- Never mutate state directly: `state.items.push(x)` - React won't re-render.
 - Always use spread to update objects/arrays: `setItems([...items, newItem])`.
-- State updates are **asynchronous and batched** — don't read state immediately after setting.
-- `useState(fn)` — pass a function for expensive initial state computation (runs once).
+- State updates are **asynchronous and batched** - don't read state immediately after setting.
+- `useState(fn)` - pass a function for expensive initial state computation (runs once).
 
 ---
 
-## Part 4 — React Hooks in Depth
+## Part 4 - React Hooks in Depth
 
 ### `useEffect`
 
@@ -358,22 +358,22 @@ clearTimeout(timerRef.current);
 ### `useCallback` and `useMemo`
 
 ```jsx
-// useCallback — memoize a function (stable reference across renders)
+// useCallback - memoize a function (stable reference across renders)
 const handleSearch = useCallback((query) => {
   performSearch(query);
 }, [/* deps */]);
 
-// useMemo — memoize a computed value
+// useMemo - memoize a computed value
 const sortedList = useMemo(() => {
   return [...items].sort((a, b) => a.name.localeCompare(b.name));
 }, [items]);
 ```
 
 When to use:
-- `useCallback` — when passing callbacks to memoized children (`React.memo`)
-- `useMemo` — when computation is expensive and deps change infrequently
+- `useCallback` - when passing callbacks to memoized children (`React.memo`)
+- `useMemo` - when computation is expensive and deps change infrequently
 
-Don't memoize everything — it has overhead. Measure first.
+Don't memoize everything - it has overhead. Measure first.
 
 ### Custom Hooks
 
@@ -412,11 +412,11 @@ function useFetch(url) {
 - Missing deps in `useEffect` → stale closures.
 - Async `useEffect` callback → will return a Promise, not a cleanup function.
 - `useLayoutEffect` in SSR → runs synchronously, can cause issues.
-- Refs don't trigger re-renders — don't use them to display data in JSX.
+- Refs don't trigger re-renders - don't use them to display data in JSX.
 
 ---
 
-## Part 5 — Asynchronous Operations and Data Fetching
+## Part 5 - Asynchronous Operations and Data Fetching
 
 ### Fetch Patterns
 
@@ -426,7 +426,7 @@ const res = await fetch('/api/posts');
 if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
 const data = await res.json();
 
-// Parallel — faster than sequential awaits
+// Parallel - faster than sequential awaits
 const [users, posts] = await Promise.all([
   fetch('/api/users').then(r => r.json()),
   fetch('/api/posts').then(r => r.json()),
@@ -511,14 +511,14 @@ function Search() {
 
 ### Key Pitfalls
 
-- Not checking `res.ok` — fetch only rejects on network failure, not HTTP errors (404, 500).
-- Setting state after unmount — use the cancel flag pattern.
-- Sequential `await` calls when they could be parallel — use `Promise.all`.
-- Not handling loading and error states — users see nothing or a broken UI.
+- Not checking `res.ok` - fetch only rejects on network failure, not HTTP errors (404, 500).
+- Setting state after unmount - use the cancel flag pattern.
+- Sequential `await` calls when they could be parallel - use `Promise.all`.
+- Not handling loading and error states - users see nothing or a broken UI.
 
 ---
 
-## Part 6 — Styling in React
+## Part 6 - Styling in React
 
 ### Approach Comparison
 
@@ -549,7 +549,7 @@ function Button({ isActive }) {
 }
 ```
 
-Generates unique class names at build time — no global collision.
+Generates unique class names at build time - no global collision.
 
 ### Conditional Classes with `clsx`
 
@@ -582,7 +582,7 @@ const Button = styled.button`
 <Button primary>Submit</Button>
 ```
 
-### Inline Styles — Use Sparingly
+### Inline Styles - Use Sparingly
 
 ```jsx
 <div style={{ backgroundColor: 'blue', fontSize: '16px' }}>
@@ -595,12 +595,12 @@ No pseudo-selectors (`:hover`, `:focus`). No media queries. Only for truly dynam
 ### Key Pitfalls
 
 - Inline styles can't do `:hover` or media queries.
-- Plain CSS classes leak globally — use Modules or CSS-in-JS for isolation.
-- Don't put all styles in one file — colocate component styles with the component.
+- Plain CSS classes leak globally - use Modules or CSS-in-JS for isolation.
+- Don't put all styles in one file - colocate component styles with the component.
 
 ---
 
-## Part 7 — Testing in React
+## Part 7 - Testing in React
 
 ### Test Types
 
@@ -610,7 +610,7 @@ No pseudo-selectors (`:hover`, `:focus`). No media queries. Only for truly dynam
 | Integration | Multiple components working together | React Testing Library |
 | E2E | Full user flows in real browser | Cypress, Playwright |
 
-### React Testing Library (RTL) — Core Philosophy
+### React Testing Library (RTL) - Core Philosophy
 
 Test behavior, not implementation. Query the DOM as a user would.
 
@@ -634,19 +634,19 @@ test('increments count on button click', () => {
 
 | Query | Use When |
 |---|---|
-| `getByRole` | Accessible role (button, heading, input) — **prefer** |
+| `getByRole` | Accessible role (button, heading, input) - **prefer** |
 | `getByLabelText` | Form labels |
 | `getByPlaceholderText` | Input placeholders |
 | `getByText` | Visible text content |
-| `getByTestId` | Last resort — brittle |
+| `getByTestId` | Last resort - brittle |
 
 ### Async Queries
 
 ```jsx
-// findBy — returns a Promise, use with await
+// findBy - returns a Promise, use with await
 const element = await screen.findByText(/loaded data/i);
 
-// waitFor — waits until assertion passes
+// waitFor - waits until assertion passes
 await waitFor(() => expect(screen.getByText(/done/i)).toBeInTheDocument());
 ```
 
@@ -674,7 +674,7 @@ test('matches snapshot', () => {
 });
 ```
 
-Use sparingly. Snapshots fail on any UI change — they're noisy and developers tend to blindly update them.
+Use sparingly. Snapshots fail on any UI change - they're noisy and developers tend to blindly update them.
 
 ### Jest Basics
 
@@ -694,14 +694,14 @@ Common matchers: `toBe`, `toEqual`, `toBeInTheDocument`, `toHaveBeenCalled`, `to
 
 ### Key Pitfalls
 
-- Testing internal state or implementation details — tests break on refactor.
-- Using `getByTestId` everywhere — ties tests to markup, not behavior.
-- Not cleaning up mocks between tests — test pollution.
-- Shallow rendering — doesn't test component integration.
+- Testing internal state or implementation details - tests break on refactor.
+- Using `getByTestId` everywhere - ties tests to markup, not behavior.
+- Not cleaning up mocks between tests - test pollution.
+- Shallow rendering - doesn't test component integration.
 
 ---
 
-## Part 8 — Performance, Patterns, and Interview Scenarios
+## Part 8 - Performance, Patterns, and Interview Scenarios
 
 ### Virtual DOM and Reconciliation
 
@@ -712,10 +712,10 @@ React builds a virtual DOM tree. On state change, it diffs the new tree against 
 React uses **referential equality** to detect changes. Mutating an object/array directly won't trigger a re-render.
 
 ```jsx
-// ❌ Mutation — React won't re-render
+// ❌ Mutation - React won't re-render
 state.items.push(newItem);
 
-// ✅ New reference — React detects change
+// ✅ New reference - React detects change
 setItems(prev => [...prev, newItem]);
 setUser(prev => ({ ...prev, name: 'Nishanth' }));
 ```
@@ -723,18 +723,18 @@ setUser(prev => ({ ...prev, name: 'Nishanth' }));
 ### Performance Optimization
 
 ```jsx
-// React.memo — skip re-render if props didn't change
+// React.memo - skip re-render if props didn't change
 const MemoizedList = React.memo(function List({ items }) {
   return <ul>{items.map(i => <li key={i.id}>{i.name}</li>)}</ul>;
 });
 
-// useCallback — stable function reference for memoized children
+// useCallback - stable function reference for memoized children
 const handleClick = useCallback(() => doSomething(id), [id]);
 
-// useMemo — expensive computation
+// useMemo - expensive computation
 const total = useMemo(() => items.reduce((sum, i) => sum + i.price, 0), [items]);
 
-// Code splitting — lazy load heavy components
+// Code splitting - lazy load heavy components
 const Chart = React.lazy(() => import('./Chart'));
 // Wrap in Suspense:
 <Suspense fallback={<p>Loading chart...</p>}>
@@ -767,11 +767,11 @@ function Header() {
 }
 ```
 
-Context is not a state management solution — it's a dependency injection mechanism. Every consumer re-renders when context value changes.
+Context is not a state management solution - it's a dependency injection mechanism. Every consumer re-renders when context value changes.
 
 ### Error Boundaries
 
-Catch rendering errors in child trees. **Must be class components** — no hook equivalent yet.
+Catch rendering errors in child trees. **Must be class components** - no hook equivalent yet.
 
 ```jsx
 class ErrorBoundary extends React.Component {
@@ -813,22 +813,22 @@ In development only: double-invokes render, `useState` initializer, and `useRedu
 An in-memory JS object representation of the real DOM. React diffs old vs new virtual DOM on each render and applies minimal real DOM updates.
 
 **What triggers a re-render?**
-State change, prop change, or parent re-render (even if props didn't change — unless wrapped in `React.memo`).
+State change, prop change, or parent re-render (even if props didn't change - unless wrapped in `React.memo`).
 
-**`useEffect` cleanup — when does it run?**
+**`useEffect` cleanup - when does it run?**
 Before the next effect execution, and on component unmount.
 
 **Why can't you call hooks conditionally?**
 React relies on hook call order to associate state with the right hook. Conditional calls break this ordering.
 
-**`useState` vs `useReducer` — when to switch?**
+**`useState` vs `useReducer` - when to switch?**
 `useReducer` when state transitions are complex, interdependent, or numerous enough that multiple `useState` setters become hard to reason about.
 
 **What is prop drilling?**
 Passing props through intermediate components that don't use them. Fix with Context or state management (Zustand, Redux).
 
 **What is a controlled component?**
-An input whose value is controlled by React state — not the DOM.
+An input whose value is controlled by React state - not the DOM.
 
 **How does `React.memo` differ from `useMemo`?**
 `React.memo` memoizes a **component** (skips re-render if props unchanged). `useMemo` memoizes a **computed value** inside a component.

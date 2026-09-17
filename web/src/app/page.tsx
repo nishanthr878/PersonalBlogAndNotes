@@ -22,7 +22,7 @@ export default async function Home() {
   const featuredProjects = projects.slice(0, 2)
 
   return (
-    // Edge-to-edge — no Container wrapper here, we handle padding ourselves
+    // Edge-to-edge - no Container wrapper here, we handle padding ourselves
     <div className="w-full">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-0 px-4 sm:px-6 lg:flex-row lg:px-8">
 
@@ -167,6 +167,7 @@ export default async function Home() {
                 { label: 'GitHub', href: 'https://github.com/nishanthr878/' },
                 { label: 'LinkedIn', href: 'https://www.linkedin.com/in/nishanthr79/' },
                 { label: 'demo.nishanthraj.in', href: 'https://demo.nishanthraj.in', live: true },
+                { label: 'chatvoice.nishanthraj.in/', href: 'https://chatvoice.nishanthraj.in/', live: true },
                 { label: 'Email', href: 'mailto:nishanthr878@gmail.com' },
               ].map(({ label, href, live }) => (
                 <li key={label}>

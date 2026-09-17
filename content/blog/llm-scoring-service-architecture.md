@@ -1,7 +1,7 @@
 ---
 title: "Designing an LLM Observability Platform from Scratch"
 date: "2026-06-09"
-description: "How I designed the system architecture for llm-scoring-service — a self-hosted LLM observability platform — and the tradeoffs I made along the way."
+description: "How I designed the system architecture for llm-scoring-service - a self-hosted LLM observability platform - and the tradeoffs I made along the way."
 tags: ["java", "spring-boot", "system-design", "llm", "architecture", "postgresql"]
 ---
 
@@ -66,13 +66,13 @@ The Kafka layer is the critical design choice. Everything else follows from it.
 
 The obvious simpler design: ingest API writes directly to PostgreSQL, a background thread picks up unscored rows and processes them. This would work. So why Kafka?
 
-**Burst handling.** LLM applications tend to spike — a feature launch, a batch job, a burst of user traffic. With a direct DB write + polling pattern, the scoring backlog piles up in the database. With Kafka, the topic absorbs the burst and consumers drain it at their own pace without creating table lock contention.
+**Burst handling.** LLM applications tend to spike - a feature launch, a batch job, a burst of user traffic. With a direct DB write + polling pattern, the scoring backlog piles up in the database. With Kafka, the topic absorbs the burst and consumers drain it at their own pace without creating table lock contention.
 
 **Consumer group scaling.** If scoring becomes the bottleneck, adding a second scoring consumer instance is one config change. With a DB polling pattern, you need to implement your own distributed lock to prevent two workers from picking up the same row.
 
 **Decoupled failure modes.** If the Groq API is rate-limiting or temporarily down, Kafka retains the events. A DB polling approach requires you to implement retry state tracking yourself (a `status` column, retry count, backoff logic). Kafka gives you offset management for free.
 
-The tradeoff: operational complexity. Kafka requires a broker running locally (or managed). For a solo project, that's real overhead. I use Docker Compose to bundle it — but it's still a dependency you have to care about.
+The tradeoff: operational complexity. Kafka requires a broker running locally (or managed). For a solo project, that's real overhead. I use Docker Compose to bundle it - but it's still a dependency you have to care about.
 
 ---
 
@@ -97,7 +97,7 @@ POST /api/v1/evaluations
 }
 ```
 
-Response is immediate — a 202 Accepted with an `evaluationId`. Scoring happens asynchronously. This is the contract the SDK wraps.
+Response is immediate - a 202 Accepted with an `evaluationId`. Scoring happens asynchronously. This is the contract the SDK wraps.
 
 Key design decision: **`context` is optional but changes scoring behavior**. When present, the scoring engine can evaluate faithfulness (did the response stay grounded in the context?). Without it, only relevance and quality criteria apply. This matters for RAG pipelines specifically.
 
@@ -139,7 +139,7 @@ CREATE INDEX idx_evaluations_app_created ON evaluations(application_id, created_
 
 The `scores` table stores one row per dimension, not a wide row with columns per dimension. This means adding a new scoring dimension is a data change, not a schema change. The dashboard aggregates across `dimension` values dynamically.
 
-`metadata JSONB` on evaluations is intentional — callers attach arbitrary context (user IDs, A/B flags, request IDs) without schema migrations.
+`metadata JSONB` on evaluations is intentional - callers attach arbitrary context (user IDs, A/B flags, request IDs) without schema migrations.
 
 ---
 
@@ -157,7 +157,7 @@ CREATE TABLE rubrics (
 );
 ```
 
-The scoring engine loads active rubrics on startup (and can refresh them). This means you can disable the `toxicity` rubric for an internal tool, or add a custom `conciseness` criterion for a specific application — without redeploying anything.
+The scoring engine loads active rubrics on startup (and can refresh them). This means you can disable the `toxicity` rubric for an internal tool, or add a custom `conciseness` criterion for a specific application - without redeploying anything.
 
 The tradeoff: rubric changes take effect on new evaluations only. Past evaluations were scored under the old rubric version. The `rubric_version` column on `scores` tracks this so you can filter correctly in the dashboard.
 
@@ -167,7 +167,7 @@ The tradeoff: rubric changes take effect on new evaluations only. Past evaluatio
 
 **1. Separate ingest and scoring into distinct services.** Right now they're modules in the same Spring Boot app. For a production system, you'd want independent deployability and scaling. The Kafka contract already makes this a clean cut.
 
-**2. Add evaluation sampling.** Right now every LLM call is scored. At volume, that's expensive (Groq API calls add up). A sampling strategy — score 10% of calls, or score all calls for new model versions — would be more practical.
+**2. Add evaluation sampling.** Right now every LLM call is scored. At volume, that's expensive (Groq API calls add up). A sampling strategy - score 10% of calls, or score all calls for new model versions - would be more practical.
 
 **3. Schema: store the raw Groq scoring response.** Currently only the parsed score and reasoning are persisted. Storing the raw response would make debugging rubric quality much easier.
 
@@ -175,4 +175,4 @@ The tradeoff: rubric changes take effect on new evaluations only. Past evaluatio
 
 ## What This Is Not
 
-This is not a benchmarking framework (MMLU, HellaSwag, etc.). It's not for offline eval on curated datasets. It's specifically for **production runtime evaluation** — scoring real user interactions in real pipelines. That's a different problem than model benchmarking, and the design reflects it.
+This is not a benchmarking framework (MMLU, HellaSwag, etc.). It's not for offline eval on curated datasets. It's specifically for **production runtime evaluation** - scoring real user interactions in real pipelines. That's a different problem than model benchmarking, and the design reflects it.

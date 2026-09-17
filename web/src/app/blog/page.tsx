@@ -37,7 +37,7 @@ export default async function BlogIndexPage() {
                 {label}
               </span>
             ))}
-            <span className="text-xs text-[color:var(--muted)]">— post types</span>
+            <span className="text-xs text-[color:var(--muted)]">- post types</span>
           </div>
         </div>
 

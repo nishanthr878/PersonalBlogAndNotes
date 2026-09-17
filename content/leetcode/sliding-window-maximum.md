@@ -56,7 +56,7 @@ public class Solution {
 
 
             // STEP 2: New kid (nums[i]) walks up. Kick every shorter kid off the
-            // BACK of the line — they can never be tallest again once someone
+            // BACK of the line - they can never be tallest again once someone
             // taller AND later has arrived.
             while (!line.isEmpty() && nums[line.peekLast()] < nums[i]) {
                 line.pollLast();

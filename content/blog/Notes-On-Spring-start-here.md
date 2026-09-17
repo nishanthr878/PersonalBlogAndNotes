@@ -8,16 +8,16 @@ tags:
 draft: false
 ---
 
-## Chapter 1 — Introduction to Spring Framework
+## Chapter 1 - Introduction to Spring Framework
 
 > **Core idea:** The framework, not your code, creates and wires objects. This is Inversion of Control (IoC).
 
 ### IoC + DI
 
-Without Spring: `new EmailService()` inside `InvoiceService` — tight coupling, untestable, brittle.
+Without Spring: `new EmailService()` inside `InvoiceService` - tight coupling, untestable, brittle.
 
 **IoC** = framework controls object creation.  
-**DI** = the mechanism — dependencies are injected into your class, not instantiated inside it.
+**DI** = the mechanism - dependencies are injected into your class, not instantiated inside it.
 
 | Injection Type | When to Use |
 |---|---|
@@ -40,9 +40,9 @@ try (var ctx = new AnnotationConfigApplicationContext(AppConfig.class)) {
 | Approach | When to Use |
 |---|---|
 | `@Bean` in `@Configuration` class | Third-party / library objects you can't annotate |
-| `@Component` / `@Service` / `@Repository` | Your own application classes — detected via `@ComponentScan` |
+| `@Component` / `@Service` / `@Repository` | Your own application classes - detected via `@ComponentScan` |
 
-> ⚠️ **Pitfall:** Circular dependencies throw `BeanCurrentlyInCreationException`. Redesign — don't use `@Lazy` as a crutch.
+> ⚠️ **Pitfall:** Circular dependencies throw `BeanCurrentlyInCreationException`. Redesign - don't use `@Lazy` as a crutch.
 
 ### Summary
 
@@ -57,7 +57,7 @@ try (var ctx = new AnnotationConfigApplicationContext(AppConfig.class)) {
 
 ---
 
-## Chapter 2 — Configuring Spring Applications
+## Chapter 2 - Configuring Spring Applications
 
 > Configuration tells Spring which objects to manage, how they relate, and what lifecycle rules apply.
 
@@ -88,10 +88,10 @@ Custom name: `@Bean("bird")` | Multiple names: `@Bean({"bird", "featheredFriend"
 ### Wiring Beans Inside Config
 
 ```java
-// Option 1 — method call (Spring intercepts; returns same bean instance)
+// Option 1 - method call (Spring intercepts; returns same bean instance)
 p.setParrot(parrot());
 
-// Option 2 — parameter injection (preferred)
+// Option 2 - parameter injection (preferred)
 @Bean public Person person(Parrot parrot) { ... }
 ```
 
@@ -107,7 +107,7 @@ p.setParrot(parrot());
 
 ### `@ComponentScan`
 
-Tells Spring where to look. Must be specified — Spring won't scan blindly.
+Tells Spring where to look. Must be specified - Spring won't scan blindly.
 
 ```java
 @ComponentScan("com.example.service")
@@ -118,8 +118,8 @@ Tells Spring where to look. Must be specified — Spring won't scan blindly.
 ### `@Primary` and `@Qualifier`
 
 When multiple beans share the same type:
-- `@Primary` — marks default. Used when no qualifier is specified.
-- `@Qualifier("beanName")` — picks a specific bean at the injection point.
+- `@Primary` - marks default. Used when no qualifier is specified.
+- `@Qualifier("beanName")` - picks a specific bean at the injection point.
 
 ### Lifecycle Hooks
 
@@ -142,7 +142,7 @@ When multiple beans share the same type:
 
 ---
 
-## Chapter 3 — Dependency Injection in Detail
+## Chapter 3 - Dependency Injection in Detail
 
 > DI removes `new` from your code. You declare dependencies; Spring supplies them.
 
@@ -151,7 +151,7 @@ When multiple beans share the same type:
 | Type | When / Why |
 |---|---|
 | Constructor | Mandatory deps. Explicit, immutable, testable. **Always prefer.** |
-| Setter | Optional deps only. Allows partial construction — use cautiously. |
+| Setter | Optional deps only. Allows partial construction - use cautiously. |
 | Field (`@Autowired` on field) | Avoid. Hidden deps, can't inject mocks without reflection. |
 
 ### How Spring Resolves
@@ -215,7 +215,7 @@ A depends on B, B depends on A → `BeanCurrentlyInCreationException`. Fix by re
 
 ---
 
-## Chapter 4 — Bean Scopes and Lifecycle
+## Chapter 4 - Bean Scopes and Lifecycle
 
 > Scope defines how many instances Spring creates and how long they live.
 
@@ -235,10 +235,10 @@ A depends on B, B depends on A → `BeanCurrentlyInCreationException`. Fix by re
 ```java
 SingletonBean a = ctx.getBean(SingletonBean.class);
 SingletonBean b = ctx.getBean(SingletonBean.class);
-a == b; // TRUE — same instance
+a == b; // TRUE - same instance
 ```
 
-> ⚠️ Never store mutable state in singletons — multi-threading nightmares guaranteed.
+> ⚠️ Never store mutable state in singletons - multi-threading nightmares guaranteed.
 
 ### Prototype
 
@@ -260,7 +260,7 @@ Spring does **not** manage prototype bean cleanup. You handle destruction.
 @PreDestroy void destroy() { /* before context closes */ }
 ```
 
-Or implement `InitializingBean.afterPropertiesSet()` / `DisposableBean.destroy()` — functionally identical, less elegant.
+Or implement `InitializingBean.afterPropertiesSet()` / `DisposableBean.destroy()` - functionally identical, less elegant.
 
 For third-party classes: `@Bean(initMethod="init", destroyMethod="cleanup")`
 
@@ -274,7 +274,7 @@ When a singleton depends on a request-scoped bean, Spring injects a proxy. Witho
 
 ### Singleton + Prototype Gotcha
 
-Injecting a prototype into a singleton gives you **one instance** — injected at startup. To get a new instance each call:
+Injecting a prototype into a singleton gives you **one instance** - injected at startup. To get a new instance each call:
 
 ```java
 @Autowired private ObjectProvider<PrototypeService> provider;
@@ -297,9 +297,9 @@ provider.getObject(); // fresh instance every call
 
 ---
 
-## Chapter 5 — Aspects and Cross-Cutting Concerns (AOP)
+## Chapter 5 - Aspects and Cross-Cutting Concerns (AOP)
 
-> AOP separates concerns like logging, security, and transactions from business logic — via runtime proxy interception.
+> AOP separates concerns like logging, security, and transactions from business logic - via runtime proxy interception.
 
 ### Core Terminology
 
@@ -315,11 +315,11 @@ provider.getObject(); // fresh instance every call
 
 | Annotation | When / Use |
 |---|---|
-| `@Before` | Before method executes — logging, security checks |
-| `@After` | After execution (always) — cleanup |
-| `@AfterReturning` | After successful return — auditing |
-| `@AfterThrowing` | After exception — error logging |
-| `@Around` | Wraps entire call — profiling, transactions. Most powerful. |
+| `@Before` | Before method executes - logging, security checks |
+| `@After` | After execution (always) - cleanup |
+| `@AfterReturning` | After successful return - auditing |
+| `@AfterThrowing` | After exception - error logging |
+| `@Around` | Wraps entire call - profiling, transactions. Most powerful. |
 
 ### Minimal Setup
 
@@ -334,7 +334,7 @@ public class LoggingAspect {
 }
 ```
 
-### `@Around` — Full Control
+### `@Around` - Full Control
 
 ```java
 @Around("execution(* com.example.service.*.*(..))")
@@ -367,7 +367,7 @@ public void logAnnotated() { System.out.println("Logging @ToLog method"); }
 - Only works on Spring-managed beans
 - Only intercepts **public** methods
 - Cannot intercept static, private, or final methods
-- Self-invocation (`this.method()`) bypasses proxy — extract to another bean
+- Self-invocation (`this.method()`) bypasses proxy - extract to another bean
 
 ### Summary
 
@@ -376,7 +376,7 @@ public void logAnnotated() { System.out.println("Logging @ToLog method"); }
 | `@EnableAspectJAutoProxy` | Activates AOP |
 | `@Aspect` + `@Component` | Define an aspect class |
 | `@Before` / `@After` / `@Around` | Advice types |
-| Pointcut expression | `execution(* package.*.*(..))` — defines targets |
+| Pointcut expression | `execution(* package.*.*(..))` - defines targets |
 | `@Order` | Controls aspect priority |
 | Custom `@annotation` | Cleanest way to mark methods for aspects |
 
@@ -384,7 +384,7 @@ public void logAnnotated() { System.out.println("Logging @ToLog method"); }
 
 ---
 
-## Chapter 6 — Spring MVC and Web Applications
+## Chapter 6 - Spring MVC and Web Applications
 
 > Spring MVC handles HTTP: `DispatcherServlet` routes requests → Controller → (ViewResolver or JSON serialization) → Response.
 
@@ -476,8 +476,8 @@ public class LogInterceptor implements HandlerInterceptor {
 
 | Concept | Description |
 |---|---|
-| `DispatcherServlet` | Front controller — routes all requests |
-| `@RestController` | REST API — returns JSON |
+| `DispatcherServlet` | Front controller - routes all requests |
+| `@RestController` | REST API - returns JSON |
 | `@PathVariable` / `@RequestParam` | URL segment / query string binding |
 | `@RequestBody` | Deserialize JSON body to Java object |
 | `ResponseEntity` | Control status code + headers |
@@ -489,7 +489,7 @@ public class LogInterceptor implements HandlerInterceptor {
 
 ---
 
-## Chapter 7 — Working with REST Clients
+## Chapter 7 - Working with REST Clients
 
 > Three options: `RestTemplate` (synchronous), `WebClient` (reactive/async), `OpenFeign` (declarative).
 
@@ -501,7 +501,7 @@ public class LogInterceptor implements HandlerInterceptor {
 | `WebClient` | Reactive, non-blocking. Modern default. |
 | `Feign` | Declarative interface. Best for microservices. Minimal boilerplate. |
 
-### RestTemplate — Key Methods
+### RestTemplate - Key Methods
 
 | Method | Purpose |
 |---|---|
@@ -519,19 +519,19 @@ HttpEntity<Employee> entity = new HttpEntity<>(body, headers);
 restTemplate.exchange(url, HttpMethod.POST, entity, Employee.class);
 ```
 
-### WebClient — Basics
+### WebClient - Basics
 
 ```java
 WebClient client = WebClient.builder().baseUrl("https://api.example.com").build();
 
-// GET — reactive
+// GET - reactive
 Mono<String> result = client.get().uri("/data").retrieve().bodyToMono(String.class);
 
 // Synchronous (avoid in reactive stacks)
 String data = result.block();
 ```
 
-### WebClient — POST with Error Handling
+### WebClient - POST with Error Handling
 
 ```java
 client.post().uri("/employees")
@@ -549,7 +549,7 @@ Mono<List<Order>> o = client.get().uri("/orders/1").retrieve().bodyToFlux(Order.
 Mono.zip(u, o).subscribe(t -> System.out.println(t.getT1().getName()));
 ```
 
-### Feign — Declarative Client
+### Feign - Declarative Client
 
 ```java
 @FeignClient(name = "weather", url = "https://api.weatherapi.com/v1")
@@ -565,15 +565,15 @@ public interface WeatherClient {
 | Client | Use When |
 |---|---|
 | `RestTemplate` | Legacy / simple sync calls only |
-| `WebClient` | Modern default — new projects |
+| `WebClient` | Modern default - new projects |
 | `Feign` | Microservice-to-microservice communication |
-| `.block()` | Sync behavior from WebClient — avoid in reactive stacks |
+| `.block()` | Sync behavior from WebClient - avoid in reactive stacks |
 
 > ⚠️ Always set timeouts. Externalize URLs and API keys. Use circuit breakers (Resilience4j) for unstable APIs.
 
 ---
 
-## Chapter 8 — Database Access with Spring
+## Chapter 8 - Database Access with Spring
 
 > `JdbcTemplate` = raw SQL control. Spring Data JPA = ORM abstraction. Use both in their right context.
 
@@ -589,7 +589,7 @@ Manages DB connections. Spring Boot auto-configures HikariCP (connection pool).
 }
 ```
 
-### JdbcTemplate — CRUD
+### JdbcTemplate - CRUD
 
 ```java
 // Insert / Update / Delete
@@ -652,26 +652,26 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
 | Problem | Cause / Fix |
 |---|---|
-| Changes not persisted | `this.method()` bypasses proxy — must call through Spring bean |
-| Rollback not happening | Checked exception — add `rollbackFor = Exception.class` |
-| `LazyInitializationException` | Accessing lazy entity outside transaction — use `@Transactional` or `FetchType.EAGER` |
+| Changes not persisted | `this.method()` bypasses proxy - must call through Spring bean |
+| Rollback not happening | Checked exception - add `rollbackFor = Exception.class` |
+| `LazyInitializationException` | Accessing lazy entity outside transaction - use `@Transactional` or `FetchType.EAGER` |
 
 ### Summary
 
 | Concept | Description |
 |---|---|
 | `DataSource` | DB connection management |
-| `JdbcTemplate` | Simplified JDBC — raw SQL |
+| `JdbcTemplate` | Simplified JDBC - raw SQL |
 | `RowMapper` / Lambda | Map `ResultSet` rows to objects |
 | `@Transactional` | Automatic transaction management |
 | `NamedParameterJdbcTemplate` | Named SQL params (cleaner) |
-| Spring Data JPA | ORM — auto-generates CRUD from repository interface |
+| Spring Data JPA | ORM - auto-generates CRUD from repository interface |
 
 > ⚠️ Use JPA for domain modeling and standard CRUD. Use `JdbcTemplate` when you need raw SQL control or performance.
 
 ---
 
-## Chapter 9 — Spring Data JPA (Deep Dive)
+## Chapter 9 - Spring Data JPA (Deep Dive)
 
 > Spring Data generates repository implementations at runtime via dynamic proxies. You write interfaces; it writes SQL.
 
@@ -681,7 +681,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 |---|---|
 | `CrudRepository<T, ID>` | Basic save, findById, findAll, delete |
 | `PagingAndSortingRepository<T, ID>` | Adds pagination and sorting |
-| `JpaRepository<T, ID>` | Adds batch ops, flush — **extend this by default** |
+| `JpaRepository<T, ID>` | Adds batch ops, flush - **extend this by default** |
 
 ### Query Method Naming
 
@@ -697,7 +697,7 @@ boolean existsByName(String name);
 long countByDept(String dept);
 ```
 
-### `@Query` — Custom Queries
+### `@Query` - Custom Queries
 
 ```java
 // JPQL
@@ -727,7 +727,7 @@ Page<Employee> page = repo.findByDept("IT", p);
 page.getTotalPages(); page.getContent();
 ```
 
-### Specifications — Dynamic Queries
+### Specifications - Dynamic Queries
 
 ```java
 Specification<Employee> highEarners = (root, q, cb) -> cb.greaterThan(root.get("salary"), 50000);
@@ -768,9 +768,9 @@ public interface EmpRepository extends JpaRepository<Employee, Integer>, EmpRepo
 | Mistake | Fix |
 |---|---|
 | `LazyInitializationException` | `@Transactional` or `FetchType.EAGER` |
-| Changes not saved in `@Modifying` | Forgot `@Transactional` — required |
-| N+1 query problem | Lazy collections fetched in a loop — use `JOIN FETCH` or `@BatchSize` |
-| Overusing native queries | Hard to maintain — prefer JPQL or method naming |
+| Changes not saved in `@Modifying` | Forgot `@Transactional` - required |
+| N+1 query problem | Lazy collections fetched in a loop - use `JOIN FETCH` or `@BatchSize` |
+| Overusing native queries | Hard to maintain - prefer JPQL or method naming |
 
 ### Summary
 
@@ -783,11 +783,11 @@ public interface EmpRepository extends JpaRepository<Employee, Integer>, EmpRepo
 | `Pageable` + `Page<T>` | Pagination and sorting |
 | `Specification` | Dynamic, composable query predicates |
 | `@EnableJpaAuditing` | Auto-populate created/updated timestamps |
-| `EntityManager` | Low-level JPA — full control |
+| `EntityManager` | Low-level JPA - full control |
 
 ---
 
-## Chapter 10 — Spring Boot
+## Chapter 10 - Spring Boot
 
 > Spring Boot = sensible defaults + auto-configuration + embedded server. It eliminates boilerplate; it doesn't change how Spring works under the hood.
 
@@ -804,7 +804,7 @@ public class App {
 
 ### Auto-Configuration
 
-Boot detects what's on the classpath and configures it. Add `spring-boot-starter-data-jpa` → `EntityManagerFactory`, transaction manager, repo scanning — all set up automatically.
+Boot detects what's on the classpath and configures it. Add `spring-boot-starter-data-jpa` → `EntityManagerFactory`, transaction manager, repo scanning - all set up automatically.
 
 Override anything in `application.properties`. Boot always defers to explicit configuration.
 

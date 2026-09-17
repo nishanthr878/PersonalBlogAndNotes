@@ -67,7 +67,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     <Container>
       {hasMermaid && <MermaidScript />}
       {/* FIX 2: single max-w-3xl wrapper so breadcrumb, header, and article
-          are all left-aligned relative to the same column — no more
+          are all left-aligned relative to the same column - no more
           header drifting left while article is centered */}
       <div className="mx-auto max-w-3xl py-12">
         <header>

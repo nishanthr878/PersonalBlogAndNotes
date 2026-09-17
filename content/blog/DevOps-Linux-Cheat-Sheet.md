@@ -120,8 +120,8 @@ htop                      # better top (if installed)
 ### Kill Processes
 
 ```bash
-kill PID          # SIGTERM (15) — graceful, app can clean up
-kill -9 PID       # SIGKILL — force kill, no cleanup
+kill PID          # SIGTERM (15) - graceful, app can clean up
+kill -9 PID       # SIGKILL - force kill, no cleanup
 killall appname   # kill by name
 ```
 
@@ -129,8 +129,8 @@ killall appname   # kill by name
 
 |Signal|Number|Meaning|
 |---|---|---|
-|`SIGTERM`|15|Graceful stop — try this first|
-|`SIGKILL`|9|Force kill — no cleanup|
+|`SIGTERM`|15|Graceful stop - try this first|
+|`SIGKILL`|9|Force kill - no cleanup|
 |`SIGINT`|2|Ctrl+C|
 |`SIGHUP`|1|Reload config (nginx, etc.)|
 
@@ -260,7 +260,7 @@ command | tee file.txt      # write to file AND show on screen
 
 > You will use these daily. Learn them.
 
-### grep — Search
+### grep - Search
 
 ```bash
 grep "error" app.log                  # find lines with "error"
@@ -273,7 +273,7 @@ grep -B 3 "error" app.log             # show 3 lines BEFORE match
 grep -E "error|warn" app.log          # regex OR
 ```
 
-### awk — Column Extraction
+### awk - Column Extraction
 
 ```bash
 awk '{print $1}' file          # print first column
@@ -285,7 +285,7 @@ awk '/error/ {print $0}' file  # print lines matching pattern
 ps aux | awk '{print $2}'
 ```
 
-### sed — Find & Replace
+### sed - Find & Replace
 
 ```bash
 sed 's/old/new/' file             # replace first occurrence per line
@@ -343,7 +343,7 @@ sudo crontab -e   # edit root's crontab
 # Always redirect output or it emails you (annoying)
 0 2 * * * /path/to/script.sh >> /var/log/myjob.log 2>&1
 
-# Use absolute paths — cron has minimal $PATH
+# Use absolute paths - cron has minimal $PATH
 0 2 * * * /usr/bin/python3 /home/user/script.py
 ```
 
@@ -765,7 +765,7 @@ ls -lah /app/
 
 ## 🧠 Final Truth
 
-All of DevOps — Docker, Kubernetes, CI/CD, everything — is built on:
+All of DevOps - Docker, Kubernetes, CI/CD, everything - is built on:
 
 ```
 Filesystem + Permissions + Processes + Networking + Environment

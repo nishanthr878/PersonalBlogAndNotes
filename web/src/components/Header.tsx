@@ -12,7 +12,7 @@ export function Header() {
   const toggleTheme = () => {
   const current = document.documentElement.dataset.theme
   if (current === 'light') {
-    // Switch back to dark — remove the attribute entirely
+    // Switch back to dark - remove the attribute entirely
     delete document.documentElement.dataset.theme
     try { localStorage.removeItem('theme') } catch {}
   } else {
@@ -43,8 +43,8 @@ export function Header() {
           {/* Right actions */}
           <div className="flex items-center gap-1">
 
-            {/* Live demo pill — desktop only */}
-            <a
+            {/* Live demo pill - desktop only */}
+            {/* <a
               href="https://demo.nishanthraj.in"
               target="_blank"
               rel="noreferrer"
@@ -55,7 +55,7 @@ export function Header() {
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-500" />
               </span>
               demo live
-            </a>
+            </a> */}
 
             <button
               type="button"

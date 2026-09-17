@@ -23,7 +23,7 @@ html[data-theme='light'] {
   color-scheme: light;
 }
 
-/* Light mode — kept for theme toggle */
+/* Light mode - kept for theme toggle */
 html[data-theme='light'] {
   color-scheme: light;
   --bg: #fafaf9;
@@ -46,7 +46,7 @@ html[data-theme='light'] {
   --font-mono: var(--font-code);
 }
 
-/* NO gradient — flat dark surface */
+/* NO gradient - flat dark surface */
 body {
   background: var(--bg);
   color: var(--fg);
@@ -127,7 +127,7 @@ body {
   box-shadow: 0 1px 0 var(--shadow);
 }
 
-/* ── FIX 1: Tables — light mode black-out fix ───────────────────────── */
+/* ── FIX 1: Tables - light mode black-out fix ───────────────────────── */
 /*
    github-markdown-css sets table backgrounds using its own CSS vars.
    In light mode those vars resolve to near-black because our override
@@ -193,7 +193,7 @@ html[data-theme='light'] .mdx.markdown-body table td {
   color: #18181b !important;
 }
 
-/* ── FIX 3: Code blocks — mobile scrollable with visible scrollbar ──── */
+/* ── FIX 3: Code blocks - mobile scrollable with visible scrollbar ──── */
 
 .content :where(pre),
 .mdx :where(pre),
@@ -247,7 +247,7 @@ html[data-theme='light'] .mdx.markdown-body pre::-webkit-scrollbar-thumb {
 .mdx.markdown-body pre code {
   background: transparent;
   padding: 0;
-  /* Prevent line wrapping inside code — force horizontal scroll instead */
+  /* Prevent line wrapping inside code - force horizontal scroll instead */
   white-space: pre;
   word-break: normal;
   overflow-wrap: normal;

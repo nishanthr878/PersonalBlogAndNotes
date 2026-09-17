@@ -21,16 +21,16 @@ draft: false
 
 Given an array of integers, return true if any value appears more than once.
 
-## Approach 1: Brute Force — O(n²)
+## Approach 1: Brute Force - O(n²)
 
 For every element, scan the rest of the array to check if it appears again. Simple to reason about, unusable at scale. With n up to 10⁵, you're looking at 10¹⁰ operations in the worst case. Dead on arrival.
 
-## Approach 2: HashMap (Frequency Count) — O(n) time, O(n) space
+## Approach 2: HashMap (Frequency Count) - O(n) time, O(n) space
 Count occurrences of each number. If any frequency hits 2, return true.
-Works, but you're doing more work than needed. You don't care how many times something appears — just whether it appears again. Storing full frequency counts is wasteful.
+Works, but you're doing more work than needed. You don't care how many times something appears - just whether it appears again. Storing full frequency counts is wasteful.
 
-## Approach 3: HashSet (Early Exit) — O(n) time, O(n) space
-The clean solution. Add each number to a set. Before adding, check if it's already there — if yes, return true immediately. You short-circuit the moment a duplicate is found instead of grinding through the whole array.
+## Approach 3: HashSet (Early Exit) - O(n) time, O(n) space
+The clean solution. Add each number to a set. Before adding, check if it's already there - if yes, return true immediately. You short-circuit the moment a duplicate is found instead of grinding through the whole array.
 
 ## Complexity
 

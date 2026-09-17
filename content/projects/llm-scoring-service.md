@@ -28,7 +28,7 @@ Production LLM integrations have a measurement problem - you can't tell if quali
 ## Key Design Decisions
 
 - Kafka buffer prevents scoring latency from blocking the caller's request path
-- Scoring rubrics are runtime-configurable — no redeploy needed to add a new dimension
+- Scoring rubrics are runtime-configurable - no redeploy needed to add a new dimension
 - SDK design mirrors OpenTelemetry's instrumentation pattern for familiar DX
 
 ## Status
