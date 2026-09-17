@@ -1,6 +1,6 @@
 ---
 title: "Building a Conversational AI Agent Platform From Scratch: What I Actually Learned"
-date: "2026-06-17"
+date: "2026-09-17"
 description: "A detailed walkthrough- the real architecture decisions, the bugs that taught me something, and the mistakes I'd tell you to avoid."
 tags: ["llm", "java", "groq", "observability", "prompt-engineering", "lgtm", "spring-ai", "deepgram", "twillio", "voice-ai"]
 ---
