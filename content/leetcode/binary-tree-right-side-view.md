@@ -1,21 +1,23 @@
 ---
-title: Binary Tree Level Order Traversal
-date: 2026-10-06
-description: Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right level by level).
+title: Binary tree right side view
+date: 2026-10-08
+description: Given the root of a binary tree, imagine yourself standing on the right side of it, return the values of the nodes you can see ordered from top to bottom.
 tags:
   - leetcode
   - tree
   - queue
-problem: Binary Tree Level Order Traversal
-difficulty: easy
+  - recursive
+problem: Binary tree right side view
+difficulty: medium
 topics:
   - tree
   - recursive
   - queue
+  - recursive
 language: java, python
 time: O(n)
 space: O(w) 
-sourceUrl: https://leetcode.com/problems/binary-tree-level-order-traversal/description/
+sourceUrl: https://leetcode.com/problems/binary-tree-right-side-view/description/
 draft: false
 ---
 
