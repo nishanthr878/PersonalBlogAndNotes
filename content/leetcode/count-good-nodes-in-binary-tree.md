@@ -9,7 +9,7 @@ tags:
   - stack
   - queue
 problem: Count good nodes in binary tree
-difficulty: easy
+difficulty: medium
 topics:
   - tree
   - recursive
@@ -109,7 +109,7 @@ goodNodes(3):
 			return 0 + dfs(3, 3) + dfs(None, 3) --- returns 1                      |
 						|                                                          |
 						|	                                                       |
-			dfs(3, 3):--1                                                           |
+			dfs(3, 3):--1                                                          |
 				if not node is false                                               |
 				count = 1 (node.val >= max_so_far => 3 >= 3)                       |
 				new_max = max(3, 3) = 3                                            |
@@ -140,3 +140,77 @@ goodNodes(3):
 
 ## Iterative approach
 
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def goodNodes(self, root: TreeNode) -> int:
+        count = 0
+        q = deque([(root, root.val)])
+
+        while q:
+            node, mx = q.popleft()
+            
+            if node.val >= mx:
+                count+=1
+            new_max = max(node.val, mx)
+
+            if node.left:
+                q.append((node.left, new_max))
+            if node.right:
+                q.append((node.right, new_max))
+        
+        return count
+
+```
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public int goodNodes(TreeNode root) {
+        int count = 0;
+        Deque<Object[]> q = new ArrayDeque<>();
+        q.add(new Object[]{root, root.val});
+            
+        while (!q.isEmpty()) {
+            Object[] cur = q.poll();
+            TreeNode node = (TreeNode) cur[0];
+            int mx = (int) cur[1];
+            if (node.val >= mx) {
+                count++;
+            }
+            int new_max = Math.max(node.val, mx);
+
+            if (node.left != null) {
+                q.add(new Object[]{node.left, new_max});
+            }
+
+            if (node.right != null) {
+                q.add(new Object[]{node.right, new_max});
+            }
+
+        }
+        return count;
+
+    }
+}
+
+```
