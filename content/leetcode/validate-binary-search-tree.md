@@ -6,14 +6,14 @@ tags:
   - leetcode
   - tree
   - recursive
-problem: Maximum depth of binary tree
+problem: Validate binary search tree
 difficulty: medium
 topics:
   - tree
   - recursive
 language: java, python, 
 time: O(n)
-space: O(n)
+space: O(h)
 sourceUrl: https://leetcode.com/problems/validate-binary-search-tree/description/
 draft: false
 ---
