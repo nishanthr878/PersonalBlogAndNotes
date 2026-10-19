@@ -697,3 +697,6 @@ Config loaded. Region ap-south-1
 | Factory Method   | `NotifierFactory`                             | Centralized notifier creation, eliminated scattered if-else |
 | Abstract Factory | `AwsNotifierFactory`, `TwilioNotifierFactory` | Swapped provider families without touching existing code    |
 | Singleton        | `NotificationConfig`                          | One shared config instance, thread-safe, injectable         |
+
+
+[source](https://github.com/nishanthr878/LLD_Implementation)
