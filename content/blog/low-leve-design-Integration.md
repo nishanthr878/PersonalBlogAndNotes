@@ -1,8 +1,8 @@
 ---
-title: "Low Level Design - Integration  design pattern"
+title: "Low Level Design - Bheavior  design pattern"
 date: "2026-10-19"
 description: "Low Level Design Deep dive and learing"
-tags: ["lld", "java", "design-pattern", "Integration"]
+tags: ["lld", "java", "design-pattern", "Bheavior"]
 ---
 
 ## Support Ticket System
