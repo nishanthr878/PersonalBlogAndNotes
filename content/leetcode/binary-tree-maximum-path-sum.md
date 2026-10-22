@@ -99,3 +99,53 @@ class Solution {
 Caviates to look into is 
 - Negative subtree contibuitons must be clamped to 0
 - The global max must be initilized to `-inf` (or the root's vaalue) 
+
+### Tracing an example
+
+```bash
+		 1
+		/ \
+	   2   3
+	   
+maxPathSum(1):
+	best = -inf
+	gain(1):
+		best = -inf
+		if not node is false
+		
+		left = max(gain(2), 0) <----------------------------
+			   gain(2):                                    |
+					best = -inf                            |   
+					if not node is false                   |           
+					left = max(gain(null), 0)              |
+						best = -inf                        |
+						if not node is true so return 0    |
+					right = max(gain(null), 0)             |
+						best = -inf                        |
+						if not node is true so return 0    |
+						                                   |
+					best = max(-inf, 2 + 0 + 0) = 2        |
+					                                       |
+					return 2 + max(0 + 0) = 2 --------------
+		right = max(gain(3), 0)<----------------------------
+				gain(3):                                   |
+				best = 2                                   |
+				if not node is false                       |
+				left = max(gain(null), 0)                  |
+					best = 2                               |
+					if not node is true return 0           |
+				right = max(gain(null), 0)                 |
+					best = 2                               |
+					if not node is true return 0           |
+					                                       |
+				best = max(2, 3 + 0 + 0) = 3               |
+				return 3 + max(0, 0) = 3--------------------
+				
+		best = max (best, node.val + left + right)
+		best = max(3, 1 + 2 + 3)
+		best = max(3, 6) = 6
+		
+		return 1 + max(2, 3) ----> 4
+	
+	return 6
+```
