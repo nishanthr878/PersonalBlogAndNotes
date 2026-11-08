@@ -20,7 +20,7 @@ sourceUrl: https://leetcode.com/problems/permutations/description/
 draft: false
 ---
 
-### Python and Java implementation
+## Python and Java implementation
 
 ```java
 class Solution {
@@ -122,3 +122,4 @@ flowchart LR
   classDef leaf fill:#C0DD97,stroke:#3B6D11,color:#173404
   class n3,n5,n8,n10,n13,n15 leaf
 ```
+
