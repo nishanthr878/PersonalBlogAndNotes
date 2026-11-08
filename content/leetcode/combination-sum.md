@@ -13,7 +13,7 @@ topics:
   - recursive
   - backtracking
 language: java python
-timee: O(N%(T/M))
+timee: O(N^(T/M))
 space: O(T/M)
 sourceUrl: https://leetcode.com/problems/combination-sum/description/
 draft: false
