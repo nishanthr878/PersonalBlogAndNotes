@@ -39,7 +39,7 @@ The fix has two parts:
 
 ### Python and Java Implementation
 
-```Python
+```python
 class Solution:
     def subsetsWithDup(self, nums: list[int]) -> list[list[int]]:
         nums.sort()
